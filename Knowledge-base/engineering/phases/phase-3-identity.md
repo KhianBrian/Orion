@@ -23,7 +23,7 @@ gate — the phase is not closed while a mock path still functions.
 
 | Decision | Effect on this phase |
 | --- | --- |
-| **Q1 — patients self-register, capped** | Public registration and login at initial launch, but the first launch remains a controlled pilot with the number of active patients capped. Sign-up must establish adults-only eligibility itself, since there is no invitation vetting to rely on, and must enforce the cap. The cap value and mechanism — waitlist, approval queue, or hard limit — are still to be set, so build the gate with the mechanism configurable. |
+| **Q1 — patients self-register, no cap** | Public registration and login at initial launch with no active-patient cap. Sign-up must establish adults-only eligibility itself, since there is no invitation vetting to rely on. The approved geography and operating-review cadence remain to be set. |
 | **Q1 and Q3 — clinicians do not self-register** | Psychiatrist accounts are created by invitation or provisioning only, then pass an approval period before becoming bookable or seeing any patient data. |
 | **Q4 — adults only, no emergency care** | Sign-up screens for adult eligibility, refuses ineligible applicants, and routes them to the approved crisis and referral information. |
 | **Q10 — secretary role** | Secretary accounts are provisioned, never self-registered. |
@@ -40,7 +40,6 @@ assume the approver is the admin role; leave it assignable.
 
 - Supabase Auth as the sole authentication mechanism.
 - Patient self-registration with adults-only eligibility established at sign-up and a refusal path that shows approved crisis and referral information.
-- An active-patient cap enforced at registration, with the mechanism configurable pending the Q1 value.
 - Clinician and secretary accounts created by invitation or provisioning only, never by self-sign-up.
 - A psychiatrist approval workflow gating bookability and all patient data access, with an assignable approver.
 - Secure account recovery that cannot be used to escalate role, bypass approval, or bypass verification.
@@ -166,7 +165,7 @@ The demo establishes server-held roles, one Supabase client, and route guards. T
 everything about identity that the demo does not need because its accounts arrive by seed:
 
 registration, invitation and provisioning, the psychiatrist approval workflow, account recovery,
-multi-factor authentication, consent capture, the fourth role, and the active-patient cap.
+multi-factor authentication, consent capture, the fourth role, and uncapped public registration.
 
 ## Work breakdown
 
@@ -178,6 +177,12 @@ Auth rather than to a custom token store — the [engineering conventions](../en
 table names this explicitly, with custom access-token refresh and Redux token persistence as the
 thing not to add.
 
+Create one CASL ability factory from the authenticated user's role in `profiles`, and provide that
+ability to route guards, navigation, and action controls. CASL keeps the frontend internally
+consistent; it is not an authorisation boundary. RLS and Edge Functions still decide every data read
+and privileged state change, and tests must demonstrate that a manipulated browser ability cannot
+obtain unauthorised data.
+
 **Removals completed in this phase, each verified absent afterwards:** the email-derived role logic
 and its on-screen hint; the dummy token minting; `redux-persist` and the persisted auth slice;
 Redux itself once nothing else uses it; all six API-layer files; and `Sidebar.jsx`. The gate is that
@@ -187,37 +192,17 @@ dependency is uninstalled, not that the path is unreachable.
 ### P3-2 — Patient self-registration
 
 - Public sign-up, per the Q1 decision, creating a profile whose role is fixed server-side at `patient` — never taken from sign-up input. The mechanism is the Phase 2 trigger; this phase supplies the screen.
-- **Adults-only eligibility established at sign-up**, per Q4 and the charter. As things stand this can only be a self-declaration, since Orion collects no identity document and the [data dictionary](../../governance/data-classification-and-data-dictionary.md#classification) admits none. Whether a self-declaration is sufficient is a clinical and legal judgement, and the charter is right that it goes to the clinical lead rather than being decided here. Build the declaration; record that it is one.
+- **Adults-only eligibility established at sign-up**, per Q4 and the charter. The initial launch uses an age self-declaration and collects no ID. Any future expansion to minors, guardian involvement, or age/identity verification is a separately recorded clinical and legal decision; do not build it into this slice.
 - **A refusal path** that shows the approved crisis and referral information to an applicant who is ineligible, per [clinical safety](../../product/clinical-safety-and-telepsychiatry-policy.md#product-safeguards). The content is the clinical lead's to approve; the surface is this phase's to build. Until the content is approved the surface renders nothing rather than placeholder text — a placeholder crisis contact is worse than an absent one.
 - **Email verification before any booking.** The charter asks for this, and it is the control that replaces the invitation vetting Q1 removed. A profile may exist unverified; it may not book.
 - **Rate limiting and abuse controls on sign-up**, for the same reason. Sign-up is now the only unauthenticated write path in the system.
 
-### P3-3 — The active-patient cap
+### P3-3 — Uncapped public registration
 
-The cap's existence is decided; its value, its mechanism, and the approved geography are
-[open under Q1](../../product/pilot-decision-register.md#outstanding-for-the-next-owner-meeting). The
-charter's instruction is to build the gate with the mechanism configurable, which needs a design that
-makes all three candidate mechanisms values rather than rewrites.
-
-The mechanism that achieves this is a patient registration status — `active`, `pending`, `waitlisted`
-— checked at registration against a configured cap:
-
-| Mechanism | Behaviour when the cap is reached |
-| --- | --- |
-| Hard limit | Registration is refused before an account is created |
-| Approval queue | The account is created `pending` and is not bookable |
-| Waitlist | The account is created `waitlisted` and is notified when capacity frees |
-
-All three then differ in one branch and one status value rather than in the shape of the system.
-**Build the hard-limit branch first**, since it is the only one that needs no notification path, and
-leave the other two as unreached branches until Q1 lands.
-
-Two notes. This status column is a **Phase 2 schema dependency that the Phase 2 plan did not
-anticipate**; if Phase 2 has closed by the time this is built, it is a forward migration, which the
-append-only process supports. And whether an unverified account counts against the cap is a real
-question the owners have not been asked — the recommendation is that it should not, since the cap
-exists to bound operational and clinical load and an unverified account generates neither. Add it to
-the Q1 brief rather than deciding it in code.
+No active-patient cap, waitlist, or approval queue is implemented. Public registration still requires
+the adults-only declaration, email verification before booking, rate limiting, monitoring, and the
+approved geography. The team records activity and plans scaling when demand warrants it; the operating
+review cadence remains an owner decision under Q1.
 
 ### P3-4 — Provisioning for psychiatrists and secretaries
 
@@ -294,12 +279,11 @@ The gate is that legacy authentication never coexists with real accounts.
 
 | Gap | Owner | How this plan handles it |
 | --- | --- | --- |
-| Cap value, mechanism, geography (Q1) | Company owners | The gate is built with the mechanism as a status value and a configured limit. The hard-limit branch is built; the other two are unreached branches. |
-| Whether unverified accounts count against the cap | Company owners | Not decided. Raised for the Q1 brief, with a recommendation and its reasoning. |
-| Whether adults-only may be a self-declaration | Clinical lead | The declaration is built and recorded as a declaration. Not represented as verification anywhere. |
+| Approved geography and operating-review cadence (Q1) | Company owners | No capacity gate is built. Registration remains public, with monitoring and scaling work triggered by real activity. |
+| Future minors, guardian involvement, or age/identity verification | Clinical lead and company owners | Not built. Initial launch remains adults-only by self-declaration with no ID collection. |
 | Approved crisis and referral content | Clinical lead | The refusal surface is built; it renders nothing until approved content exists. |
 | Psychiatrist approver and verification criteria (Q3) | Company owners with clinical lead | Approver assignable, criteria stored as data. |
-| Which roles are privileged for MFA | Company owners | Recommendation stated with its reasoning. A narrowing must be deliberate and recorded. |
+| MFA role scope | Deferred future decision | Out of the synthetic demo. Revisit before real-user launch. |
 | Consent wording (Q7) | Company owners, with DPO and clinical review | Mechanism built, no version seeded, sign-up cannot complete without approved wording. |
 | Secretary scope — clinic-wide or per psychiatrist, acting on a client's behalf | Company owners | Provisioning is built for the narrowest reading Phase 2 implements. |
 
@@ -308,6 +292,6 @@ The gate is that legacy authentication never coexists with real accounts.
 1. **The Phase 2 as-built schema.** This plan is written against Phase 2's proposal — the profile trigger, the approval state, the consent tables, the role type. Re-ground every reference against what was actually built; the charter is right that this phase's code is written directly against it.
 2. **Whether the demo milestone has run**, which determines how much of the removal inventory still exists.
 3. **Whether the prototype has changed since 27 August 2026.** The inventory above is a point-in-time reading.
-4. **Whether Q1's cap mechanism has landed**, which decides whether the two unreached branches are built now or later.
+4. **The approved geography and operating-review cadence under Q1.** These define the real-user launch boundary, not registration capacity.
 5. **Whether consent wording has been approved**, without which sign-up cannot complete.
 6. **Whether Supabase's MFA and rate-limiting capabilities on the chosen plan** cover what P3-2 and P3-6 assume. Verify against the platform rather than against this plan.

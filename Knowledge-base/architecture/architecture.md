@@ -17,6 +17,7 @@ React meeting screen -> authorised room lookup -> approved private video provide
 ```
 
 - **React UI:** displays data, gathers input, handles loading and errors. It must not decide roles, booking success, cancellation eligibility, or meeting authorization.
+- **CASL in the React UI:** derives an in-memory ability from the authenticated user's server-held profile role to keep navigation, controls, and route presentation consistent. It is a usability layer only; it never grants data access or replaces RLS or Edge Function checks.
 - **Supabase Auth:** owns sign-up, sign-in, reset-password, and browser session lifecycle.
 - **Postgres:** owns profiles, psychiatrists, availability, appointments, constraints, and RLS.
 - **Edge Functions:** own booking, cancellation, psychiatrist provisioning, meeting-room authorization, and other privileged workflows.
@@ -38,6 +39,7 @@ Feature modules own their query/mutation functions and local UI. Shared code bel
 ## API direction
 
 - Use one configured Supabase client. Remove duplicate Axios clients and placeholder API services as each feature migrates.
+- Use one CASL ability factory after authentication is implemented; derive it from the role read from `profiles`, never from email text, editable metadata, or a browser-stored role.
 - Use direct RLS-protected reads only for low-risk, read-only data such as active psychiatrist summaries and authorized appointment lists.
 - Use Edge Functions for every operation that changes appointment state or needs elevated authority.
 - Never put a Supabase `service_role` key, database password, or video-provider secret in browser code.

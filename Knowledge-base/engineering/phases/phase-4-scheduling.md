@@ -1,6 +1,6 @@
 # Phase 4 — One Safe Scheduling Workflow
 
-**Tier 2 status:** Planned 27 August 2026. The implementation plan is below the charter. Planning surfaced two gaps in the approved transitions that were not previously recorded — see *Two holes in the state machine*.
+**Tier 2 status:** Not yet written. This file currently contains the charter and its recorded state-machine gaps, but no Tier 2 implementation-plan body. Re-ground and write that plan from the actual Phase 2 and Phase 3 as-built state before coding.
 
 ## Purpose
 

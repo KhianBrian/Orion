@@ -25,14 +25,13 @@ No real client, psychiatrist, or appointment may be accepted until all are true:
 - A private authenticated video provider is approved; public Jitsi is excluded.
 - Authentication, RBAC/RLS, booking, cancellation, video admission, session-note access control, audit, backups, and incident procedures have passed their verification gates.
 - Staging and production are separate; production contains no test fixtures or test accounts.
-- The active-patient cap and its enforcement mechanism are in place and verified.
 - No critical or high security finding remains open, and residual risks have written acceptance.
 
 ## Pilot constraints
 
-- The first launch remains a **controlled pilot**. Patient registration is public, but the number of active patients is capped so that operational and clinical load stays reviewable. The cap value, its mechanism, and the approved geography sit with register question 1 and are still to be set.
+- The first launch remains a **controlled pilot**. Patient registration is public with no active-patient cap; the approved geography and operating-review cadence sit with register question 1 and are still to be set.
 - Psychiatrist and secretary accounts are invite/provision-only. A psychiatrist passes an approval period before becoming bookable.
-- Named support hours and daily operational review apply, which is the reason the cap exists — unbounded registration cannot be reviewed daily.
+- Named support hours and an agreed operating-review cadence apply; monitoring identifies when scaling work is needed.
 - Use only the data in the [data dictionary](../governance/data-classification-and-data-dictionary.md) and only for the approved purpose.
 - Stop bookings/video issuance immediately when a safety, privacy, or access-control incident is suspected.
 
@@ -67,4 +66,4 @@ developer to unblock planning. Two of them fall inside this clause and need rati
 proper owner before Phase 4 is built:
 
 - **No-show handling** is assigned to clinical leadership by the paragraph above. The recorded mechanism — the psychiatrist sets it after a grace period, never automatically — plus the grace-period value and the consequences of a no-show all require a clinical ruling.
-- **Launch size and the active-patient cap** are assigned to product. The cap's existence is recorded; its value is not.
+- **Launch geography and operating review** are assigned to product. No active-patient cap is planned; the review cadence still needs a recorded decision.

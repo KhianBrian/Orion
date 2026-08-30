@@ -1,0 +1,3 @@
+-- Auth users are provisioned by Orion_React_App/scripts/provision-demo-users.mjs.
+-- Keep this file free of credentials and personal data. It is intentionally a no-op
+-- until the protected provisioning flow has created the five synthetic profiles.

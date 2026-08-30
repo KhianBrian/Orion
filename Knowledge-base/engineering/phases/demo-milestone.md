@@ -167,6 +167,19 @@ operating entity is not yet identified and the eventual production project canno
 
 Each step names the authority behind it. Steps are ordered by dependency, not by size.
 
+## Execution update — 30 August 2026
+
+**Partially completed ✅** D0 and the database-only part of D1 are now in place for Orion's hosted,
+non-production project. The workspace has Git, a root `.gitignore`, a value-free `.env.example`, local
+Supabase configuration, and two applied append-only migrations. The applied foundation contains the
+three approved roles (`patient`, `psychiatrist`, `admin`), the five core tables, 45-minute and overlap
+constraints, RLS, least-privilege grants, and a clean Supabase security-advisor result.
+
+This does **not** close the demo milestone: synthetic account provisioning, real Supabase Auth in the
+client, booking/cancellation functions, database-backed UI, video boundary, and end-to-end/RLS tests
+remain. No secretary role, real data, or production configuration was added. The scoped connection and
+migration record are documented in [Supabase integration](../supabase.md).
+
 ### D0 — Preconditions
 
 1. Initialise version control at the workspace root and make the first commit before any other change, so every step below is reviewable and reversible. Required by the append-only migration and rollback stance in [environment, release and secrets](../../operations/environment-release-and-secrets.md#delivery).
@@ -195,6 +208,7 @@ fourth role is Phase 2's to add, after the architecture documents are reconciled
 
 - Supabase Auth with email and password as the only authentication path. One configured client in `src/lib/`, per the [architecture](../../architecture/architecture.md#frontend-structure) frontend structure and the *one source of truth per domain* principle in [engineering conventions](../engineering-conventions.md#core-principles).
 - The signed-in user's role is read from `profiles`. Never from the email address, user metadata, a URL, or anything the browser can edit — [access control and audit policy](../../architecture/access-control-and-audit-policy.md#roles).
+- Create one CASL ability from that server-held role and use it for route presentation, navigation, and hiding unavailable actions. CASL is a frontend consistency layer only: every data read remains subject to RLS and every privileged write remains server-authorised.
 - One role-to-routes map in `src/constants/` and one shared route guard, rather than a role check repeated per page — the pattern named in the [engineering conventions](../engineering-conventions.md#orion-examples) table.
 - Navigation renders from that same map, replacing the hand-duplicated sidebar in four pages and deleting the unused `Sidebar.jsx`.
 - **Removed in this same step, each verified absent afterwards:** the email-substring role logic and its on-screen hint in `Login.jsx`, the dummy token minting, `redux-persist` of the auth slice, and — once nothing else uses the store — Redux and the placeholder Axios client and `authService`, since Supabase Auth owns the session. [Engineering conventions](../engineering-conventions.md#code-organization) require deleting a replaced abstraction in the same change when it is safe to do so.
@@ -309,7 +323,7 @@ Each is a decision belonging to a named owner. The plan states the gap and stops
 | Retention period for any data category | Register Q11, open | No retention or disposal behaviour is built. The demo database is disposable and recreated from the seed, which is not a retention policy and must not be recorded as one. |
 | Real-launch video provider | Register Q8, deferred | The demo integration is a proof of the integration boundary. It is not an approved production choice and must not be promoted without a recorded Q8 decision. |
 | No-show, grace period, join window, session-end treatment | Clinical lead, unappointed | Not built. The demo has no no-show transition and admits a participant only for a `booked` appointment. |
-| Active-patient cap, its value and mechanism | Register Q1, partial | Not applicable. The demo has no registration path at all — the account set is fixed at five and provisioned by seed. |
+| Launch geography and operating-review cadence | Register Q1, partial | Not applicable. The demo has no registration path at all — the account set is fixed at five and provisioned by seed. |
 | Consent wording | Register Q7, structure approved, text undrafted | No consent capture in the demo. Phase 3 owns it, and it cannot be built against undrafted wording. |
 
 ## Knowledge-base conflict found while planning

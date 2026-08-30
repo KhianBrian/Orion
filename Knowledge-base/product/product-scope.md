@@ -2,7 +2,7 @@
 
 Amended 27 August 2026 to record the owner decisions in the
 [pilot decision register](pilot-decision-register.md). Two changes widen the original scope: session
-notes are now in scope, and patient registration is public but capped.
+notes are now in scope, and patient registration is public without an active-patient cap.
 
 ## Outcome
 
@@ -21,7 +21,7 @@ a note after each one.
 
 ## Pilot acceptance flow
 
-1. A patient signs up and logs in with a real email and password, subject to the active-patient cap.
+1. A patient signs up and logs in with a real email and password.
 2. The patient chooses a psychiatrist and an open 45-minute slot.
 3. The booking persists after refresh.
 4. The patient joins that appointment's unique video room from My appointments.
@@ -38,13 +38,13 @@ a note after each one.
 - One availability slot may have at most one active appointment.
 - Each appointment receives a distinct meeting room.
 - A session note is readable by the patient only after the psychiatrist releases it, and is never readable by the secretary.
-- Registration is public but the number of active patients is capped; the pilot remains a controlled pilot.
+- Registration is public with no active-patient cap; the pilot remains controlled through monitoring and launch governance.
 
 Full appointment transitions are in the [appointment lifecycle](appointment-lifecycle.md).
 
 ## In scope
 
-- Public home, real sign-in, public patient sign-up subject to the active-patient cap, password reset.
+- Public home, real sign-in, public patient sign-up, password reset.
 - Patient booking, My appointments, My account, and reading released session notes.
 - Psychiatrist upcoming sessions, My account, and authoring and releasing session notes.
 - Secretary appointment and contact management, excluding all note access.
@@ -60,7 +60,7 @@ Full appointment transitions are in the [appointment lifecycle](appointment-life
 ## Product decisions still required
 
 - Confirm Supabase as the project backend.
-- Set the active-patient cap and its mechanism — waitlist, approval queue, or hard limit — and the approved geography. *Register Q1.*
+- Set the approved geography and operating-review cadence for the uncapped pilot. *Register Q1.*
 - Approve a private video provider for real sessions after privacy, clinical, legal/DPO, security, and operations review. *Register Q8, deferred by the owners; Daily is approved for the demo only.*
 - Approve retention, support, and launch-owner decisions before real-user use. *Register Q2, Q9, Q10, Q11.*
 

@@ -1,16 +1,15 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../redux/slices/authSlice";
+import { getRoleNavigation, ROUTES } from "../constants/routes";
+import { useAuth } from "../features/auth/authContext";
 import "./Navbar.css";
 
 const Navbar = () => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
+  const { ability, profile, signOut, status } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
+  const handleLogout = async () => {
+    await signOut();
+    navigate(ROUTES.LOGIN);
   };
 
   return (
@@ -29,9 +28,9 @@ const Navbar = () => {
           <Link to="/about" className="nav-link">
             About
           </Link>
-          <Link to="/patient-appointment" className="nav-link">
-            Book a Session
-          </Link>
+          {getRoleNavigation(profile?.role)
+            .filter(({ subject }) => ability.can("visit", subject))
+            .map(({ label, path }) => <Link key={path} to={path} className="nav-link">{label}</Link>)}
           <Link to="/contact" className="nav-link">
             Contact
           </Link>
@@ -45,9 +44,9 @@ const Navbar = () => {
             Blog
           </Link>
 
-          {isAuthenticated ? (
+          {status === "signedIn" ? (
             <button onClick={handleLogout} className="nav-link-login">
-              Logout
+              Sign out {profile.full_name}
             </button>
           ) : (
             <Link to="/login" className="nav-link-login">

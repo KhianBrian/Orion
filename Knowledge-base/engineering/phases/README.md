@@ -118,8 +118,8 @@ Two dependencies were surfaced rather than resolved, and both constrain Phase 2:
 - **Session notes have no retention period**, because Q11 is open and clinical records may carry a prescribed minimum. The data dictionary requires one for every field, so the rule is currently unsatisfiable for notes. Create the note schema; do not build retention or disposal behaviour.
 - **Whether a data-subject access request overrides the note release step** is a question for the DPO. If it does, the release control is not a privacy boundary and Phase 2 must not treat it as one.
 
-**Launch shape.** The first launch is a controlled pilot with public patient registration but a cap on
-active patients, so operational and clinical load stays reviewable. This adds a configurable
-registration gate to Phase 3 and a launch-gate item to Phase 6.
+**Launch shape.** The first launch is a controlled pilot with public patient registration and no
+active-patient cap. Monitoring and the owner-defined operating-review cadence determine when scaling
+work is needed; approved geography remains a Q1 launch-boundary decision.
 
 Update this section and the Tier 2 status column whenever a gate closes or a decision lands.

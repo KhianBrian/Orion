@@ -34,7 +34,7 @@ the invitation vetting the original plan relied on.
 
 ## Remaining work in this phase
 
-- Obtain the outstanding answers listed in the register's *Outstanding for the next owner meeting* section: Q3 approver and criteria, Q5 remaining transitions, Q10 stop authority and escalation, Q11 retention and deletion, Q1 pilot bounds.
+- Obtain the outstanding answers listed in the register's *Outstanding for the next owner meeting* section: Q3 approver and criteria, Q5 remaining transitions, Q10 stop authority and escalation, Q11 retention and deletion, and Q1 geography/operating review.
 - Obtain a clinical ruling on the two items in the register's *Referred to the clinical lead* section: the clinical-emergency position, and the governance of patient-visible session notes.
 - Confirm the two *New decisions arising*: secretary role detail, and whether the demo account set expands to six.
 - Draft for owner approval: privacy notice, telepsychiatry consent wording now covering session notes, retention schedule, and emergency/referral routing.
@@ -147,7 +147,7 @@ Ordered by what each answer releases, not by register number.
 | 2 | Appoint the clinical lead (Q3) | Six clinical items, including the Phase 2 status-model field and three Phase 4 values |
 | 3 | Ratify Q5 | Phase 4 may be built. Ratification before the build, not after, because a change would alter the status model and the booking path |
 | 4 | Q11 retention — the half the owners can choose | Phase 2 retention fields; the clinical-records category stays open pending item 1 |
-| 5 | Q1 cap value, mechanism, and geography | Phase 3 registration gating, Phase 6 release scoping |
+| 5 | Q1 approved geography and operating-review cadence | Real-user launch scope and Phase 6 release scoping |
 | 6 | Q10 stop authority, support hours, incident communication, escalation contact | Phase 6 runbooks |
 | 7 | Secretary detail and the demo account-set questions | Phase 2's fourth role, and the demo's two separable increments |
 | 8 | Q3 approver identity and verification criteria | Phase 3 provisioning |

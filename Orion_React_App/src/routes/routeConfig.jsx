@@ -1,19 +1,20 @@
 import Layout from "../components/Layout";
 import Home from "../pages/Home";
 import About from "../pages/About";
-import Dashboard from "../pages/Dashboard";
-import Profile from "../pages/Profile";
-import ProfileSettings from "../pages/ProfileSettings";
-import Appointments from "../pages/Appointments";
-import Sessions from "../pages/Sessions";
-import Settings from "../pages/Settings";
-import SubmitBlog from "../pages/SubmitBlog";
 import Login from "../pages/Login";
 import ForgotPassword from "../pages/ForgotPassword";
 import NotFound from "../pages/NotFound";
-import DoctorAvailability from "../pages/DoctorAvailability";
-import PatientAppointment from "../pages/PatientAppointment";
 import MarketingPage from "../pages/MarketingPage";
+import AccountHome from "../pages/AccountHome";
+import FeaturePlaceholder from "../pages/FeaturePlaceholder";
+import { RequireAbility, RequireAuth } from "../features/auth/RouteGuards";
+import { ROUTES, SUBJECTS } from "../constants/routes";
+
+const protectedFeatureRoutes = [
+  { path: ROUTES.BOOKING.slice(1), subject: SUBJECTS.BOOKING, title: "Appointment booking" },
+  { path: ROUTES.AVAILABILITY.slice(1), subject: SUBJECTS.AVAILABILITY, title: "Availability management" },
+  { path: ROUTES.ADMINISTRATION.slice(1), subject: SUBJECTS.ADMINISTRATION, title: "Administration" },
+];
 
 export const routeConfig = [
   {
@@ -44,44 +45,13 @@ export const routeConfig = [
       { path: "portfolio", element: <MarketingPage type="portfolio" /> },
       { path: "blog", element: <MarketingPage type="blog" /> },
       {
-        path: "appointments",
-        element: <Appointments />,
-      },
-      {
-        path: "doctor-availability",
-        element: <DoctorAvailability />,
-      },
-      {
-        path: "patient-appointment",
-        element: <PatientAppointment />,
-      },
-      {
-        path: "sessions",
-        element: <Sessions />,
-      },
-      {
-        path: "settings",
-        element: <Settings />,
-      },
-      {
-        path: "submit-blog",
-        element: <SubmitBlog />,
-      },
-      {
-        path: "dashboard",
-        element: <Dashboard />,
-      },
-      {
-        path: "profile",
+        element: <RequireAuth />,
         children: [
-          {
-            index: true,
-            element: <Profile />,
-          },
-          {
-            path: "abs",
-            element: <ProfileSettings />,
-          },
+          { path: ROUTES.APP.slice(1), element: <AccountHome /> },
+          ...protectedFeatureRoutes.map(({ path, subject, title }) => ({
+            element: <RequireAbility action="visit" subject={subject} />,
+            children: [{ path, element: <FeaturePlaceholder title={title} /> }],
+          })),
         ],
       },
     ],

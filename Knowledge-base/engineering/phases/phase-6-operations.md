@@ -34,7 +34,7 @@ controlled-pilot release.
 | --- | --- |
 | **Q10** — stop authority, support hours, incident communication, clinical escalation contact | The runbooks. A secretary handling bookings does not answer who may halt bookings or video, or who is called in a clinical escalation. |
 | **Q11** — retention and deletion | The retention schedule and the data-subject request process. Session notes as clinical records may carry a prescribed minimum retention, and the meaning of deletion against append-only history is unresolved. |
-| **Q1** — cap value and geography | Operational load, review cadence, and release scoping. The cap's existence is now decided, which makes daily operational review viable; its value, mechanism, and the approved geography are not. The launch gate in the [service charter](../../product/production-service-charter.md) now requires the cap to be in place and verified. |
+| **Q1** — geography and operating review | Operational load, review cadence, and release scoping. No active-patient cap is planned; the approved geography and operating-review cadence remain to be decided. |
 | **Q8 and Q9** — provider and vendor terms | The video-outage runbook and the vendor section of the incident procedure. |
 | **Q2** — entity and DPO | Privacy escalation ownership and breach notification responsibility. |
 

@@ -1,5 +1,21 @@
 # Database and RBAC
 
+## As-built demo foundation — 30 August 2026
+
+**Completed ✅** Orion's non-production Supabase project now has the initial three-role schema applied
+through reviewable migrations. It contains `profiles`, `psychiatrists`, `availability_slots`,
+`appointments`, and `audit_events`; every public table has RLS enabled and the Supabase security
+advisor is clean. The 45-minute checks, slot-overlap exclusion constraint, appointment idempotency
+index, and protected role field are present.
+
+This is a deliberately narrow foundation, not completion of this architecture: no five demo accounts
+have been provisioned yet, no booking/cancellation Edge Function is deployed, and no client is yet
+connected to the database. The three application roles remain `patient`, `psychiatrist`, and `admin`;
+no secretary role was created.
+
+See [Supabase integration](../engineering/supabase.md) for the scoped connection and exact applied
+migrations.
+
 ## Roles
 
 The sole application roles are `patient`, `psychiatrist`, and `admin`. Roles live in the protected `profiles` table. They must never be inferred from email text or editable user metadata.

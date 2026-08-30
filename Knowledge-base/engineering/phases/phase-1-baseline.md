@@ -104,6 +104,17 @@ repeating it — and the plan below is written to be read either way. Two conseq
 - The demo's single project becomes this phase's **staging** environment. It is not renamed or recreated; it is documented, added to the access register, and given a promotion path.
 - Nothing the demo did is treated as evidence for this phase's gate. A working environment is not a secret scan, an access review, or a proven restore.
 
+## Execution update — 30 August 2026
+
+**Partially completed ✅** The demo has established a Git repository, an ignored local-secret pattern
+with a value-free `.env.example`, one hosted non-production Supabase project, and append-only database
+migrations. The project is Orion-scoped and contains synthetic-data-only schema; the setup is recorded
+in [Supabase integration](../supabase.md).
+
+This phase remains open. CI, secret scanning, a written access register, environment separation beyond
+the single demo project, a staging deployment, monitoring, and a restore exercise have not been
+completed. No production project or production data path exists.
+
 ## Work breakdown
 
 ### P1-1 — Version control and repository composition

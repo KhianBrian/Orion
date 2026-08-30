@@ -14,16 +14,19 @@ test.describe("public navigation", () => {
     await expect(page).toHaveURL(/\/login$/);
   });
 
-  test("login action reaches the current landing page", async ({ page }) => {
+  test("an invalid login receives a safe error", async ({ page }) => {
     await page.goto("/login");
     await page.locator('input[placeholder="email id"]').fill("patient@example.com");
     await page.locator('input[placeholder="password"]').fill("test-password");
     await page.getByRole("button", { name: "Login" }).click();
 
-    await expect(page).toHaveURL(/\/home$/);
-    await expect(
-      page.getByRole("heading", { name: "Orion Interface Philippines" }),
-    ).toBeVisible();
+    await expect(page.getByRole("alert")).toHaveText("The email or password is incorrect.");
+    await expect(page).toHaveURL(/\/login$/);
+  });
+
+  test("a visitor is redirected to login before reaching an account route", async ({ page }) => {
+    await page.goto("/patient-appointment");
+    await expect(page).toHaveURL(/\/login$/);
   });
 
   test("primary public links reach their destination pages", async ({ page }) => {

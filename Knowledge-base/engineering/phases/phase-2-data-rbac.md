@@ -137,6 +137,19 @@ knowledge-base task, not a code task, and needs no owner input beyond the Q6 and
 recorded — it is scheduled as P0-4 in the [Phase 0 plan](phase-0-governance.md). Everything else in
 this phase can proceed in parallel.
 
+## Execution update — 30 August 2026
+
+**Foundation completed ✅** The approved three-role, non-production database foundation is applied:
+`profiles`, `psychiatrists`, `availability_slots`, `appointments`, and `audit_events`; supporting
+enums, foreign keys, indexes, 45-minute checks, and a slot-overlap exclusion constraint are present.
+RLS is enabled on every public table, direct client grants are limited, and the security advisor is
+clean. This as-built state is documented in [Database and RBAC](../../architecture/database-and-rbac.md)
+and [Supabase integration](../supabase.md).
+
+The phase remains open: its complete booking/cancellation transaction functions, consent model,
+session-note model, full role/action RLS coverage, and automated allow/deny tests are not yet built.
+No fourth/secretary role has been created.
+
 ## Two design decisions that carry the phase
 
 Both concern session notes, which the [data classification](../../governance/data-classification-and-data-dictionary.md#classification)
@@ -236,7 +249,7 @@ Subject to the prerequisite above.
 - One note per appointment, authored by the assigned psychiatrist, holding the note body, a release state, and a released timestamp — the field set in the [data dictionary](../../governance/data-classification-and-data-dictionary.md#classification).
 - **No `select` grant to any application role.** Authorship, release, and every read go through functions, per the design decision above.
 - The patient read function returns a note only when released. The author's read function returns their own note at any state. There is no secretary path at all, and no admin path by default — [data classification](../../governance/data-classification-and-data-dictionary.md#readers) marks admin access to notes as *not by default*, which means a function that does not exist rather than a permission that is switched off.
-- Release is a one-way transition, audited. Whether a psychiatrist may retract a release is not decided anywhere in the knowledge base; it is not built, and it is added to the clinical lead's list rather than answered here.
+- A released note is never overwritten or withdrawn. A correction creates an immutable, versioned amendment that retains the original, records the author and timestamp, and is visible to the patient as note history. This is an audit and transparency requirement, not a claim that free-text clinical content is otherwise constrained.
 - **No retention column, no disposal behaviour, no deletion path.** [Data classification](../../governance/data-classification-and-data-dictionary.md#open-dependency) is unambiguous: no retention period may be invented and no deletion path implemented until register Q11 is recorded. The schema is created; the lifecycle is not.
 - The field label and any surrounding guidance say what the note is for. They do not claim to constrain it. "No diagnoses" is unenforceable in a free-text column and the [data dictionary](../../governance/data-classification-and-data-dictionary.md#free-text-is-a-limitation-not-a-control) requires this to be recorded as a known limitation rather than described as a schema control. The as-built entry should say so in those terms.
 
@@ -283,7 +296,7 @@ evidence — now across four roles and including the notes table.
 | Retention and deletion, including notes as clinical records (Q11) | Company owners with DPO advice | Note and consent schemas are created. No retention column, no disposal behaviour, no deletion path. Audit accumulation recorded as a pending decision rather than a settled one. |
 | Whether a subject access request overrides the release step | DPO or legal adviser | The release step is built as a product rule governing the application surface, and is not recorded anywhere as a privacy control. No export path is built. |
 | Whether a psychiatrist no-show is distinguishable from a patient one | Clinical lead | A single `no_show` status with a nullable absent-party column. A ruling changes a value, not the schema. |
-| Whether a psychiatrist may retract a release | Clinical lead — not currently on any list | Not built. Added to the clinical referrals rather than decided. |
+| Released-note correction | Decided | No retraction or overwrite. Corrections are immutable versioned amendments with patient-visible history. |
 | Secretary scope — per-psychiatrist or clinic-wide, whether they may act on a client's behalf, whether they may see that a note exists | Company owners | Policies are written for the narrowest reading: appointments and contact details, clinic-wide, no note visibility of any kind including existence. Widening later is a policy change; narrowing later would mean access already granted. |
 | Consent wording | Company owners, with DPO and clinical review | Version references are stored; no version is seeded. |
 

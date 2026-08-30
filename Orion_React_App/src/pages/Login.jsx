@@ -1,42 +1,30 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { login } from "../redux/slices/authSlice";
+import { useAuth } from "../features/auth/authContext";
 import "./Login.css";
 
 const Login = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const location = useLocation();
+  const { signIn, status } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = () => {
-    let role = "User";
-    const lowerEmail = email.toLowerCase();
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+    const result = await signIn(email, password);
+    setIsSubmitting(false);
 
-    if (lowerEmail.includes("admin")) {
-      role = "Admin";
-    } else if (lowerEmail.includes("doctor")) {
-      role = "Doctor";
-    } else if (lowerEmail.includes("patient")) {
-      role = "Patient";
+    if (result.error) {
+      setError(result.error);
+      return;
     }
 
-    const userData = {
-      user: {
-        name: `Logged ${role}`,
-        email: email || `${role.toLowerCase()}@example.com`,
-        role: role,
-      },
-      accessToken:
-        "dummy-access-token-" + role.toLowerCase() + "-" + Date.now(),
-      refreshToken:
-        "dummy-refresh-token-" + role.toLowerCase() + "-" + Date.now(),
-    };
-
-    dispatch(login(userData));
-    navigate("/home");
+    navigate(location.state?.from?.pathname || "/app", { replace: true });
   };
 
   return (
@@ -65,7 +53,7 @@ const Login = () => {
           <Link to="/blog" className="login-nav-link">
             Blog
           </Link>
-          {!isAuthenticated && <Link to="/login" className="login-nav-button">Login</Link>}
+          {status !== "signedIn" && <Link to="/login" className="login-nav-button">Login</Link>}
         </div>
       </nav>
 
@@ -74,9 +62,10 @@ const Login = () => {
         <div className="login-card">
           <h4 className="login-title">LOGIN</h4>
 
-          <div className="login-form">
+          <form className="login-form" onSubmit={handleLogin}>
             <input
-              type="text"
+              type="email"
+              aria-label="Email address"
               placeholder="email id"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -84,12 +73,13 @@ const Login = () => {
             />
             <input
               type="password"
+              aria-label="Password"
               placeholder="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="login-input"
             />
-          </div>
+          </form>
 
           <div className="login-forgot">
             <Link to="/forgot-password" className="login-forgot-link">
@@ -98,13 +88,10 @@ const Login = () => {
           </div>
 
           <div className="login-buttons">
-            <button onClick={handleLogin} className="login-button">
-              Login
+            <button onClick={handleLogin} className="login-button" disabled={isSubmitting}>
+              {isSubmitting ? "Signing in…" : "Login"}
             </button>
-            <p className="login-hint">
-              Try email with "admin", "doctor", or "patient" for role
-              simulation.
-            </p>
+            {error && <p className="login-hint" role="alert">{error}</p>}
           </div>
         </div>
       </main>

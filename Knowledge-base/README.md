@@ -10,6 +10,8 @@ This is the authoritative foundation for Orion. Orion is being prepared for a co
 | [Architecture](architecture/) | System design, data/RBAC, threats, video, and access auditing. | Changing data, auth, video, APIs, security, or integrations. |
 | [Governance](governance/) | Privacy, data classification, consent, retention, and approval ownership. | Handling real client/clinician data, vendors, notices, or requests. |
 | [Engineering](engineering/) | Code conventions, QA, test-data policy, and ordered delivery plan. | Coding, reviewing, testing, releasing, or choosing next work. |
+| [Implementation status](engineering/implementation-status.md) | Current phase-by-phase execution tracker, next steps, and blockers. | Finding where Orion implementation stopped or what should happen next. |
+| [Supabase integration](engineering/supabase.md) | Orion's scoped non-production Supabase connection, migrations, and operational guardrails. | Configuring or changing Orion's Supabase project. |
 | [Operations](operations/) | Environments, secrets, deployment, monitoring, incidents, and recovery. | Deploying, configuring vendors, or operating the pilot. |
 | [Audit trail](audit-trail/README.md) | Contains dated records of prior UX, architecture, and implementation audits. | Understanding historical changes, decisions, or known limitations. |
 
