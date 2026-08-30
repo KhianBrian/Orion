@@ -1,0 +1,7 @@
+/* Cleared default Vite styles to allow full-screen coverage */
+
+.marketing-page { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; }
+.marketing-page h1 { color: var(--color-navy); font-size: 3rem; margin: 0.5rem 0 1rem; }
+.marketing-lead { color: var(--color-muted); font-size: 1.25rem; max-width: 680px; margin-bottom: 2rem; }
+.marketing-details { display: grid; gap: 1rem; margin-bottom: 2rem; }
+.marketing-details div { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.25rem; font-size: 1.125rem; }

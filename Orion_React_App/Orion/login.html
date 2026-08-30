@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orion Login</title>
+    <link rel="icon" href="/Orion earth.png"/x-icon>
+    <link rel="stylesheet" href="style.css">
+</head>
+    <style>
+
+      .main {
+        display: flex;
+        flex-direction: column;
+        align-items:flex-end;
+        height: 100vh;
+        background-image: url('/images/AnnexA.png');
+        background-size: cover;
+        background-position:bottom;
+      }
+
+
+      .card {
+        display:block;
+        margin-right: 50px;
+        width: 25%;
+        height: 80%;
+        border-radius: 50px;
+        background-color:whitesmoke;
+        box-shadow: white 0px 0px 15px;
+        align-content: center;
+        justify-items: center;
+      }
+
+      .container {
+        padding: 20px;
+        text-align: center;
+        animation: mymove duration 5s 1 to right;
+      }
+
+
+      .loginfo {
+        width: 200px;
+        height: 40px;
+        border-radius: 50px;
+        margin: 5px 10px;
+        color: rgb(152, 99, 0);
+        font-weight:  lighter;
+        text-align:center;
+      }
+
+      .logbut {
+        display: flex;
+        flex-direction: row;
+        width:200px;
+        height:40px;
+        background-image: linear-gradient(to right, rgba(40, 72, 255, 0.5), rgba(255, 12, 125, 1));
+        color: white;
+        border: none;
+        border-radius: 50px;
+        margin: 5px 10px;
+        box-shadow: 10px  rgb(152, 99, 0);
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+
+      }
+
+      .logbut:hover {
+        background-color: #be8f65;
+        font-style: italic;
+      }
+
+            
+    </style>
+        <link rel="stylesheet" href="styles.css">
+        
+        <style>
+        .footer {
+          position:fixed;
+          bottom: 0;
+          width: 100%;
+          font-weight: lighter;
+          font-size: smaller;
+        }
+        </style>
+
+
+<body>
+
+    <div class="navbar">
+        <div class="logo">
+          <img src="images/ORION.jpg" alt="Orion Logo">
+        </div>
+        <div class="nav-links">
+          <a class="navbut" href="/Home.html">Home</a>
+          <a class="navbut" href="/About.html">About</a>
+          <a class="navbut" href="/contact.html">Contact</a>
+          <a class="navbut" href="/services.html">Services</a>
+          <a class="navbut" href="portfolio.html">Portfolio</a>
+          <a class="navbut" href="blog.html">Blog</a>
+          <a class="navbut" href="testimonials.html">Testimonials</a>
+          <a class="navbut-log" href="login.html">Login</a>
+        </div>
+      </div>
+    
+      <div class="main" id="about_us">
+        <div class="card">
+            <div class="container">
+                <div><h4 style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; font-weight: bold; font-size:larger; color: #865020; margin: 10px;">LOGIN</h4></div>
+                <input class="loginfo" type="username" placeholder="email id"><br>
+                <input class="loginfo" type="password" placeholder="password"><br>
+                <a href="forgotpassword.html" style="font-size: small; margin-left: 10px;">Forgot Password?</a><br>
+                <span><a href="Client Module/ClientApp.html" style="text-decoration: none;"><button class="logbut">Login</button></a><a href="Employee Module/EmpApp.html" style="text-decoration: none;"><button class="logbut">Sign Up</button></a></span>
+            </div>
+        </div>
+        
+        <div class="fndmem">
+            
+
+        </div>
+
+      </div>
+    
+      <div class="footer">
+        <p>&copy; 2025 Orion Interface Philippines, Inc. &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; All rights reserved under Albetros Philippines, Inc.</p>
+        <p>Follow us on social media:</p><span><a href="https://www.facebook.com/profile.php?viewas=100000686899395&id=61573787343857" class="navbut-foot">
+            <img src="/images/fb.jpg" alt="Facebook">
+          </a></span>
+        <a href="#" class="navbut-foot">
+          <img src="/images/ig.jpg" alt="Instagram">
+        </a>
+        <button class="navbut-foot">FAQ</button>
+        <button class="navbut-foot">Privacy Policy</button>
+        <button class="navbut-foot">Terms of Service</button>
+        <button class="navbut-foot">Careers</button>
+        <button class="navbut-foot">Support</button>
+        <button class="navbut-foot">Sitemap</button>
+      </div>
+    
+</body>
+</html>

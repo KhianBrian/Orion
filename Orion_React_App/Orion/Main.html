@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<!--             transition-duration: 0.4s; -->
+    <style>
+
+        .screen{
+            display:flex;
+            position: fixed;
+            background-color:  rgb(141, 76, 19);
+            width: 100%;
+            height: 100%;
+            left: 0px;
+            top: 0px;
+        }
+ 
+        .navbar{
+            display:block;
+            position:fixed;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            background-color: black;
+            height: 110px;
+            width:100%;
+            overflow: hidden;
+            
+        }
+
+        .logo img{
+            display: inline-block;
+            position:absolute;
+            top: 0px;
+            left: 0px;
+            width: 250px;
+            height: 110px;
+            
+        }
+
+        .nav-links{
+            display:block;
+            float: right;
+            height: 110px;
+            width: 50%;
+            background-color: black;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        .navbut{
+            background-color: black;
+            color: white;
+            border: none;
+            padding: 1% 1%;
+            font-size: 100%;
+            margin: 1% 2%;
+            cursor: pointer;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+        }
+
+        .navbut:hover{
+            background-color: black;
+            color:rgb(190, 143, 101);
+            font-style: italic;
+            animation: 0.5s;
+            transition-duration: 0.4s;
+        }
+        .navbut-log{
+            background-color: rgb(153, 105, 62);
+            color: white;
+            border: none;
+            float:right;
+            padding: 1% 3%;
+            font-size: 100%;
+            margin: 1% 4%;
+            cursor: pointer;
+            border-radius: 5px;
+
+        }
+        .navbut-log:hover{
+            background-color: rgb(141, 76, 19);
+            color: rgb(255, 255, 255);
+            font-style: italic;
+            transition-duration: 0.5s;
+        }
+        /* transition-duration: 0.5s; */
+
+        .navbut-foot{
+            background-color: rgb(0, 0, 0);
+            color: rgb(255, 255, 255);
+            border: none;
+            padding: 5px 5px;
+            text-align: center;
+            text-decoration: none;
+            display:inline-flex;
+            font-size: 12px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+
+        }
+
+        .navbut-foot:hover{
+            background-color: rgb(25, 218, 189);
+            color: black;
+            transition-duration: 0.4s;
+        }
+
+        .navbut-foot img{
+            display: block;
+            width: 20px;
+            height: 20px;
+            background-color: rgb(0, 0, 0);
+            border-radius: 50px;
+        }
+
+        .navbut-foot:hover img{
+            background-color: rgb(0, 0, 0);
+            border-radius: 50px;
+            color: black;
+            transition-duration: 0.4s;
+        }
+
+        .footer{
+            display: block;
+            justify-items: center;
+            align-items: center;
+            position:fixed;
+            bottom: 0px;
+            left: 0px;
+            height: 100px;
+            width: 100%;
+            background-color: black;
+            color: white;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .main{
+            display:flex;
+            flex-direction: row;
+            position:relative;
+            justify-content:center;
+            align-content: center ;
+            background-color: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
+            top:110px;
+            width:100%;
+            height: 150%;
+            z-index: -1;
+            overflow:scroll;
+            scrollbar-width: thin;
+                /* Fallback for unsupported browsers */
+                scrollbar-color: rgb(141, 76, 19) transparent;
+            }
+    
+            /* Fallback for WebKit-based browsers */
+            .main::-webkit-scrollbar {
+                width: 8px;
+            }
+    
+            .main::-webkit-scrollbar-thumb {
+                background-color: rgb(141, 76, 19);
+                border-radius: 4px;
+            }
+    
+            .main::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+
+        .content{
+            display: block;
+            position: relative;
+            top: 110px;
+            left: 50px;
+            font-size: 20px;
+            color:white;
+            line-height: 1.5;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-weight: bold;
+            box-sizing:border-box;
+            padding: 10px 10px;
+        }
+
+        .textbox1{
+            display:flex;
+            flex-direction: column;
+            position: relative;
+            align-items: center;
+            inline-size: 400px;
+            top: 20px;
+            bottom:110px;
+            font-size: 30px;
+            color: rgb(0, 0, 0);
+            line-height: 1.5;
+            font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-weight: bold;
+            box-sizing:border-box;
+            padding: 10px 10px;
+        
+        }
+
+        .textbox1:hover{
+            color:  rgb(141, 76, 19);
+            transition-duration: 0.4s;
+        }
+
+        .textbox1 img{
+            position: relative;
+            left: 5px;
+            margin: 25px;
+            width: 230px;
+            height: 230px;
+            background-color: rgb(0, 0, 0);
+            border-radius: 50%;
+        }
+
+        .textbox2{
+            display:flex;
+            flex-direction: column;
+            align-items: center;
+            inline-size: 500px;
+            position: relative;
+            top: 20px;
+            bottom: 110px;
+            font-size: 30px;
+            color: rgb(0, 0, 0);
+            line-height: 1.5;
+            font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-weight: bold;
+            box-sizing:border-box;
+            padding: 10px 10px;
+        
+        }
+
+        .textbox2:hover{
+            color:  rgb(141, 76, 19);
+            transition-duration: 0.4s;
+        }
+
+        .textbox2 img{
+            position: relative;
+            left: 5px;
+            width: 230px;
+            height: 230px;
+            background-color: rgb(0, 0, 0);
+            margin: 20px;
+            border-radius: 50%;
+        }
+
+        .text-content{
+            display:flex;
+            flex-direction: column;
+            position: relative;
+            align-items: center;
+            left: 5px;
+            font-size: 16px;
+            font-weight: lighter;
+            color: rgb(0, 0, 0);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        .text-content:hover{
+            color: rgb(0, 47, 128);
+            transition-duration: 0.4s;
+        }
+
+        
+
+        .navmain{
+            background-color: rgb(0, 0, 0);
+            color: white;
+            border: none;
+            padding: 0px 0px;
+            text-align: center;
+            justify-self: center;
+            text-decoration: none;
+            display:block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 50px;
+            width: 150px;  
+            height: 50px;
+
+        }
+
+        .navmain:hover{
+            background-color: rgb(141, 76, 19);
+            color: white;
+            transition-duration: 0.4s;
+        }
+
+    </style>
+
+<body>
+    <div class="screen">
+        <div class="navbar">
+            <div class="logo">
+                <img src="images/ORION.jpg" alt="Orion Logo">
+            </div>
+            <div class="nav-links">
+                <button class="navbut" href="/Main.html">Home</button>
+                <button class="navbut" href="/About.html">About</button>
+                <button class="navbut" href="/contact.html">Contact</button>
+                <button class="navbut">Services</button>
+                <button class="navbut">Portfolio</button>
+                <button class="navbut">Blog</button>
+                <button class="navbut">Testimonials</button>
+                
+                <button class="navbut-log">Login</button>
+
+            </div>
+        </div>
+
+        <div class="main" type="box">
+            <div class="textbox1">Hey there, Howdy?              
+                <p class="text-content" type="text">Welcome to Orion Interface Philippines, Inc. <br> <em>"A place for right guidance"</em> <br><img src="/Orion earth.png" alt=""><br> Are you excited to speak to us?</p>
+                <button class="navmain">Get Started</button>
+                
+            </div>
+
+            <div class="textbox2"> We love you, as much as you do!
+                <p class="text-content" type="text">We are here to help you with your needs. <br>let us navigate you thru in your journey <br><br> <img src="/images/AnnexA.png" alt="Orion Guidance Services"></p>
+                <p class="text-content" type="text">Learn more about our services now.</p>
+                <button class="navmain">Learn More</button>
+            </div>
+
+            
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2025 Orion Interface Philippines, Inc All rights reserved by Singaraju Group Berhad.</p>
+            <p>Follow us on social media:</p>
+            <a href="https://www.facebook.com/profile.php?viewas=100000686899395&id=61573787343857" class="navbut-foot"><img src="/images/fb.jpg" alt="fb"></a>
+            <a href="#" class="navbut-foot"><img src="/images/ig.jpg" alt=""></a>
+            <button class="navbut-foot">FAQ</button>
+            <button class="navbut-foot">Privacy Policy</button>
+            <button class="navbut-foot">Terms of Service</button>
+            <button class="navbut-foot">Careers</button>
+            <button class="navbut-foot">Support</button>
+            <button class="navbut-foot">Sitemap</button>
+        </div>
+
+    </div>
+
+</body>
+</html>
+
+
+/*<div class="content1">
+    <h2>Our Services</h2>
+    <p>We offer a wide range of services to cater to your needs.</p>
+    <ul>
+        <li>Service 1</li>
+        <li>Service 2</li>
+        <li>Service 3</li>
+        <li>Service 4</li>
+    </ul>
+</div>*/

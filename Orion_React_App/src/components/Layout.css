@@ -1,0 +1,22 @@
+.orion-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.orion-main {
+  margin-top: 110px; /* Height of fixed navbar */
+  margin-bottom: 120px; /* Height of fixed footer */
+  min-height: calc(100vh - 230px);
+  overflow-y: auto;
+  background-color: var(--color-gray-light);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .orion-main {
+    margin-top: 140px; /* Adjusted for responsive navbar */
+    margin-bottom: 140px; /* Adjusted for responsive footer */
+    min-height: calc(100vh - 280px);
+  }
+}

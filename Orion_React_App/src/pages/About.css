@@ -1,0 +1,137 @@
+.about-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+
+.about-hero {
+  text-align: center;
+  padding: 3rem 2rem;
+  margin-bottom: 3rem;
+}
+
+.about-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--color-navy);
+  margin-bottom: 1rem;
+}
+
+.about-tagline {
+  font-size: 1.5rem;
+  color: var(--color-bronze);
+  font-style: italic;
+}
+
+.about-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.founder-card {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background-color: whitesmoke;
+  box-shadow: 0 0 15px rgba(128, 128, 128, 0.3);
+}
+
+.founder-image-container {
+  flex: 0 0 auto;
+}
+
+.founder-image {
+  width: 300px;
+  height: auto;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 0 20px rgba(193, 144, 53, 0.5);
+  transition: transform var(--transition-normal);
+}
+
+.founder-image:hover {
+  transform: scale(1.05);
+}
+
+.founder-info {
+  flex: 1;
+  padding: 1rem;
+}
+
+.founder-heading {
+  font-family: var(--font-primary);
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: var(--color-bronze);
+  line-height: 1.8;
+  text-align: justify;
+}
+
+.company-name {
+  color: var(--color-black);
+  font-style: italic;
+}
+
+.founder-name {
+  color: var(--color-black);
+}
+
+.youth-emphasis {
+  color: #4d0066;
+}
+
+.mission-section {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.mission-card,
+.vision-card {
+  padding: 2rem;
+  text-align: center;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  margin-bottom: 1rem;
+}
+
+.section-text {
+  font-size: 1.125rem;
+  color: var(--color-black);
+  line-height: 1.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .about-title {
+    font-size: 2rem;
+  }
+
+  .about-tagline {
+    font-size: 1.125rem;
+  }
+
+  .founder-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .founder-image {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .founder-heading {
+    text-align: center;
+  }
+
+  .mission-section {
+    grid-template-columns: 1fr;
+  }
+}

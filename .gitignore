@@ -1,0 +1,24 @@
+# Environment and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Dependencies and generated output
+**/node_modules/
+**/dist/
+**/dist-ssr/
+
+# Test credentials and generated reports
+**/playwright/.auth/
+**/playwright-report/
+**/test-results/
+
+# Supabase local CLI state
+supabase/.branches/
+supabase/.temp/
+supabase/.wrappers/
+
+# Local tooling
+.DS_Store
+*.log
