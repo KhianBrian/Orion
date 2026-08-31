@@ -4,6 +4,10 @@ const enabled = process.env.RUN_SCHEDULING_E2E === "1";
 const patientPassword = process.env.DEMO_PATIENT_ONE_PASSWORD;
 const psychiatristPassword = process.env.DEMO_PSYCHIATRIST_ONE_PASSWORD;
 
+if (enabled && (!patientPassword || !psychiatristPassword)) {
+  throw new Error("RUN_SCHEDULING_E2E=1 requires DEMO_PATIENT_ONE_PASSWORD and DEMO_PSYCHIATRIST_ONE_PASSWORD");
+}
+
 async function signIn(page, email, password) {
   await page.goto("/login");
   await page.getByLabel("Email address").fill(email);
@@ -13,6 +17,7 @@ async function signIn(page, email, password) {
 }
 
 test.describe("database-backed scheduling", () => {
+  test.describe.configure({ mode: "serial" });
   test.skip(!enabled || !patientPassword || !psychiatristPassword, "requires ignored synthetic demo credentials");
 
   test("a patient books a slot and the assigned psychiatrist can view appointments", async ({ page }) => {
@@ -21,7 +26,7 @@ test.describe("database-backed scheduling", () => {
     await page.getByRole("main").getByRole("link", { name: "Book an appointment" }).click();
 
     await expect(page.getByRole("heading", { name: "Book an appointment" })).toBeVisible();
-    await expect(page.getByLabel("Open appointment slots").getByRole("button", { name: "Choose this slot" })).toHaveCount(2);
+    await expect(page.getByLabel("Open appointment slots").getByRole("button", { name: "Choose this slot" }).first()).toBeVisible();
     await page.getByRole("button", { name: "Choose this slot" }).first().click();
     await page.getByRole("button", { name: "Confirm booking" }).click();
     await expect(page.getByText("Your synthetic demo appointment is booked.")).toBeVisible();
@@ -30,5 +35,20 @@ test.describe("database-backed scheduling", () => {
     await page.getByRole("main").getByRole("link", { name: "My appointments" }).click();
     await expect(page.getByRole("heading", { name: "Assigned appointments" })).toBeVisible();
     await expect(page.getByLabel("Appointments").getByText("Assigned patient appointment").first()).toBeVisible();
+  });
+
+  test("a patient can cancel a booked appointment", async ({ page }) => {
+    test.setTimeout(60_000);
+    await signIn(page, "patient.one@demo.orion.invalid", patientPassword);
+    await page.getByRole("main").getByRole("link", { name: "My appointments" }).click();
+    await expect(page.getByRole("heading", { name: "My appointments" })).toBeVisible();
+
+    const bookedAppointment = page.getByLabel("Appointments").locator("article").filter({ hasText: "booked" }).first();
+    await expect(bookedAppointment.getByRole("button", { name: "Cancel appointment" })).toBeVisible();
+    await bookedAppointment.getByRole("button", { name: "Cancel appointment" }).click();
+    await expect(page.getByRole("heading", { name: "Cancel this appointment?" })).toBeVisible();
+    await page.getByRole("button", { name: "Confirm cancellation" }).click();
+    await expect(page.getByText("Your appointment has been cancelled.")).toBeVisible();
+    await expect(page.getByLabel("Appointments").getByText(/cancelled/).first()).toBeVisible();
   });
 });

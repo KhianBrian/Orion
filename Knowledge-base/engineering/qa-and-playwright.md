@@ -23,9 +23,19 @@ The app uses `@playwright/test` with Chromium and a Pixel 5 mobile viewport. Pla
 
 ```text
 npm run test:e2e
+npm run test:e2e:authenticated
+npm run test:db:cancellation
 npm run test:e2e:ui
 npm run test:e2e:report
 ```
+
+`playwright.config.js` loads the ignored `Orion_React_App/.env` automatically. The authenticated
+suite remains opt-in through `RUN_SCHEDULING_E2E=1`; when explicitly enabled, missing demo passwords
+fail the run instead of silently skipping it. Copy variable names from `.env.test.example` and keep
+all values local. `test:db:cancellation` requires Docker Desktop for local Supabase or an approved
+synthetic remote project, plus a local-only `SUPABASE_SERVICE_ROLE_KEY`; it creates and removes
+temporary synthetic fixtures while checking ownership, the 24-hour denial, idempotency,
+concurrency, slot reopening, and audit behavior.
 
 Run `npx playwright install chromium` after a fresh dependency install when the browser binary is absent.
 

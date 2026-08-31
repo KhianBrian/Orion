@@ -12,6 +12,7 @@ This folder contains dated records of completed audits and implementation passes
 | [2026-08-30 synthetic demo-account provisioning audit](2026-08-30-synthetic-demo-account-provisioning-audit.md) | Synthetic Auth-account seed, server-side role/availability verification, and the remaining React identity work. |
 | [2026-08-30 real demo identity audit](2026-08-30-real-demo-identity-audit.md) | Supabase Auth integration, server-held role navigation, and the retired mock-auth boundary. |
 | [2026-08-30 role-navigation simplification audit](2026-08-30-role-navigation-simplification-audit.md) | Consolidated role navigation, protected-route metadata, and UI ability subjects. |
+| [2026-08-31 D4 patient cancellation implementation](2026-08-31-d4-patient-cancellation-implementation-audit.md) | Server-authoritative patient cancellation boundary, UI confirmation, idempotency, and verification limits. |
 
 Read an audit when you need to understand why an existing UI or file looks the way it does, what was already verified, or which limitations remain open. When an audit conflicts with current product scope or architecture, the current parent document wins.
 

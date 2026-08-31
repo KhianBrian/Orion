@@ -35,6 +35,7 @@ documentation, source files, or Git.
 | `20260830084159` | [`harden_demo_schema.sql`](../../supabase/migrations/20260830084159_harden_demo_schema.sql) | Explicitly denies client audit-log reads and moves `btree_gist` from `public` to `extensions`. |
 | `20260831090000` | [`add_server_authoritative_booking.sql`](../../supabase/migrations/20260831090000_add_server_authoritative_booking.sql) | Adds the locked, idempotent booking transaction, an active-appointment overlap constraint, and audit-event write. |
 | `20260831093502` | [`restrict_booking_rpc_to_edge_function.sql`](../../supabase/migrations/20260831093502_restrict_booking_rpc_to_edge_function.sql) | Restricts the privileged booking transaction to the Edge Function service role after the security advisor identified the direct authenticated-RPC surface. |
+| `20260831123836` | [`patient_appointment_cancellation.sql`](../../supabase/migrations/20260831123836_patient_appointment_cancellation.sql) | Adds the service-role-only patient cancellation transaction, cancellation idempotency, slot reopening, and cancellation audit event. |
 
 The local filenames intentionally match the remote migration history. Never edit either migration after
 application; create a new forward migration for every correction.
@@ -72,7 +73,8 @@ not persist tokens in Redux or browser storage. D3 is deployed: the patient book
 scoped availability, displays Manila time, and invokes a JWT-protected Edge Function. That function
 validates the caller, then invokes a service-role-only database transaction that locks the slot,
 derives timestamps server-side, writes the appointment and audit event, and marks the slot booked.
-Patient and assigned-psychiatrist appointment reads are RLS-scoped. Cancellation, video admission,
-and production configuration remain future work. Hosted Auth leaked-password protection is still
+Patient and assigned-psychiatrist appointment reads are RLS-scoped. Patient cancellation is now
+deployed through the JWT-protected `cancel-appointment` Edge Function and verified with synthetic
+database and browser tests. Video admission and production configuration remain future work. Hosted Auth leaked-password protection is still
 disabled because this project remains on Supabase Free; revisit it before broader password-account
 use or a paid-plan transition.
