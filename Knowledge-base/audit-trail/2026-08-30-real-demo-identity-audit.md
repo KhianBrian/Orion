@@ -21,10 +21,10 @@
 
 ## Dependency follow-up
 
-The obsolete Redux/Axios mock-auth stack was removed with the active token-persistence path. The final
-production dependency audit has no critical findings, but still reports two high-severity findings in
-the pre-existing `react-router-dom` dependency chain. Upgrade and regression-test React Router in a
-separate dependency-maintenance change before any release.
+The obsolete Redux/Axios mock-auth stack was removed with the active token-persistence path. On
+2026-08-31, React Router was upgraded from 7.11.0 to 7.18.3 in a narrowly scoped dependency-maintenance
+change. `npm audit --omit=dev --audit-level=high` returned zero vulnerabilities afterward; the protected
+route return and authorization-denial behaviours were regression-tested in the browser.
 
 ## Remaining work
 
