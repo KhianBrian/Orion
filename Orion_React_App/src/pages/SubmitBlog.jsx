@@ -25,11 +25,8 @@ const SubmitBlog = () => {
           <Link to="/sessions" className="sidebar-menu-item">
             Session History
           </Link>
-          <Link to="/doctor-availability" className="sidebar-menu-item">
-            Doctor Availability
-          </Link>
           <Link to="/patient-appointment" className="sidebar-menu-item">
-            Patient Appointment
+            Book an appointment
           </Link>
           <Link to="/settings" className="sidebar-menu-item">
             Account Settings

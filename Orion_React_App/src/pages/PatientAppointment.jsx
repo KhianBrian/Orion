@@ -1,313 +1,84 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import "../components/SidebarLayout.css";
+import { supabase } from "../lib/supabase";
 import "./PatientAppointment.css";
 
-const PatientAppointment = () => {
-  const [selectedSpecialization, setSelectedSpecialization] = useState("all");
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0],
-  );
-  const [selectedPatientCounselor, setSelectedPatientCounselor] =
-    useState(null);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
-  const [showBookingModal, setShowBookingModal] = useState(false);
+const manilaDateTime = new Intl.DateTimeFormat("en-PH", { dateStyle: "full", timeStyle: "short", timeZone: "Asia/Manila" });
 
-  // Mock data for patient counselors (replica format)
-  const patientCounselors = [
-    {
-      id: 1,
-      name: "Counselor Sarah Johnson",
-      specialization: "General Well-being",
-      credential: "Licensed Guidance Counselor",
-      experience: "15 years in practice",
-      languages: ["English", "Spanish"],
-      consultationFee: "₱8,500",
-      initials: "SJ",
-      availableSlots: ["09:00 AM", "10:30 AM", "02:00 PM", "04:00 PM"],
-    },
-    {
-      id: 2,
-      name: "Counselor Michael Chen",
-      specialization: "Mental Health",
-      credential: "Licensed Mental Health Counselor",
-      experience: "12 years in practice",
-      languages: ["English", "Mandarin"],
-      consultationFee: "₱10,200",
-      initials: "MC",
-      availableSlots: ["08:00 AM", "11:00 AM", "03:00 PM"],
-    },
-    {
-      id: 3,
-      name: "Counselor Emily Rodriguez",
-      specialization: "Family Support",
-      credential: "Licensed Family Counselor",
-      experience: "10 years in practice",
-      languages: ["English", "Spanish", "Portuguese"],
-      consultationFee: "₱6,800",
-      initials: "ER",
-      availableSlots: ["09:30 AM", "01:00 PM", "03:30 PM", "05:00 PM"],
-    },
-    {
-      id: 4,
-      name: "Counselor James Wilson",
-      specialization: "Physical Wellness",
-      credential: "Licensed Wellness Counselor",
-      experience: "18 years in practice",
-      languages: ["English"],
-      consultationFee: "₱11,300",
-      initials: "JW",
-      availableSlots: ["10:00 AM", "02:30 PM", "04:30 PM"],
-    },
-    {
-      id: 5,
-      name: "Counselor Priya Sharma",
-      specialization: "Nutrition & Lifestyle",
-      credential: "Certified Nutrition Counselor",
-      experience: "8 years in practice",
-      languages: ["English", "Hindi"],
-      consultationFee: "₱7,400",
-      initials: "PS",
-      availableSlots: ["08:30 AM", "11:30 AM", "02:00 PM", "04:00 PM"],
-    },
-    {
-      id: 6,
-      name: "Counselor Robert Martinez",
-      specialization: "General Well-being",
-      credential: "Licensed Guidance Counselor",
-      experience: "20 years in practice",
-      languages: ["English", "Spanish"],
-      consultationFee: "₱9,600",
-      initials: "RM",
-      availableSlots: ["09:00 AM", "12:00 PM", "03:00 PM"],
-    },
-  ];
+function psychiatristName(slot) {
+  const psychiatrist = Array.isArray(slot.psychiatrist) ? slot.psychiatrist[0] : slot.psychiatrist;
+  return psychiatrist?.display_name || "Psychiatrist";
+}
 
-  const specializations = [
-    "all",
-    "General Well-being",
-    "Mental Health",
-    "Family Support",
-    "Physical Wellness",
-    "Nutrition & Lifestyle",
-  ];
+async function errorCode(error) {
+  if (error?.context instanceof Response) return (await error.context.json()).error;
+  return undefined;
+}
 
-  const filteredCounselors =
-    selectedSpecialization === "all"
-      ? patientCounselors
-      : patientCounselors.filter(
-          (counselor) => counselor.specialization === selectedSpecialization,
-        );
+export default function PatientAppointment() {
+  const [slots, setSlots] = useState([]);
+  const [state, setState] = useState("loading");
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [requestId, setRequestId] = useState(null);
+  const [booking, setBooking] = useState(false);
+  const [message, setMessage] = useState(null);
 
-  const handleBookAppointment = (counselor, timeSlot) => {
-    setSelectedPatientCounselor(counselor);
-    setSelectedTimeSlot(timeSlot);
-    setShowBookingModal(true);
+  const loadSlots = useCallback(async () => {
+    setState("loading");
+    const { data, error } = await supabase
+      .from("availability_slots")
+      .select("id, starts_at, ends_at, psychiatrist:psychiatrists!availability_slots_psychiatrist_id_fkey(display_name)")
+      .eq("status", "open")
+      .order("starts_at", { ascending: true });
+    if (error) return setState("error");
+    setSlots(data || []);
+    setState(data?.length ? "ready" : "empty");
+  }, []);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(loadSlots);
+    return () => cancelAnimationFrame(frame);
+  }, [loadSlots]);
+
+  const selectSlot = (slot) => {
+    setSelectedSlot(slot);
+    setRequestId(crypto.randomUUID());
+    setMessage(null);
   };
 
-  const handleConfirmBooking = () => {
-    alert(
-      `Patient Appointment booked with ${selectedPatientCounselor.name} on ${selectedDate} at ${selectedTimeSlot}`,
-    );
-    setShowBookingModal(false);
-    setSelectedPatientCounselor(null);
-    setSelectedTimeSlot(null);
+  const confirmBooking = async () => {
+    if (!selectedSlot || !requestId) return;
+    setBooking(true);
+    setMessage(null);
+    const { error } = await supabase.functions.invoke("book-appointment", {
+      body: { slotId: selectedSlot.id, idempotencyKey: requestId },
+    });
+    if (error) {
+      if (await errorCode(error) === "slot_unavailable") {
+        setMessage({ kind: "conflict", text: "This slot is no longer available. Please choose another time." });
+        setSelectedSlot(null);
+        setRequestId(null);
+        await loadSlots();
+      } else {
+        setMessage({ kind: "error", text: "We could not complete the booking. Please try again." });
+      }
+      setBooking(false);
+      return;
+    }
+    setMessage({ kind: "success", text: "Your synthetic demo appointment is booked." });
+    setSelectedSlot(null);
+    setRequestId(null);
+    setBooking(false);
+    await loadSlots();
   };
 
-  return (
-    <div>
-      <div className="sidebar-layout">
-        <div className="app-sidebar">
-          <Link to="/appointments" className="sidebar-menu-item">
-            Appointments
-          </Link>
-          <Link to="/sessions" className="sidebar-menu-item">
-            Session History
-          </Link>
-          <Link to="/doctor-availability" className="sidebar-menu-item">
-            Doctor Availability
-          </Link>
-          <Link to="/patient-appointment" className="sidebar-menu-item active">
-            Patient Appointment
-          </Link>
-          <Link to="/settings" className="sidebar-menu-item">
-            Account Settings
-          </Link>
-        </div>
-
-        <div className="main-content-area">
-          <div className="background-blur"></div>
-
-          <div className="content-header">
-            <h2 className="content-title">Patient Appointment</h2>
-          </div>
-
-          {/* Filter Section */}
-          <div className="filter-section">
-            <div className="filter-group">
-              <label htmlFor="specialization">Counseling Type:</label>
-              <select
-                id="specialization"
-                value={selectedSpecialization}
-                onChange={(e) => setSelectedSpecialization(e.target.value)}
-                className="filter-select"
-              >
-                {specializations.map((spec) => (
-                  <option key={spec} value={spec}>
-                    {spec === "all" ? "All Types" : spec}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="filter-group">
-              <label htmlFor="date">Select Date:</label>
-              <input
-                type="date"
-                id="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="filter-date"
-                min={new Date().toISOString().split("T")[0]}
-              />
-            </div>
-          </div>
-
-          {/* Counselors Grid */}
-          <div className="patients-grid">
-            {filteredCounselors.map((counselor) => (
-              <div key={counselor.id} className="patient-card">
-                <div className="patient-header">
-                  <div className="patient-avatar" aria-label={`${counselor.name} initials`}>
-                    {counselor.initials}
-                  </div>
-                  <div className="patient-info">
-                    <h3 className="patient-name">{counselor.name}</h3>
-                    <p className="patient-specialization">{counselor.credential}</p>
-                    <div className="patient-meta">
-                      <span className="patient-experience">
-                        {counselor.experience}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="patient-details">
-                  <div className="detail-row">
-                    <span className="detail-label">Languages:</span>
-                    <span className="detail-value">
-                      {counselor.languages.join(", ")}
-                    </span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Consultation Fee:</span>
-                    <span className="detail-value fee">
-                      {counselor.consultationFee}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="time-slots-section">
-                  <h4 className="slots-title">Choose an appointment time</h4>
-                  <div className="time-slots">
-                    {counselor.availableSlots.map((slot, index) => (
-                      <button
-                        key={index}
-                        className="time-slot-btn"
-                        onClick={() => handleBookAppointment(counselor, slot)}
-                      >
-                        Book {slot}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {filteredCounselors.length === 0 && (
-            <div className="no-results">
-              <p>No counselors found for the selected type.</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Booking Modal */}
-      {showBookingModal && selectedPatientCounselor && (
-        <div
-          className="modal-overlay"
-          onClick={() => setShowBookingModal(false)}
-        >
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Confirm Appointment</h2>
-              <button
-                className="modal-close"
-                onClick={() => setShowBookingModal(false)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="modal-body">
-              <div className="booking-summary">
-                <div className="summary-row">
-                  <span className="summary-label">Counselor:</span>
-                  <span className="summary-value">
-                    {selectedPatientCounselor.name}
-                  </span>
-                </div>
-                <div className="summary-row">
-                  <span className="summary-label">Type:</span>
-                  <span className="summary-value">
-                    {selectedPatientCounselor.specialization}
-                  </span>
-                </div>
-                <div className="summary-row">
-                  <span className="summary-label">Date:</span>
-                  <span className="summary-value">
-                    {new Date(selectedDate).toLocaleDateString("en-US", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </span>
-                </div>
-                <div className="summary-row">
-                  <span className="summary-label">Time:</span>
-                  <span className="summary-value">{selectedTimeSlot}</span>
-                </div>
-                <div className="summary-row">
-                  <span className="summary-label">Consultation Fee:</span>
-                  <span className="summary-value fee">
-                    {selectedPatientCounselor.consultationFee}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="modal-footer">
-              <button
-                className="modal-btn modal-btn-cancel"
-                onClick={() => setShowBookingModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="modal-btn modal-btn-confirm"
-                onClick={handleConfirmBooking}
-              >
-                Confirm Booking
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-    </div>
-  );
-};
-
-export default PatientAppointment;
+  return <main className="scheduling-page">
+    <div className="scheduling-header"><div><p className="eyebrow">Synthetic demo</p><h1>Book an appointment</h1><p>All times are shown in Manila time. Each session is 45 minutes.</p></div><Link className="secondary-action-button" to="/appointments">My appointments</Link></div>
+    {message && <p role="status" className={`schedule-message ${message.kind}`}>{message.text}</p>}
+    {state === "loading" && <p role="status">Loading available psychiatrists and appointment slots…</p>}
+    {state === "error" && <div className="schedule-message error"><p>Available slots could not be loaded.</p><button onClick={loadSlots}>Try again</button></div>}
+    {state === "empty" && <p role="status">There are no open appointment slots at this time.</p>}
+    {state === "ready" && <section className="slot-list" aria-label="Open appointment slots">{slots.map((slot) => <article className="slot-card" key={slot.id}><h2>{psychiatristName(slot)}</h2><p>{manilaDateTime.format(new Date(slot.starts_at))}</p><p className="slot-duration">45 minutes</p><button onClick={() => selectSlot(slot)}>Choose this slot</button></article>)}</section>}
+    {selectedSlot && <section className="booking-confirmation" aria-labelledby="confirm-booking-title"><h2 id="confirm-booking-title">Confirm your appointment</h2><p>{psychiatristName(selectedSlot)} — {manilaDateTime.format(new Date(selectedSlot.starts_at))} (45 minutes)</p><div className="booking-actions"><button onClick={confirmBooking} disabled={booking}>{booking ? "Booking…" : "Confirm booking"}</button><button className="secondary-action-button" onClick={() => { setSelectedSlot(null); setRequestId(null); }}>Choose another slot</button></div></section>}
+  </main>;
+}

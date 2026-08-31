@@ -7,12 +7,12 @@ import NotFound from "../pages/NotFound";
 import MarketingPage from "../pages/MarketingPage";
 import AccountHome from "../pages/AccountHome";
 import FeaturePlaceholder from "../pages/FeaturePlaceholder";
+import Appointments from "../pages/Appointments";
+import PatientAppointment from "../pages/PatientAppointment";
 import { RequireAbility, RequireAuth } from "../features/auth/RouteGuards";
 import { ROUTES, SUBJECTS } from "../constants/routes";
 
 const protectedFeatureRoutes = [
-  { path: ROUTES.BOOKING.slice(1), subject: SUBJECTS.BOOKING, title: "Appointment booking" },
-  { path: ROUTES.AVAILABILITY.slice(1), subject: SUBJECTS.AVAILABILITY, title: "Availability management" },
   { path: ROUTES.ADMINISTRATION.slice(1), subject: SUBJECTS.ADMINISTRATION, title: "Administration" },
 ];
 
@@ -48,6 +48,14 @@ export const routeConfig = [
         element: <RequireAuth />,
         children: [
           { path: ROUTES.APP.slice(1), element: <AccountHome /> },
+          {
+            element: <RequireAbility action="visit" subject={SUBJECTS.BOOKING} />,
+            children: [{ path: ROUTES.BOOKING.slice(1), element: <PatientAppointment /> }],
+          },
+          {
+            element: <RequireAbility action="visit" subject={SUBJECTS.APPOINTMENTS} />,
+            children: [{ path: ROUTES.APPOINTMENTS.slice(1), element: <Appointments /> }],
+          },
           ...protectedFeatureRoutes.map(({ path, subject, title }) => ({
             element: <RequireAbility action="visit" subject={subject} />,
             children: [{ path, element: <FeaturePlaceholder title={title} /> }],

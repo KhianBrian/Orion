@@ -9,16 +9,15 @@ const Dashboard = () => {
       icon: "📅",
     },
     {
-      title: "Doctor Availability",
-      description: "Browse available doctors and book sessions",
-      path: "/doctor-availability",
-      icon: "👨‍⚕️",
+      title: "Book an appointment",
+      description: "Browse open psychiatrist appointment slots",
+      path: "/patient-appointment",
     },
     {
-      title: "Patient Appointment",
-      description: "Schedule appointments for patients",
-      path: "/patient-appointment",
-      icon: "📋",
+      title: "Administration",
+      description: "Approved synthetic demo administration tasks",
+      path: "/dashboard",
+      icon: "⚙️",
     },
   ];
 
