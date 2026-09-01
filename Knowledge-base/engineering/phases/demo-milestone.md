@@ -36,10 +36,10 @@ otherwise, and keep both as clearly separable increments.
 
 ## Video for the demo
 
-The owners decided on 27 August 2026 that the demo uses Daily, with public Jitsi permitted as a
-fallback **for the demo only**, in a clearly labelled internal fake-data mode with these synthetic
-accounts. This is consistent with the register's standing position that public Jitsi is acceptable in a
-labelled fake-data mode and never a fallback for a real client call.
+For D5, the demo uses Jitsi as a Service (JaaS) with these synthetic accounts. JaaS provides
+server-enforced, short-lived participant JWTs under its free 25-MAU developer allowance, so a copied
+room URL alone does not grant access. This is a demo provider choice, not a real-launch approval. The
+detailed plan is in [JaaS demo video](d5-jaas-demo-video.md).
 
 Two things the implementation plan must hold:
 
@@ -70,7 +70,7 @@ appointment transitions), Q8 (real-launch provider), and Q12 (final go/no-go).
 - Five provisioned synthetic accounts with fixed, documented credentials held per the secrets policy.
 - Role-correct navigation for patient, psychiatrist, and admin.
 - A booking flow demonstrable end to end on synthetic appointments, honouring the confirmed rules: 45-minute sessions, patient cancellation only more than 24 hours ahead.
-- A labelled internal fake-data video mode using Daily, with public Jitsi as the demo fallback.
+- A labelled internal fake-data video mode using JaaS and server-issued participant JWTs.
 - A synthetic seed dataset that can be recreated from scratch, and is the only data the demo uses.
 
 ## Authoritative documents
@@ -84,7 +84,7 @@ appointment transitions), Q8 (real-launch provider), and Q12 (final go/no-go).
 ## Constraints carried from policy
 
 - Roles are never inferred from email, client state, editable metadata, or URLs — including in the demo. A demo shortcut here would be re-implemented as a real vulnerability later.
-- Public Jitsi is permitted only in this clearly labelled internal fake-data mode, and is never a fallback for a real call.
+- Public Jitsi is not used in D5. JaaS JWTs are required for every demo participant; a real-launch provider decision remains separate.
 - No sensitive data in `localStorage`, Redux persistence, logs, analytics, screenshots, URLs, or test artefacts, even when synthetic.
 
 ## Relationship to the phases
@@ -240,8 +240,8 @@ deny test in D7 is what evidences it.
 
 ### D5 — Labelled fake-data video mode
 
-- `get-meeting-access` as an Edge Function: confirm the caller is either the patient or the assigned psychiatrist on that appointment and that the appointment is in a state that admits a participant, then return the room reference. Specified in [database and RBAC](../../architecture/database-and-rbac.md#join-meeting).
-- With Daily, the function mints a short-lived, room-scoped and participant-scoped token server-side; no provider secret reaches the browser. With the Jitsi fallback it returns a random room identifier and no token.
+- `get-demo-meeting-access` as an Edge Function: confirm the caller is either the patient or the assigned psychiatrist on that appointment, that the appointment is booked, and that the server-only demo video mode is enabled, then return a short-lived, room- and participant-scoped JaaS JWT. The detailed contract and demo-only time boundary are in [JaaS demo video](d5-jaas-demo-video.md).
+- JaaS verifies the participant JWT. Orion's server check controls issuance and JaaS controls admission, so a copied room reference alone is insufficient.
 - Room identifiers are random and carry no client, psychiatrist, email, date, or appointment meaning, per the [video provider decision record](../../architecture/video-provider-decision-record.md#required-integration-pattern). A fixed `demo-synthetic-` prefix is permitted because it encodes nothing about a person; it also makes the demo status visible inside the provider's own interface.
 - Recording, transcription, chat, file transfer, and screen sharing are off, per the same record and [clinical safety](../../product/clinical-safety-and-telepsychiatry-policy.md#product-safeguards).
 - The two hardcoded `meet.jit.si` URLs are removed from `Appointments.jsx` in this step.

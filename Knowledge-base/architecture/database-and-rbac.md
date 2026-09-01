@@ -71,6 +71,10 @@ The `cancel-appointment` Edge Function validates ownership, verifies `starts_at 
 
 The `get-meeting-access` function validates that the caller is the patient or assigned psychiatrist and that the appointment is in its allowed join window before issuing a short-lived provider token.
 
+**D5 synthetic-demo provider:** JaaS receives a short-lived, room- and participant-scoped JWT only
+after the same relationship check. This still requires real-launch approval before any real session;
+see [JaaS demo video](../engineering/phases/d5-jaas-demo-video.md).
+
 ## Indexes and integrity
 
 - Index availability by `(psychiatrist_id, starts_at)` and open-slot lookup fields.

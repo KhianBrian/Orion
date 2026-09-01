@@ -48,7 +48,7 @@ Feature modules own their query/mutation functions and local UI. Shared code bel
 
 The first release does not need real-time subscriptions. A refresh/reload after booking is sufficient. Add Supabase Realtime later only if the UI must immediately reflect slot changes from another browser.
 
-Postgres with an indexed availability table and atomic booking transaction supports many simultaneous appointment requests. When volume grows, measure function latency, database connection use, and video-provider capacity before introducing queues, caching, or additional services.
+Postgres with an indexed availability table and atomic booking transaction supports many simultaneous appointment requests. When volume grows, measure function latency, database connection use, and video-provider capacity before introducing queues, caching, or additional services. Future scale options are collected in [Scale Options](scale-options.md).
 
 ## Privacy boundary
 

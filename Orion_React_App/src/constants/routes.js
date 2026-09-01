@@ -4,6 +4,7 @@ export const ROUTES = Object.freeze({
   ADMINISTRATION: "/dashboard",
   APP: "/app",
   APPOINTMENTS: "/appointments",
+  DEMO_MEETING: "/appointments/:appointmentId/meeting",
   BOOKING: "/patient-appointment",
   LOGIN: "/login",
 });

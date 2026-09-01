@@ -47,11 +47,12 @@ which is what this gate actually tests. Do not let demo success be read as Phase
 
 - A provider abstraction isolating the rest of the application from provider specifics, so the deferred Q8 decision does not require rework elsewhere.
 - Short-lived participant tokens minted server-side, scoped to one participant and one session.
+- A psychiatrist-only end-session action that ends the provider room for everyone, persists the early end, prevents further token issuance, and records the action in the audit trail. A participant's ordinary leave action must remain local to that participant.
 - Private rooms only — no static or public room URL, and no client-created room.
 - A preflight interface allowing a participant to check device and connection before joining.
 - Independent booking and video kill switches, each operable without the other.
 - Recording, transcription, chat, and file transfer disabled by default.
-- Verification of participant allow and deny, expiry and revocation, copied-link denial, outage behaviour, and a manual two-party call.
+- Verification of participant allow and deny, expiry and revocation, copied-link denial, psychiatrist-controlled early termination, outage behaviour, and a manual two-party call.
 
 ## Authoritative documents
 

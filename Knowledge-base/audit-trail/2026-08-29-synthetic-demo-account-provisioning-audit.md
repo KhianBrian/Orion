@@ -1,6 +1,6 @@
 # Synthetic Demo-Account Provisioning Audit
 
-**Date:** 2026-08-30
+**Date:** 2026-08-29
 **Scope:** Orion's dedicated non-production Supabase project; synthetic data only.
 
 ## Verified result ✅
@@ -38,8 +38,8 @@ the public self-sign-up endpoint. Provisioning therefore used the existing Orion
 connection to create confirmed synthetic Auth identities, then populated the existing server-side
 profile, psychiatrist, availability, and audit structures. No schema change or migration was made.
 The local service-role key remains intentionally absent until it is supplied through the ignored local
-environment; when available, the existing idempotent provisioner remains the preferred repeatable
-seed path.
+environment; when available, the existing idempotent provisioner remains the preferred repeatable seed
+path.
 
 ## Remaining work
 

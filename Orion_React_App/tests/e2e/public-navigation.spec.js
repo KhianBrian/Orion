@@ -29,6 +29,11 @@ test.describe("public navigation", () => {
     await expect(page).toHaveURL(/\/login$/);
   });
 
+  test("a visitor is redirected before reaching the protected meeting route", async ({ page }) => {
+    await page.goto("/appointments/00000000-0000-4000-8000-000000000000/meeting");
+    await expect(page).toHaveURL(/\/login$/);
+  });
+
   test("primary public links reach their destination pages", async ({ page }) => {
     await page.goto("/home");
 

@@ -5,6 +5,12 @@ import { supabase } from "../lib/supabase";
 import "./PatientAppointment.css";
 
 const manilaDateTime = new Intl.DateTimeFormat("en-PH", { dateStyle: "full", timeStyle: "short", timeZone: "Asia/Manila" });
+const earlyJoinMilliseconds = 15 * 60 * 1000;
+
+function isInDemoWindow(appointment) {
+  const now = Date.now();
+  return now >= new Date(appointment.starts_at).getTime() - earlyJoinMilliseconds && now < new Date(appointment.ends_at).getTime();
+}
 
 function psychiatristName(appointment) {
   const psychiatrist = Array.isArray(appointment.psychiatrist) ? appointment.psychiatrist[0] : appointment.psychiatrist;
@@ -78,7 +84,7 @@ export default function Appointments() {
     {state === "error" && <div className="schedule-message error"><p>Appointments could not be loaded.</p><button onClick={loadAppointments}>Try again</button></div>}
     {state === "empty" && <p role="status">No appointments are scheduled.</p>}
     {message && <p role="status" className={`schedule-message ${message.kind}`}>{message.text}</p>}
-    {state === "ready" && <section className="slot-list" aria-label="Appointments">{appointments.map((appointment) => <article className="slot-card" key={appointment.id}><h2>{isPatient ? psychiatristName(appointment) : "Assigned patient appointment"}</h2><p>{manilaDateTime.format(new Date(appointment.starts_at))}</p><p className="slot-duration">45 minutes · {appointment.status}</p>{isPatient && appointment.status === "booked" && <button onClick={() => selectAppointmentForCancellation(appointment)}>Cancel appointment</button>}</article>)}</section>}
+    {state === "ready" && <section className="slot-list" aria-label="Appointments">{appointments.map((appointment) => <article className="slot-card" key={appointment.id}><h2>{isPatient ? psychiatristName(appointment) : "Assigned patient appointment"}</h2><p>{manilaDateTime.format(new Date(appointment.starts_at))}</p><p className="slot-duration">45 minutes · {appointment.status}</p>{appointment.status === "booked" && isInDemoWindow(appointment) && <Link className="action-button" to={`/appointments/${appointment.id}/meeting`}>Join synthetic demo call</Link>}{isPatient && appointment.status === "booked" && <button onClick={() => selectAppointmentForCancellation(appointment)}>Cancel appointment</button>}</article>)}</section>}
     {selectedAppointment && <section className="booking-confirmation" aria-labelledby="cancel-appointment-title"><h2 id="cancel-appointment-title">Cancel this appointment?</h2><p>{psychiatristName(selectedAppointment)} — {manilaDateTime.format(new Date(selectedAppointment.starts_at))}</p><p>Patient cancellations are allowed only more than 24 hours before the appointment. The server will confirm whether this appointment is eligible.</p><div className="booking-actions"><button onClick={confirmCancellation} disabled={cancelling}>{cancelling ? "Cancelling…" : "Confirm cancellation"}</button><button className="secondary-action-button" onClick={() => { setSelectedAppointment(null); setCancellationRequestId(null); }}>Keep appointment</button></div></section>}
   </main>;
 }

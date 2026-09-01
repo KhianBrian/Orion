@@ -29,3 +29,8 @@ Rooms use random provider identifiers with no client, psychiatrist, email, date,
 | Public `meet.jit.si` | Internal fake-data prototype only | Never for real clients or psychiatrists |
 
 Public Jitsi may prove UI wiring internally, but it is not an authorisation boundary and must be behind a non-production-only video mode with synthetic data.
+
+The current no-card D5 demo uses JaaS's free 25-MAU developer allowance and server-issued
+participant JWTs. Its scoped implementation plan is
+[JaaS demo video](../engineering/phases/d5-jaas-demo-video.md); this is not a real-launch provider
+selection.

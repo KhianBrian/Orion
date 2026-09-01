@@ -9,6 +9,7 @@ import AccountHome from "../pages/AccountHome";
 import FeaturePlaceholder from "../pages/FeaturePlaceholder";
 import Appointments from "../pages/Appointments";
 import PatientAppointment from "../pages/PatientAppointment";
+import DemoMeeting from "../pages/DemoMeeting";
 import { RequireAbility, RequireAuth } from "../features/auth/RouteGuards";
 import { ROUTES, SUBJECTS } from "../constants/routes";
 
@@ -54,7 +55,10 @@ export const routeConfig = [
           },
           {
             element: <RequireAbility action="visit" subject={SUBJECTS.APPOINTMENTS} />,
-            children: [{ path: ROUTES.APPOINTMENTS.slice(1), element: <Appointments /> }],
+            children: [
+              { path: ROUTES.APPOINTMENTS.slice(1), element: <Appointments /> },
+              { path: ROUTES.DEMO_MEETING.slice(1), element: <DemoMeeting /> },
+            ],
           },
           ...protectedFeatureRoutes.map(({ path, subject, title }) => ({
             element: <RequireAbility action="visit" subject={subject} />,

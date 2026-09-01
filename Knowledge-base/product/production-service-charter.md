@@ -42,12 +42,11 @@ psychiatrists, and one admin. Demo mode has no public registration, no real clie
 information, and no production data. It exists to verify the login, RBAC, booking, and appointment flow
 before real-user approvals are complete.
 
-Video in demo mode uses Daily, with public Jitsi permitted as a fallback **for the demo only**, in a
-clearly labelled internal fake-data mode. This was decided on 27 August 2026 under register question 8
-and supersedes this section's previous exclusion of any public Jitsi session. Public Jitsi remains
-excluded from the launch gate above and is never a fallback for a real client call. The label must be
-unmissable and must not be disableable from the client, because it is the only thing distinguishing a
-permitted demo call from a prohibited real one.
+Video in demo mode uses Jitsi as a Service (JaaS) under its free 25-MAU developer allowance with
+server-issued, short-lived participant JWTs. This was updated on 31 August 2026 under register
+question 8. JaaS is not approved for real sessions until the launch gate's provider review is complete.
+Public Jitsi remains excluded from the launch gate and is never a fallback for a real client call. The
+synthetic-demo label must be unmissable and must not be disableable from the client.
 
 Two items remain open: whether the demo account set expands to six to include a secretary, and whether
 session notes appear in the demo at all.

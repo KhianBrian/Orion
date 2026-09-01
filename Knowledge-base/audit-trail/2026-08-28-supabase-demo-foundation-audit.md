@@ -1,6 +1,6 @@
 # Supabase Demo Foundation Audit
 
-**Date:** 2026-08-30
+**Date:** 2026-08-28
 **Scope:** Non-production, synthetic-data-only foundation for Orion's five-account owner demo.
 
 ## Completed ✅
