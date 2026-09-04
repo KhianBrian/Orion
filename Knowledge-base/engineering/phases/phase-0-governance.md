@@ -24,7 +24,8 @@ until this gate closes.
 | --- | --- |
 | Answered | Q4 eligibility and crisis path, Q6 data boundary including session notes, Q7 consent structure, Q12 approval authority |
 | Answered for the demo only | Q8 video provider |
-| Partially answered | Q1 registration model, Q3 psychiatrist approval, Q5 appointment transitions, Q10 support and secretary role, Q11 retention |
+| Answered — pending ratification | Q5 appointment transitions |
+| Partially answered | Q1 registration model, Q3 psychiatrist approval, Q10 support and secretary role, Q11 retention |
 | Deferred by the owners | Q2 entity and DPO, Q9 vendor terms |
 
 Two decisions changed the project's shape rather than merely filling a gap, and the implementation
@@ -34,11 +35,11 @@ the invitation vetting the original plan relied on.
 
 ## Remaining work in this phase
 
-- Obtain the outstanding answers listed in the register's *Outstanding for the next owner meeting* section: Q3 approver and criteria, Q5 remaining transitions, Q10 stop authority and escalation, Q11 retention and deletion, and Q1 geography/operating review.
+- Obtain the outstanding answers listed in the register's *Outstanding for the next owner meeting* section: Q3 approver and criteria, Q5 ratification and referred items, Q10 stop authority and escalation, Q11 retention and deletion, and Q1 geography/operating review.
 - Obtain a clinical ruling on the two items in the register's *Referred to the clinical lead* section: the clinical-emergency position, and the governance of patient-visible session notes.
 - Confirm the two *New decisions arising*: secretary role detail, and whether the demo account set expands to six.
 - Draft for owner approval: privacy notice, telepsychiatry consent wording now covering session notes, retention schedule, and emergency/referral routing.
-- Update the four knowledge-base documents the register lists as now in conflict, before Phase 2 implementation begins.
+- Confirm the four knowledge-base documents recorded by the register as reconciled, and complete the two additional architecture-document corrections identified in P0-4 before Phase 2 implementation begins.
 
 ## Consumes
 
@@ -55,7 +56,7 @@ The developer may draft, recommend, and prepare; only owners may decide.
 - A named working owner and decision authority for each responsibility in the register's ownership table.
 - A formally appointed DPO using a role email rather than a personal address, per [NPC guidance](https://privacy.gov.ph/appointing-a-data-protection-officer/). *Deferred by the owners; still required before real data.*
 - A named licensed clinical lead accountable for safety, clinician verification, eligibility, and referrals. *Outstanding.*
-- A recorded owner decision against each of register questions 1–12, with status moved off *Open*. *Seven complete.*
+- A recorded owner decision against each of register questions 1–12, with status moved off *Open*. *Six answered in some form; four partial and two deferred.*
 - Written pilot criteria defining who may participate, how many, and under what operational review. *Partially complete.*
 - Drafts prepared by the developer for owner approval: privacy notice, telepsychiatry consent wording, retention schedule, vendor comparison, and emergency/referral routing.
 
@@ -74,7 +75,7 @@ The developer may draft, recommend, and prepare; only owners may decide.
 | Q1 pilot bounds, Q12 go/no-go | Phase 6 release | Q12 answered; Q1 partial |
 | Q2 legal entity and DPO | Phase 1 production vendor accounts, Phase 6 launch | Deferred |
 | Q3 psychiatrist approval, Q4 eligibility and emergency path | Phase 3 provisioning, Phase 4 booking eligibility | Q4 answered; Q3 partial |
-| Q5 cancellation, reschedule, no-show, slot reopening | Phase 4 state machine, Phase 2 status model | Partial — the main remaining planning blocker |
+| Q5 cancellation, reschedule, no-show, slot reopening | Phase 4 state machine, Phase 2 status model | Answered — pending ratification and referred items |
 | Q6 permitted data categories | Phase 2 schema and forms | Answered, scope widened |
 | Q7 privacy, consent, and communications | Phase 2 consent tables, Phase 3 sign-up | Answered for structure |
 | Q8 approved video provider | Phase 5 in its entirety | Demo only; real launch deferred |
@@ -111,13 +112,10 @@ on 27 August 2026.
 Three appointments named in the register's ownership table are still unfilled: the **DPO**, the
 **licensed clinical lead**, and the **legal entity acting as Personal Information Controller**.
 
-**Three documents give three different counts.** The register's table yields six answered; the
-charter's own progress table above yields five, because it places Q5 under *Partially answered*; the
-[phases index](README.md#current-position) says seven. The register is the authority and the other two
-are derived, so this plan works from the register. Two corrections follow.
-
-- **Q5 is not partially answered.** The transitions were recorded in full in the [appointment lifecycle](../../product/appointment-lifecycle.md#approved-transitions). What remains is ratification and two referred items — a materially different ask from "obtain the remaining transitions", which is what the charter's *Remaining work in this phase* still says. Asking owners to decide something already decided invites a contradictory answer.
-- **The charter's prerequisite item is complete.** *Remaining work* asks for four knowledge-base documents to be updated before Phase 2. All four were reconciled on 27 August 2026 and the register records it. Two **other** documents were missed, which is a different item — see *Document reconciliation* below.
+The register is the single source of truth for decision status. It currently records six questions
+answered in some form (including Q5 pending ratification), four partially answered, and two deferred.
+The four policy documents affected by Q6 are reconciled; P0-4 separately records the two architecture
+documents that still need their technical statements aligned.
 
 ## The finding that should shape the next meeting
 

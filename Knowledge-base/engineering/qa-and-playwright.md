@@ -25,9 +25,16 @@ The app uses `@playwright/test` with Chromium and a Pixel 5 mobile viewport. Pla
 npm run test:e2e
 npm run test:e2e:authenticated
 npm run test:db:cancellation
+npm run seed:human-checks
 npm run test:e2e:ui
 npm run test:e2e:report
 ```
+
+For repeatable human checks of booking and cancellation after frontend changes, use the
+[synthetic human-check checklist](repeatable-human-checks.md). The seed command creates only its
+recorded synthetic fixtures and refreshes them on the next run. Run both its successful
+more-than-24-hour cancellation path and its within-24-hour denial path whenever a frontend change
+could affect appointment state, error/toast copy, or pagination.
 
 `playwright.config.js` loads the ignored `Orion_React_App/.env` automatically. The authenticated
 suite remains opt-in through `RUN_SCHEDULING_E2E=1`; when explicitly enabled, missing demo passwords

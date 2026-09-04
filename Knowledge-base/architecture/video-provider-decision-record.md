@@ -32,5 +32,5 @@ Public Jitsi may prove UI wiring internally, but it is not an authorisation boun
 
 The current no-card D5 demo uses JaaS's free 25-MAU developer allowance and server-issued
 participant JWTs. Its scoped implementation plan is
-[JaaS demo video](../engineering/phases/d5-jaas-demo-video.md); this is not a real-launch provider
+[JaaS video work package](../engineering/phases/demo-milestone-jaas-video.md); this is not a real-launch provider
 selection.

@@ -62,17 +62,17 @@ sensitive object in the schema.
 - [Database and RBAC](../../architecture/database-and-rbac.md) — the primary authority for this phase.
 - [Access control and audit policy](../../architecture/access-control-and-audit-policy.md) — audit and access requirements.
 - [Appointment lifecycle](../../product/appointment-lifecycle.md) — states, transitions, and timing rules.
-- [Data classification and data dictionary](../../governance/data-classification-and-data-dictionary.md) — **needs updating before implementation**; session notes are not yet classified.
-- [Privacy governance](../../governance/privacy-governance.md) — **needs updating before implementation**; consent and retention do not yet cover clinical content.
+- [Data classification and data dictionary](../../governance/data-classification-and-data-dictionary.md) — reconciled for session notes; Q11 retention remains open.
+- [Privacy governance](../../governance/privacy-governance.md) — reconciled for clinical content; DPO/legal questions and Q11 remain open.
 - [Test strategy and test data policy](../test-strategy-and-test-data-policy.md) — RLS test expectations.
 
 ## Prerequisite outside this folder
 
-The Q6 decision moves Orion from scheduling-only to holding clinical content. Three knowledge-base
-documents still state that Orion holds no clinical notes. Per the
+The Q6 decision moved Orion from scheduling-only to holding clinical content. The register records
+the product scope, data classification, privacy governance, and service charter as reconciled. Per the
 [authority order](../../README.md#authority-order), those documents govern until deliberately updated,
-so **the schema must not be built ahead of them**. Update data classification, privacy governance, and
-product scope first.
+the remaining open policy questions still govern the schema: do not invent retention or deletion
+behaviour, and do not treat the note-release rule as a legal privacy boundary.
 
 ## Notes are the highest-risk object in this schema
 

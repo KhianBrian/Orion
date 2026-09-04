@@ -1,4 +1,9 @@
-# D5 - JaaS Demo Video
+# Demo Milestone — JaaS Video Work Package
+
+**Type:** Companion work package under [Demo Milestone — Five-Account Synthetic Demo](demo-milestone.md), not a delivery-plan phase.
+
+This document contains the detailed implementation and verification plan for the demo's JaaS video
+slice. It must not be interpreted as Phase 5 production video approval.
 
 ## Outcome
 

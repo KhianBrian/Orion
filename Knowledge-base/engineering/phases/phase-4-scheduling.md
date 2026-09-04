@@ -64,7 +64,7 @@ before this phase is built rather than after.
 ## Authoritative documents
 
 - [Appointment lifecycle](../../product/appointment-lifecycle.md) — the primary authority for this phase.
-- [Product scope](../../product/product-scope.md) — **needs updating**; the approved boundary does not yet include session notes.
+- [Product scope](../../product/product-scope.md) — reconciled to include session notes and the secretary role; Q5/Q11 policy decisions still apply.
 - [Database and RBAC](../../architecture/database-and-rbac.md) — the functions and policies this workflow calls.
 - [Clinical safety and telepsychiatry policy](../../product/clinical-safety-and-telepsychiatry-policy.md) — eligibility and crisis routing at the point of booking.
 - [QA and Playwright](../qa-and-playwright.md) — click-path and route verification.

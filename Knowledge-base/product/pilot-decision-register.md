@@ -1,5 +1,67 @@
 # Pilot Decision Register
 
+## This afternoon's meeting — plain-English decision brief
+
+### What is already agreed
+
+- The next milestone is a **safe demo with fake data**, not a real launch. It has exactly five accounts: two patients, two psychiatrists, and one admin. No real people, appointments, sessions, or public video calls are involved.
+- For the demo, Orion will use Jitsi as a Service with short-lived access tokens. That approval is for the demo only, not for real patient sessions.
+- Patients may create their own accounts at launch, but only adults may use the service at first. They will confirm their age themselves; Orion will not collect ID.
+- Orion is an appointment-booking service, not an emergency or urgent-care service. Patient-facing crisis and referral wording still needs clinical approval.
+- Appointments are 45 minutes. Patients can cancel or reschedule more than 24 hours before the appointment. Psychiatrists need 48 hours' notice to cancel themselves; after that, a secretary or admin must handle it and record why. A psychiatrist, not the system, marks a no-show after a grace period.
+- Orion may keep session notes written by psychiatrists. Patients see a note only after the psychiatrist releases it. Corrections become visible amendments; the original note stays on record. Secretaries must never see notes.
+- Orion will not collect prescriptions, diagnoses, recordings, transcripts, chat messages, file uploads, or reasons for visit.
+- Patients will see three separate, versioned agreements: privacy notice, telepsychiatry consent, and optional communications.
+- A secretary role is approved in principle for bookings and client questions. It can see appointment and contact details, but never session notes.
+- Company owners make the final decision on whether Orion can move from the fake-data demo to a real-user pilot.
+
+### Decisions needed today
+
+1. **Who is the named clinical lead, and who can approve psychiatrists?**
+   - **What this is about:** deciding who is clinically responsible for safety, referrals, and deciding whether a psychiatrist is fit to use Orion.
+   - **This decision answers:** which qualifications must be checked, who checks them, how often they are renewed, and who may approve, suspend, or reactivate a psychiatrist.
+   - **Why it matters:** Orion cannot safely offer real sessions until a qualified person owns these decisions.
+2. **What are the rules for no-shows and joining sessions?**
+   - **What this is about:** agreeing what happens when a patient or psychiatrist is late, absent, or joins close to the session time.
+   - **This decision answers:** the no-show grace period (15 minutes is recommended), the early-join window, what happens at session end, and whether Orion records who missed the session.
+   - **Why it matters:** these rules determine the booking system behaviour and prevent staff from making inconsistent decisions case by case.
+3. **How long should Orion keep each type of information, and what can be deleted?**
+   - **What this is about:** setting a clear record-keeping and deletion policy for patient and operational information.
+   - **This decision answers:** how long to keep account details, appointments, consents, audit logs, session notes, backups, and security logs, and what happens after account closure or a deletion request.
+   - **Why it matters:** session notes may have special clinical retention requirements, so Orion must know what it is allowed to delete and what it must keep.
+4. **Which legal entity operates Orion, and who is the DPO/privacy owner?**
+   - **What this is about:** identifying the organisation legally responsible for patient information and the person responsible for privacy governance.
+   - **This decision answers:** the legal operator of Orion and the formally appointed DPO/privacy owner.
+   - **Why it matters:** this is required before Orion processes real patient data or enters production vendor agreements.
+5. **What exact patient-facing wording should Orion use?**
+   - **What this is about:** making sure patients receive clear, approved information before they sign up or attend a session.
+   - **This decision answers:** the final privacy notice, telepsychiatry consent, optional communications wording, and crisis/referral wording, including how session notes work and who can access them.
+   - **Why it matters:** patients need an understandable explanation of the service boundary and how their information is used.
+6. **Who owns support and incident decisions?**
+   - **What this is about:** defining who helps clients and who takes charge if Orion has a technical, security, or clinical problem.
+   - **This decision answers:** support hours, clinical and security escalation contacts, client communication during an incident, and who can stop bookings or video.
+   - **Why it matters:** a real-user service needs clear ownership and fast action when something goes wrong.
+7. **Where may Orion launch, and how will the team monitor demand?**
+   - **What this is about:** setting the first launch area and agreeing how the team will watch usage as the service grows.
+   - **This decision answers:** the approved geography, review cadence, and the trigger for scaling work. There will be no patient cap.
+   - **Why it matters:** the team needs a shared boundary for launch and a way to respond before demand affects quality or reliability.
+8. **Which video provider and vendor terms are approved for real sessions?**
+   - **What this is about:** choosing the technology companies Orion may trust with real patient information and video sessions.
+   - **This decision answers:** the real-session video provider and whether Supabase and that provider have acceptable data location, subcontractor, breach-support, and retention/deletion terms.
+   - **Why it matters:** the demo approval does not cover real patients; vendor approval is required before real video sessions begin.
+9. **How should the secretary role work?**
+   - **What this is about:** defining what administrative staff may do and see while protecting clinical information.
+   - **This decision answers:** whether secretaries work for individual psychiatrists or the whole clinic, whether they may book or cancel for patients, and whether they may see that a session note exists.
+   - **Why it matters:** the answer controls staff permissions and ensures secretaries never gain access to session-note content.
+10. **What should the demo include?**
+   - **What this is about:** agreeing the exact scope of the fake-data demonstration for company owners.
+   - **This decision answers:** whether to add a sixth demo account for a secretary and whether to show the session-note feature.
+   - **Why it matters:** a fixed scope keeps the demo focused and prevents it from being mistaken for approval to launch with real users.
+
+### Non-negotiable launch gates
+
+Orion must not accept real patient data or run real sessions until a legal entity and DPO are appointed, vendor terms are approved, a clinical lead is named, real-session video is approved, patient wording is approved, retention rules are set, and incident/support ownership is clear.
+
 ## Purpose
 
 This is the single meeting agenda and decision log for policies that engineering must not invent. It lets Phase 0 progress through preparation while keeping unanswered matters as explicit launch blockers.
@@ -133,6 +195,8 @@ to close Q2 sooner than "anytime". Full text in
 
 - **Secretary role scope.** Confirmed in principle: appointments and contact details only, never session notes. Still to confirm: whether a secretary is assigned per psychiatrist or works clinic-wide, whether they may book or cancel on a client's behalf, and whether they may see that a note exists without opening it.
 - **Demo account set.** The milestone above fixes exactly five accounts. Confirm whether it expands to six to include a secretary, and whether session notes appear in the demo at all.
+
+- **MFA role scope.** Before real-user launch, confirm which roles must use an additional login step (recommended: psychiatrist, secretary, and admin), who approves exceptions, and when enforcement is required. Implementation is tracked in [Phase 12](../engineering/phases/phase-12-mfa-and-privileged-access.md); the synthetic demo remains MFA-free.
 
 ## Knowledge-base documents reconciled
 

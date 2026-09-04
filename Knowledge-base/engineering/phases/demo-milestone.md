@@ -39,7 +39,7 @@ otherwise, and keep both as clearly separable increments.
 For D5, the demo uses Jitsi as a Service (JaaS) with these synthetic accounts. JaaS provides
 server-enforced, short-lived participant JWTs under its free 25-MAU developer allowance, so a copied
 room URL alone does not grant access. This is a demo provider choice, not a real-launch approval. The
-detailed plan is in [JaaS demo video](d5-jaas-demo-video.md).
+detailed plan is in [JaaS video work package](demo-milestone-jaas-video.md).
 
 Two things the implementation plan must hold:
 
@@ -240,7 +240,7 @@ deny test in D7 is what evidences it.
 
 ### D5 — Labelled fake-data video mode
 
-- `get-demo-meeting-access` as an Edge Function: confirm the caller is either the patient or the assigned psychiatrist on that appointment, that the appointment is booked, and that the server-only demo video mode is enabled, then return a short-lived, room- and participant-scoped JaaS JWT. The detailed contract and demo-only time boundary are in [JaaS demo video](d5-jaas-demo-video.md).
+- `get-demo-meeting-access` as an Edge Function: confirm the caller is either the patient or the assigned psychiatrist on that appointment, that the appointment is booked, and that the server-only demo video mode is enabled, then return a short-lived, room- and participant-scoped JaaS JWT. The detailed contract and demo-only time boundary are in [JaaS video work package](demo-milestone-jaas-video.md).
 - JaaS verifies the participant JWT. Orion's server check controls issuance and JaaS controls admission, so a copied room reference alone is insufficient.
 - Room identifiers are random and carry no client, psychiatrist, email, date, or appointment meaning, per the [video provider decision record](../../architecture/video-provider-decision-record.md#required-integration-pattern). A fixed `demo-synthetic-` prefix is permitted because it encodes nothing about a person; it also makes the demo status visible inside the provider's own interface.
 - Recording, transcription, chat, file transfer, and screen sharing are off, per the same record and [clinical safety](../../product/clinical-safety-and-telepsychiatry-policy.md#product-safeguards).
@@ -349,7 +349,8 @@ with the phase that resolves each, per the charter's *Relationship to the phases
 
 | Area | Deferred | Close when |
 | --- | --- | --- |
-| Identity | No registration, no invitation or provisioning workflow, no psychiatrist approval state, no MFA, no account recovery | Phase 3 |
+| Identity | No registration, no invitation or provisioning workflow, no psychiatrist approval state, no account recovery | Phase 3 |
+| Privileged access | No MFA in the synthetic demo | Phase 12 |
 | Roles | Three roles rather than four; no secretary | Phase 2, after the architecture documents are reconciled |
 | Clinical content | No session notes table, no release state, no audited reads | Phase 2, and only once register Q11 is answered |
 | Consent | No consent records captured | Phase 3, against owner-approved wording |

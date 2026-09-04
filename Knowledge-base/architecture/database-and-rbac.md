@@ -73,7 +73,7 @@ The `get-meeting-access` function validates that the caller is the patient or as
 
 **D5 synthetic-demo provider:** JaaS receives a short-lived, room- and participant-scoped JWT only
 after the same relationship check. This still requires real-launch approval before any real session;
-see [JaaS demo video](../engineering/phases/d5-jaas-demo-video.md).
+see [JaaS video work package](../engineering/phases/demo-milestone-jaas-video.md).
 
 ## Indexes and integrity
 
