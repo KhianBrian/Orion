@@ -15,6 +15,8 @@ This folder contains dated records of completed audits and implementation passes
 | [2026-08-31 D4 patient cancellation implementation](2026-08-31-d4-patient-cancellation-implementation-audit.md) | Server-authoritative patient cancellation boundary, UI confirmation, idempotency, and verification limits. |
 | [2026-09-01 D5 JaaS synthetic-demo video implementation](2026-09-01-d5-jaas-demo-video-implementation-audit.md) | JaaS access authorization, participant JWT boundary, protected meeting UI, containment controls, and pending provider/manual verification. |
 | [2026-09-01 D5 JaaS deployment and early-join update](2026-09-01-d5-jaas-demo-video-deployment-and-early-join-audit.md) | Server-secret configuration, deployed JWT-protected function, 15-minute early-join correction, and remaining D5 closure evidence. |
+| [2026-09-02 D7 synthetic-demo verification](2026-09-02-d7-synthetic-demo-verification-audit.md) | Completed unit, transaction, RLS, authenticated desktop/mobile, public-route, and repeatable human cancellation evidence; owner walkthrough is deferred to frontend acceptance. |
+| [2026-09-04 Phase 7 frontend state foundation](2026-09-04-phase-7-frontend-state-foundation-audit.md) | Synthetic-session refresh, in-memory server-state cache and invalidation, protected-cache clearing, persistent authenticated shell, and meeting-window boundary refresh. |
 
 Read an audit when you need to understand why an existing UI or file looks the way it does, what was already verified, or which limitations remain open. When an audit conflicts with current product scope or architecture, the current parent document wins.
 

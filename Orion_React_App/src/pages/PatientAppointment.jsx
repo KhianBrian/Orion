@@ -1,5 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { appointmentQueryKey, fetchOpenAvailability, openAvailabilityQueryKey } from "../features/appointments/queries";
+import { useAuth } from "../features/auth/authContext";
 import { supabase } from "../lib/supabase";
 import "./PatientAppointment.css";
 
@@ -16,29 +19,20 @@ async function errorCode(error) {
 }
 
 export default function PatientAppointment() {
-  const [slots, setSlots] = useState([]);
-  const [state, setState] = useState("loading");
+  const { profile } = useAuth();
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [requestId, setRequestId] = useState(null);
-  const [booking, setBooking] = useState(false);
   const [message, setMessage] = useState(null);
-
-  const loadSlots = useCallback(async () => {
-    setState("loading");
-    const { data, error } = await supabase
-      .from("availability_slots")
-      .select("id, starts_at, ends_at, psychiatrist:psychiatrists!availability_slots_psychiatrist_id_fkey(display_name)")
-      .eq("status", "open")
-      .order("starts_at", { ascending: true });
-    if (error) return setState("error");
-    setSlots(data || []);
-    setState(data?.length ? "ready" : "empty");
-  }, []);
-
-  useEffect(() => {
-    const frame = requestAnimationFrame(loadSlots);
-    return () => cancelAnimationFrame(frame);
-  }, [loadSlots]);
+  const client = useQueryClient();
+  const { data: slots = [], error, isPending, refetch } = useQuery({
+    queryKey: openAvailabilityQueryKey,
+    queryFn: fetchOpenAvailability,
+  });
+  const bookingMutation = useMutation({
+    mutationFn: ({ slotId, idempotencyKey }) => supabase.functions.invoke("book-appointment", {
+      body: { slotId, idempotencyKey },
+    }),
+  });
 
   const selectSlot = (slot) => {
     setSelectedSlot(slot);
@@ -48,37 +42,41 @@ export default function PatientAppointment() {
 
   const confirmBooking = async () => {
     if (!selectedSlot || !requestId) return;
-    setBooking(true);
     setMessage(null);
-    const { error } = await supabase.functions.invoke("book-appointment", {
-      body: { slotId: selectedSlot.id, idempotencyKey: requestId },
-    });
-    if (error) {
-      if (await errorCode(error) === "slot_unavailable") {
+    try {
+      const { error: mutationError } = await bookingMutation.mutateAsync({
+        slotId: selectedSlot.id,
+        idempotencyKey: requestId,
+      });
+      if (mutationError) throw mutationError;
+    } catch (mutationError) {
+      if (await errorCode(mutationError) === "slot_unavailable") {
         setMessage({ kind: "conflict", text: "This slot is no longer available. Please choose another time." });
         setSelectedSlot(null);
         setRequestId(null);
-        await loadSlots();
+        await client.invalidateQueries({ queryKey: openAvailabilityQueryKey });
       } else {
         setMessage({ kind: "error", text: "We could not complete the booking. Please try again." });
       }
-      setBooking(false);
       return;
     }
+
     setMessage({ kind: "success", text: "Your synthetic demo appointment is booked." });
     setSelectedSlot(null);
     setRequestId(null);
-    setBooking(false);
-    await loadSlots();
+    await Promise.all([
+      client.invalidateQueries({ queryKey: openAvailabilityQueryKey }),
+      client.invalidateQueries({ queryKey: appointmentQueryKey(profile.id) }),
+    ]);
   };
 
   return <main className="scheduling-page">
     <div className="scheduling-header"><div><p className="eyebrow">Synthetic demo</p><h1>Book an appointment</h1><p>All times are shown in Manila time. Each session is 45 minutes.</p></div><Link className="secondary-action-button" to="/appointments">My appointments</Link></div>
     {message && <p role="status" className={`schedule-message ${message.kind}`}>{message.text}</p>}
-    {state === "loading" && <p role="status">Loading available psychiatrists and appointment slots…</p>}
-    {state === "error" && <div className="schedule-message error"><p>Available slots could not be loaded.</p><button onClick={loadSlots}>Try again</button></div>}
-    {state === "empty" && <p role="status">There are no open appointment slots at this time.</p>}
-    {state === "ready" && <section className="slot-list" aria-label="Open appointment slots">{slots.map((slot) => <article className="slot-card" key={slot.id}><h2>{psychiatristName(slot)}</h2><p>{manilaDateTime.format(new Date(slot.starts_at))}</p><p className="slot-duration">45 minutes</p><button onClick={() => selectSlot(slot)}>Choose this slot</button></article>)}</section>}
-    {selectedSlot && <section className="booking-confirmation" aria-labelledby="confirm-booking-title"><h2 id="confirm-booking-title">Confirm your appointment</h2><p>{psychiatristName(selectedSlot)} — {manilaDateTime.format(new Date(selectedSlot.starts_at))} (45 minutes)</p><div className="booking-actions"><button onClick={confirmBooking} disabled={booking}>{booking ? "Booking…" : "Confirm booking"}</button><button className="secondary-action-button" onClick={() => { setSelectedSlot(null); setRequestId(null); }}>Choose another slot</button></div></section>}
+    {isPending && <p role="status">Loading available psychiatrists and appointment slots…</p>}
+    {error && <div className="schedule-message error"><p>Available slots could not be loaded.</p><button onClick={() => refetch()}>Try again</button></div>}
+    {!isPending && !error && !slots.length && <p role="status">There are no open appointment slots at this time.</p>}
+    {!isPending && !error && slots.length > 0 && <section className="slot-list" aria-label="Open appointment slots">{slots.map((slot) => <article className="slot-card" key={slot.id}><h2>{psychiatristName(slot)}</h2><p>{manilaDateTime.format(new Date(slot.starts_at))}</p><p className="slot-duration">45 minutes</p><button onClick={() => selectSlot(slot)}>Choose this slot</button></article>)}</section>}
+    {selectedSlot && <section className="booking-confirmation" aria-labelledby="confirm-booking-title"><h2 id="confirm-booking-title">Confirm your appointment</h2><p>{psychiatristName(selectedSlot)} — {manilaDateTime.format(new Date(selectedSlot.starts_at))} (45 minutes)</p><div className="booking-actions"><button onClick={confirmBooking} disabled={bookingMutation.isPending}>{bookingMutation.isPending ? "Booking…" : "Confirm booking"}</button><button className="secondary-action-button" onClick={() => { setSelectedSlot(null); setRequestId(null); }}>Choose another slot</button></div></section>}
   </main>;
 }

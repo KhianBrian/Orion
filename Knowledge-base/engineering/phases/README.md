@@ -71,19 +71,39 @@ preferences; each one prevents a specific failure this project cannot absorb.
 | File | Covers | Tier 2 status |
 | --- | --- | --- |
 | [Demo milestone](demo-milestone.md) | The five-account synthetic demo — a cross-cutting track, not a phase. | **Ready to plan — immediate priority** |
-| [Phase 0 — Governance and service design](phase-0-governance.md) | Owner appointments, policy decisions, pilot criteria. | In progress — 7 of 12 answered |
+| [Demo milestone — JaaS video work package](demo-milestone-jaas-video.md) | Detailed D5 implementation and verification under the synthetic demo; not production Phase 5. | Companion work package |
+| [Phase 0 — Governance and service design](phase-0-governance.md) | Owner appointments, policy decisions, pilot criteria. | In progress — 6 answered in some form; 4 partial; 2 deferred |
 | [Phase 1 — Secure platform baseline](phase-1-baseline.md) | Environments, secrets, CI/CD, migrations, backups, monitoring. | Ready to plan — non-production scope only |
 | [Phase 2 — Data, RBAC, consent, and audit](phase-2-data-rbac.md) | Schema, RLS, private functions, session notes, lifecycle and concurrency. | **Plannable** — only Q11 retention stays provisional |
-| [Phase 3 — Replace prototype identity](phase-3-identity.md) | Supabase Auth, provisioning, role-aware routes, MFA. | Plannable once Phase 2 as-built exists — no longer decision-blocked |
+| [Phase 3 — Replace prototype identity](phase-3-identity.md) | Supabase Auth, provisioning, and role-aware routes. | Plannable once Phase 2 as-built exists — no longer decision-blocked |
 | [Phase 4 — One safe scheduling workflow](phase-4-scheduling.md) | Server-authoritative booking, cancellation, notes surface, conflict states. | **Plannable** — state machine settled; four values carried as named gaps |
 | [Phase 5 — Approved private video](phase-5-video.md) | Provider integration, short-lived tokens, kill switches. | Blocked — Q8 real-launch provider deferred by the owners |
 | [Phase 6 — Operations and controlled release](phase-6-operations.md) | Admin tooling, runbooks, reviews, release approval. | Blocked — Q1, Q10, Q11 open or partial |
+
+## Continuation phases
+
+D0–D7 implementation and verification slices are complete for the five-account synthetic demo. The
+overall application remains subject to open privacy, clinical, legal, business, and operational
+decisions. The following plans continue the demo/frontend track without implying that the controlled-
+pilot Phase 0–6 gates are closed:
+
+| Step | Covers | Status |
+| --- | --- | --- |
+| [Phase 7 — Frontend state and session foundation](phase-7-frontend-state-foundation.md) | Refresh-safe synthetic sessions, server-state cache boundaries, invalidation, persistent authenticated-shell boundary, and clock-driven join visibility. | Completed ✅ |
+| [Phase 8 — UI system and application shell](phase-8-ui-system-and-app-shell.md) | Responsive shell, approved navigation, shared buttons/dialogs/statuses, and accessibility foundations. | Planned |
+| [Phase 9 — Appointment experience](phase-9-appointment-experience.md) | Safe patient display name for assigned psychiatrists, appointment presentation, and centered cancellation confirmation/denial. | Planned |
+| [Phase 10 — Focused meeting experience](phase-10-meeting-experience.md) | Unobscured responsive call layout, dedicated meeting shell, and lazy-loaded JaaS route. | Planned |
+| [Phase 11 — Frontend performance and acceptance](phase-11-frontend-acceptance.md) | Performance, privacy, accessibility, regression matrix, and deferred owner walkthrough. | Planned |
+| [Phase 12 — Multi-factor authentication and privileged access](phase-12-mfa-and-privileged-access.md) | Second-factor enforcement, recovery/offboarding protection, and privileged-access verification. | Planned — owner role decision required |
+
+Each step requires its own dated as-built audit before the next step is treated as complete. These
+steps remain synthetic-data-only and authorise no real accounts, appointments, or consultations.
 
 ## Current position
 
 Updated 27 August 2026, following the first owner review.
 
-Seven of the twelve register questions are now answered, and the
+Six of the twelve register questions are answered in some form, four are partially answered, and two are deferred. The
 [pilot decision register](../../product/pilot-decision-register.md) records each decision along with
 the items carried to the next meeting. **The demo milestone is the immediate priority** — the owners
 confirmed the synthetic demo is showcased to them before any real-user decision.

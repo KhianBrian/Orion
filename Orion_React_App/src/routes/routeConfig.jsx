@@ -11,6 +11,7 @@ import Appointments from "../pages/Appointments";
 import PatientAppointment from "../pages/PatientAppointment";
 import DemoMeeting from "../pages/DemoMeeting";
 import { RequireAbility, RequireAuth } from "../features/auth/RouteGuards";
+import { AuthenticatedShell } from "../features/auth/AuthenticatedShell";
 import { ROUTES, SUBJECTS } from "../constants/routes";
 
 const protectedFeatureRoutes = [
@@ -48,22 +49,27 @@ export const routeConfig = [
       {
         element: <RequireAuth />,
         children: [
-          { path: ROUTES.APP.slice(1), element: <AccountHome /> },
           {
-            element: <RequireAbility action="visit" subject={SUBJECTS.BOOKING} />,
-            children: [{ path: ROUTES.BOOKING.slice(1), element: <PatientAppointment /> }],
-          },
-          {
-            element: <RequireAbility action="visit" subject={SUBJECTS.APPOINTMENTS} />,
+            element: <AuthenticatedShell />,
             children: [
-              { path: ROUTES.APPOINTMENTS.slice(1), element: <Appointments /> },
-              { path: ROUTES.DEMO_MEETING.slice(1), element: <DemoMeeting /> },
+              { path: ROUTES.APP.slice(1), element: <AccountHome /> },
+              {
+                element: <RequireAbility action="visit" subject={SUBJECTS.BOOKING} />,
+                children: [{ path: ROUTES.BOOKING.slice(1), element: <PatientAppointment /> }],
+              },
+              {
+                element: <RequireAbility action="visit" subject={SUBJECTS.APPOINTMENTS} />,
+                children: [
+                  { path: ROUTES.APPOINTMENTS.slice(1), element: <Appointments /> },
+                  { path: ROUTES.DEMO_MEETING.slice(1), element: <DemoMeeting /> },
+                ],
+              },
+              ...protectedFeatureRoutes.map(({ path, subject, title }) => ({
+                element: <RequireAbility action="visit" subject={subject} />,
+                children: [{ path, element: <FeaturePlaceholder title={title} /> }],
+              })),
             ],
           },
-          ...protectedFeatureRoutes.map(({ path, subject, title }) => ({
-            element: <RequireAbility action="visit" subject={subject} />,
-            children: [{ path, element: <FeaturePlaceholder title={title} /> }],
-          })),
         ],
       },
     ],
