@@ -1,6 +1,6 @@
 # Orion — Synthetic Demo Progress Report
 
-**Reporting period:** 26 August–2 September 2026  
+**Reporting period:** 26 August–2 September 2026
 **Status:** Completed synthetic-demo milestone; not approved for real users or real clinical use
 
 ---
