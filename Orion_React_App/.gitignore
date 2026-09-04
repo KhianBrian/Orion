@@ -16,6 +16,7 @@ dist-ssr
 !.env.example
 !.env.*.example
 playwright/.auth/
+playwright/.human-check-fixtures.json
 playwright-report/
 test-results/
 

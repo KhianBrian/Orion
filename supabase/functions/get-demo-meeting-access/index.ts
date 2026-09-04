@@ -19,7 +19,7 @@ function response(body: Record<string, unknown>, status: number) {
   });
 }
 
-function audit(serviceClient: ReturnType<typeof createClient>, actorId: string | null, appointmentId: string | null, outcome: "success" | "failure", reasonCode: string) {
+function audit(serviceClient: ReturnType<typeof createClient>, actorId: string | null, appointmentId: string | null, outcome: "success" | "denied", reasonCode: string) {
   return serviceClient.from("audit_events").insert({
     actor_id: actorId,
     event_code: "demo_meeting_access",
@@ -52,17 +52,17 @@ Deno.serve(async (request) => {
       ? payload.appointmentId
       : null;
   } catch {
-    await audit(serviceClient, actorId, appointmentId, "failure", "invalid_request");
+    await audit(serviceClient, actorId, appointmentId, "denied", "invalid_request");
     return response({ error: denial }, 400);
   }
 
   if (!appointmentId) {
-    await audit(serviceClient, actorId, appointmentId, "failure", "invalid_request");
+    await audit(serviceClient, actorId, appointmentId, "denied", "invalid_request");
     return response({ error: denial }, 400);
   }
 
   if (!authorization) {
-    await audit(serviceClient, actorId, appointmentId, "failure", "unauthenticated");
+    await audit(serviceClient, actorId, appointmentId, "denied", "unauthenticated");
     return response({ error: denial }, 401);
   }
 
@@ -74,7 +74,7 @@ Deno.serve(async (request) => {
   const { data: userData, error: userError } = await callerClient.auth.getUser();
   actorId = userData.user?.id ?? null;
   if (userError || !actorId) {
-    await audit(serviceClient, actorId, appointmentId, "failure", "unauthenticated");
+    await audit(serviceClient, actorId, appointmentId, "denied", "unauthenticated");
     return response({ error: denial }, 401);
   }
 
@@ -95,7 +95,7 @@ Deno.serve(async (request) => {
 
   if (appointmentError || !appointment || !related || appointment.status !== "booked" || !enabled
       || nowSeconds < startsAt - earlyJoinSeconds || nowSeconds >= endsAt) {
-    await audit(serviceClient, actorId, appointmentId, "failure", "not_eligible");
+    await audit(serviceClient, actorId, appointmentId, "denied", "not_eligible");
     return response({ error: denial }, 403);
   }
 
@@ -103,14 +103,14 @@ Deno.serve(async (request) => {
   const keyId = Deno.env.get("JAAS_KEY_ID");
   const privateKey = Deno.env.get("JAAS_PRIVATE_KEY");
   if (!appId || !keyId || !privateKey || !appointment.video_room_id) {
-    await audit(serviceClient, actorId, appointmentId, "failure", "provider_unavailable");
+    await audit(serviceClient, actorId, appointmentId, "denied", "provider_unavailable");
     return response({ error: unavailable }, 503);
   }
 
   const roomName = `orion-demo-${appointment.video_room_id}`;
   const expiresAtSeconds = Math.min(nowSeconds + 5 * 60, endsAt);
   if (expiresAtSeconds <= nowSeconds) {
-    await audit(serviceClient, actorId, appointmentId, "failure", "window_expired");
+    await audit(serviceClient, actorId, appointmentId, "denied", "window_expired");
     return response({ error: denial }, 403);
   }
 
@@ -157,7 +157,7 @@ Deno.serve(async (request) => {
       mode: "synthetic-demo",
     }, 200);
   } catch {
-    await audit(serviceClient, actorId, appointmentId, "failure", "provider_unavailable");
+    await audit(serviceClient, actorId, appointmentId, "denied", "provider_unavailable");
     return response({ error: unavailable }, 503);
   }
 });

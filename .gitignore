@@ -22,3 +22,7 @@ supabase/.wrappers/
 # Local tooling
 .DS_Store
 *.log
+
+# Generated owner-report renders and temporary inspection artifacts
+output/
+tmp/
