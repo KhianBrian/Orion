@@ -2,7 +2,6 @@ import Layout from "../components/Layout";
 import Home from "../pages/Home";
 import About from "../pages/About";
 import Login from "../pages/Login";
-import ForgotPassword from "../pages/ForgotPassword";
 import NotFound from "../pages/NotFound";
 import MarketingPage from "../pages/MarketingPage";
 import AccountHome from "../pages/AccountHome";
@@ -28,10 +27,6 @@ export const routeConfig = [
     element: <Login />,
   },
   {
-    path: "forgot-password",
-    element: <ForgotPassword />,
-  },
-  {
     element: <Layout />,
     children: [
       {
@@ -46,34 +41,14 @@ export const routeConfig = [
       { path: "services", element: <MarketingPage type="services" /> },
       { path: "portfolio", element: <MarketingPage type="portfolio" /> },
       { path: "blog", element: <MarketingPage type="blog" /> },
-      {
-        element: <RequireAuth />,
-        children: [
-          {
-            element: <AuthenticatedShell />,
-            children: [
-              { path: ROUTES.APP.slice(1), element: <AccountHome /> },
-              {
-                element: <RequireAbility action="visit" subject={SUBJECTS.BOOKING} />,
-                children: [{ path: ROUTES.BOOKING.slice(1), element: <PatientAppointment /> }],
-              },
-              {
-                element: <RequireAbility action="visit" subject={SUBJECTS.APPOINTMENTS} />,
-                children: [
-                  { path: ROUTES.APPOINTMENTS.slice(1), element: <Appointments /> },
-                  { path: ROUTES.DEMO_MEETING.slice(1), element: <DemoMeeting /> },
-                ],
-              },
-              ...protectedFeatureRoutes.map(({ path, subject, title }) => ({
-                element: <RequireAbility action="visit" subject={subject} />,
-                children: [{ path, element: <FeaturePlaceholder title={title} /> }],
-              })),
-            ],
-          },
-        ],
-      },
     ],
   },
+  { element: <RequireAuth />, children: [{ element: <AuthenticatedShell />, children: [
+    { path: ROUTES.APP.slice(1), element: <AccountHome /> },
+    { element: <RequireAbility action="visit" subject={SUBJECTS.BOOKING} />, children: [{ path: ROUTES.BOOKING.slice(1), element: <PatientAppointment /> }] },
+    { element: <RequireAbility action="visit" subject={SUBJECTS.APPOINTMENTS} />, children: [{ path: ROUTES.APPOINTMENTS.slice(1), element: <Appointments /> }, { path: ROUTES.DEMO_MEETING.slice(1), element: <DemoMeeting /> }] },
+    ...protectedFeatureRoutes.map(({ path, subject, title }) => ({ element: <RequireAbility action="visit" subject={subject} />, children: [{ path, element: <FeaturePlaceholder title={title} /> }] })),
+  ] }], },
   {
     path: "*",
     element: <NotFound />,

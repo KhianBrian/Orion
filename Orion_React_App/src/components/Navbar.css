@@ -1,10 +1,5 @@
 .orion-navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
   width: 100%;
-  height: 110px;
   background-color: var(--color-black);
   z-index: 1000;
   box-shadow: var(--shadow-md);
@@ -14,9 +9,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 100%;
-  padding: 0 1rem;
-  max-width: 100%;
+  margin: 0 auto; max-width: 72rem; min-height: 72px; padding: .5rem 1rem;
 }
 
 .navbar-logo {
@@ -25,7 +18,7 @@
 }
 
 .navbar-logo img {
-  height: 110px;
+  height: 58px;
   width: auto;
   object-fit: contain;
 }
@@ -34,7 +27,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .nav-link {
@@ -79,25 +72,7 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .orion-navbar {
-    height: auto;
-    min-height: 80px;
-  }
-
-  .navbar-container {
-    flex-direction: column;
-    padding: 0.5rem;
-    gap: 0.5rem;
-  }
-
-  .navbar-logo img {
-    height: 70px;
-  }
-
-  .navbar-links {
-    justify-content: center;
-    gap: 0.25rem;
-  }
+  .navbar-container { min-height: 64px; }.navbar-logo img { height: 48px; }.navbar-links { gap: .15rem; }
 
   .nav-link {
     font-size: 0.875rem;

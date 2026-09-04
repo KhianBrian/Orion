@@ -1,7 +1,9 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../features/auth/authContext";
 import "./Login.css";
+import { Button } from "../components/ui/Button";
+import { StatusMessage } from "../components/ui/StatusMessage";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -11,6 +13,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -29,103 +32,31 @@ const Login = () => {
 
   return (
     <div className="login-page">
-      {/* Navbar */}
-      <nav className="login-navbar">
-        <div className="login-navbar-logo">
-          <img src="/images/ORION.jpg" alt="Orion Interface PH" />
-        </div>
-        <div className="login-navbar-links">
-          <Link to="/home" className="login-nav-link">
-            Home
-          </Link>
-          <Link to="/about" className="login-nav-link">
-            About
-          </Link>
-          <Link to="/contact" className="login-nav-link">
-            Contact
-          </Link>
-          <Link to="/services" className="login-nav-link">
-            Services
-          </Link>
-          <Link to="/portfolio" className="login-nav-link">
-            Portfolio
-          </Link>
-          <Link to="/blog" className="login-nav-link">
-            Blog
-          </Link>
-          {status !== "signedIn" && <Link to="/login" className="login-nav-button">Login</Link>}
-        </div>
-      </nav>
-
-      {/* Main Content */}
       <main className="login-main">
         <div className="login-card">
-          <h4 className="login-title">LOGIN</h4>
+          <img className="login-logo" src="/images/ORION.jpg" alt="Orion Interface Philippines" />
+          <h1 className="login-title">Sign in to Orion</h1>
+          <p className="login-intro">Access appointment booking and meeting tools using your approved account.</p>
 
           <form className="login-form" onSubmit={handleLogin}>
+            <label htmlFor="email">Email address</label>
             <input
+              id="email"
               type="email"
-              aria-label="Email address"
-              placeholder="email id"
+              autoComplete="email"
+              aria-invalid={Boolean(error)}
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="login-input"
             />
-            <input
-              type="password"
-              aria-label="Password"
-              placeholder="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="login-input"
-            />
+            <label htmlFor="password">Password</label>
+            <div className="password-field"><input id="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} className="login-input" /><button className="password-toggle" type="button" aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} onClick={() => setShowPassword((visible) => !visible)}>{showPassword ? "Hide" : "Show"}</button></div>
+            <Button type="submit" busy={isSubmitting} disabled={status === "loading"}>{isSubmitting ? "Signing in…" : "Sign in"}</Button>
           </form>
-
-          <div className="login-forgot">
-            <Link to="/forgot-password" className="login-forgot-link">
-              Forgot Password?
-            </Link>
-          </div>
-
-          <div className="login-buttons">
-            <button onClick={handleLogin} className="login-button" disabled={isSubmitting}>
-              {isSubmitting ? "Signing in…" : "Login"}
-            </button>
-            {error && <p className="login-hint" role="alert">{error}</p>}
-          </div>
+          {error && <StatusMessage tone="error">{error}</StatusMessage>}
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="login-footer">
-        <div className="login-footer-content">
-          <div>
-            <p>
-              © 2023 Orion Interface Philippines, Inc. &nbsp; All rights
-              reserved under Albetros Philippines, Inc.
-            </p>
-            <p>Follow us on social media:</p>
-          </div>
-          <div className="login-footer-social">
-            <div className="login-footer-icon"></div>
-            <div className="login-footer-icon"></div>
-          </div>
-          <div className="login-footer-links">
-            {[
-              "FAQ",
-              "Privacy Policy",
-              "Terms of Service",
-              "Careers",
-              "Support",
-              "Sitemap",
-            ].map((link) => (
-              <button key={link} className="login-footer-link">
-                {link}
-              </button>
-            ))}
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

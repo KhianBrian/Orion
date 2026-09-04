@@ -6,14 +6,14 @@ import "./Navbar.css";
 const Navbar = () => {
   const { ability, profile, signOut, status } = useAuth();
   const navigate = useNavigate();
-
-  const handleLogout = async () => {
+  const accountLinks = getRoleNavigation(profile?.role).filter(({ subject }) => ability.can("visit", subject));
+  const handleSignOut = async () => {
     await signOut();
     navigate(ROUTES.LOGIN);
   };
 
   return (
-    <nav className="orion-navbar">
+    <header className="orion-navbar">
       <div className="navbar-container">
         <div className="navbar-logo">
           <Link to="/home">
@@ -21,41 +21,25 @@ const Navbar = () => {
           </Link>
         </div>
 
-        <div className="navbar-links">
+        <nav className="navbar-links" aria-label="Public navigation">
           <Link to="/home" className="nav-link">
             Home
           </Link>
           <Link to="/about" className="nav-link">
             About
           </Link>
-          {getRoleNavigation(profile?.role)
-            .filter(({ subject }) => ability.can("visit", subject))
-            .map(({ label, path }) => <Link key={path} to={path} className="nav-link">{label}</Link>)}
-          <Link to="/contact" className="nav-link">
-            Contact
-          </Link>
-          <Link to="/services" className="nav-link">
-            Services
-          </Link>
-          <Link to="/portfolio" className="nav-link">
-            Portfolio
-          </Link>
-          <Link to="/blog" className="nav-link">
-            Blog
-          </Link>
-
-          {status === "signedIn" ? (
-            <button onClick={handleLogout} className="nav-link-login">
-              Sign out {profile.full_name}
-            </button>
-          ) : (
-            <Link to="/login" className="nav-link-login">
-              Login
-            </Link>
-          )}
-        </div>
+          <Link to="/contact" className="nav-link">Contact</Link>
+          <Link to="/services" className="nav-link">Services</Link>
+          <Link to="/portfolio" className="nav-link">Portfolio</Link>
+          <Link to="/blog" className="nav-link">Blog</Link>
+          {status === "signedIn" ? <>
+            <Link to={ROUTES.APP} className="nav-link">Account</Link>
+            {accountLinks.map(({ label, path }) => <Link key={path} to={path} className="nav-link">{label}</Link>)}
+            <button type="button" onClick={handleSignOut} className="nav-link-login">Sign out</button>
+          </> : <Link to="/login" className="nav-link-login">Sign in</Link>}
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 };
 

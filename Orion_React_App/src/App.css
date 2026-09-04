@@ -5,3 +5,4 @@
 .marketing-lead { color: var(--color-muted); font-size: 1.25rem; max-width: 680px; margin-bottom: 2rem; }
 .marketing-details { display: grid; gap: 1rem; margin-bottom: 2rem; }
 .marketing-details div { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.25rem; font-size: 1.125rem; }
+.account-home { max-width: 72rem; margin: 0 auto; min-height: calc(100vh - 80px); padding: clamp(2rem, 6vw, 5rem) 2rem; }.account-home h1 { color: var(--color-navy); font-size: clamp(2.25rem, 5vw, 3.5rem); margin: .5rem 0 1rem; }.account-actions { display: flex; flex-wrap: wrap; gap: .85rem; margin-top: 2rem; }

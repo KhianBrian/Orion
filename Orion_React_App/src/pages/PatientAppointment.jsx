@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
 import { appointmentQueryKey, fetchOpenAvailability, openAvailabilityQueryKey } from "../features/appointments/queries";
 import { useAuth } from "../features/auth/authContext";
 import { supabase } from "../lib/supabase";
 import "./PatientAppointment.css";
+import { Button, ButtonLink } from "../components/ui/Button";
+import { Dialog } from "../components/ui/Dialog";
+import { StatusMessage } from "../components/ui/StatusMessage";
 
 const manilaDateTime = new Intl.DateTimeFormat("en-PH", { dateStyle: "full", timeStyle: "short", timeZone: "Asia/Manila" });
 
@@ -70,13 +72,13 @@ export default function PatientAppointment() {
     ]);
   };
 
-  return <main className="scheduling-page">
-    <div className="scheduling-header"><div><p className="eyebrow">Synthetic demo</p><h1>Book an appointment</h1><p>All times are shown in Manila time. Each session is 45 minutes.</p></div><Link className="secondary-action-button" to="/appointments">My appointments</Link></div>
-    {message && <p role="status" className={`schedule-message ${message.kind}`}>{message.text}</p>}
-    {isPending && <p role="status">Loading available psychiatrists and appointment slots…</p>}
-    {error && <div className="schedule-message error"><p>Available slots could not be loaded.</p><button onClick={() => refetch()}>Try again</button></div>}
-    {!isPending && !error && !slots.length && <p role="status">There are no open appointment slots at this time.</p>}
-    {!isPending && !error && slots.length > 0 && <section className="slot-list" aria-label="Open appointment slots">{slots.map((slot) => <article className="slot-card" key={slot.id}><h2>{psychiatristName(slot)}</h2><p>{manilaDateTime.format(new Date(slot.starts_at))}</p><p className="slot-duration">45 minutes</p><button onClick={() => selectSlot(slot)}>Choose this slot</button></article>)}</section>}
-    {selectedSlot && <section className="booking-confirmation" aria-labelledby="confirm-booking-title"><h2 id="confirm-booking-title">Confirm your appointment</h2><p>{psychiatristName(selectedSlot)} — {manilaDateTime.format(new Date(selectedSlot.starts_at))} (45 minutes)</p><div className="booking-actions"><button onClick={confirmBooking} disabled={bookingMutation.isPending}>{bookingMutation.isPending ? "Booking…" : "Confirm booking"}</button><button className="secondary-action-button" onClick={() => { setSelectedSlot(null); setRequestId(null); }}>Choose another slot</button></div></section>}
-  </main>;
+  return <section className="scheduling-page">
+    <div className="scheduling-header"><div><p className="eyebrow">Synthetic demo</p><h1>Book an appointment</h1><p>All times are shown in Manila time. Each session is 45 minutes.</p></div><ButtonLink variant="secondary" to="/appointments">My appointments</ButtonLink></div>
+    {message && <StatusMessage tone={message.kind === "success" ? "success" : "error"}>{message.text}</StatusMessage>}
+    {isPending && <StatusMessage>Loading available psychiatrists and appointment slots…</StatusMessage>}
+    {error && <StatusMessage tone="error">Available slots could not be loaded. <Button variant="quiet" onClick={() => refetch()}>Try again</Button></StatusMessage>}
+    {!isPending && !error && !slots.length && <StatusMessage>There are no open appointment slots at this time.</StatusMessage>}
+    {!isPending && !error && slots.length > 0 && <section className="slot-list" aria-label="Open appointment slots">{slots.map((slot) => <article className="slot-card" key={slot.id}><h2>{psychiatristName(slot)}</h2><p>{manilaDateTime.format(new Date(slot.starts_at))}</p><p className="slot-duration">45 minutes</p><Button onClick={() => selectSlot(slot)}>Choose this slot</Button></article>)}</section>}
+    <Dialog open={Boolean(selectedSlot)} onClose={() => { setSelectedSlot(null); setRequestId(null); }} title="Confirm your appointment" actions={<><Button variant="secondary" onClick={() => { setSelectedSlot(null); setRequestId(null); }}>Choose another slot</Button><Button busy={bookingMutation.isPending} onClick={confirmBooking}>Confirm booking</Button></>}><p>{selectedSlot && `${psychiatristName(selectedSlot)} — ${manilaDateTime.format(new Date(selectedSlot.starts_at))} (45 minutes)`}</p></Dialog>
+  </section>;
 }

@@ -5,18 +5,12 @@
 }
 
 .orion-main {
-  margin-top: 110px; /* Height of fixed navbar */
-  margin-bottom: 120px; /* Height of fixed footer */
-  min-height: calc(100vh - 230px);
-  overflow-y: auto;
+  flex: 1;
   background-color: var(--color-gray-light);
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .orion-main {
-    margin-top: 140px; /* Adjusted for responsive navbar */
-    margin-bottom: 140px; /* Adjusted for responsive footer */
-    min-height: calc(100vh - 280px);
-  }
+  .orion-main { min-height: 0; }
 }
+.skip-link { background: var(--color-white); color: var(--color-navy); left: 1rem; padding: .75rem 1rem; position: fixed; top: -5rem; z-index: 10; }.skip-link:focus { top: 1rem; }

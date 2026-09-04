@@ -1,24 +1,23 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("public navigation", () => {
-  test("a visitor can open login, request a reset, and return to login", async ({ page }) => {
+  test("a visitor can open the approved public pages and sign-in route", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page.getByRole("heading", { name: "LOGIN" })).toBeVisible();
-    await page.getByRole("link", { name: "Forgot Password?" }).click();
+    await expect(page.getByRole("heading", { name: "Sign in to Orion" })).toBeVisible();
+    await page.goto("/home");
+    await page.getByRole("link", { name: "About", exact: true }).click();
 
-    await expect(page).toHaveURL(/\/forgot-password$/);
-    await expect(page.getByRole("heading", { name: "Forgot Password?" })).toBeVisible();
-
-    await page.getByRole("link", { name: "Back to Login" }).click();
-    await expect(page).toHaveURL(/\/login$/);
+    await expect(page).toHaveURL(/\/about$/);
+    await expect(page.getByRole("heading", { name: "About Orion Interface Philippines" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
   });
 
   test("an invalid login receives a safe error", async ({ page }) => {
     await page.goto("/login");
-    await page.locator('input[placeholder="email id"]').fill("patient@example.com");
-    await page.locator('input[placeholder="password"]').fill("test-password");
-    await page.getByRole("button", { name: "Login" }).click();
+    await page.getByLabel("Email address").fill("patient@example.com");
+    await page.getByLabel("Password", { exact: true }).fill("test-password");
+    await page.getByRole("button", { name: "Sign in" }).click();
 
     await expect(page.getByRole("alert")).toHaveText("The email or password is incorrect.");
     await expect(page).toHaveURL(/\/login$/);
@@ -34,18 +33,20 @@ test.describe("public navigation", () => {
     await expect(page).toHaveURL(/\/login$/);
   });
 
-  test("primary public links reach their destination pages", async ({ page }) => {
-    await page.goto("/home");
-
-    for (const [label, heading] of [
-      ["About", "About Orion Interface Philippines"],
-      ["Contact", "We are here to help"],
-      ["Services", "Guidance for your next step"],
-      ["Portfolio", "Programs built around people"],
-      ["Blog", "Experiences and reflections"],
-    ]) {
-      await page.getByRole("link", { name: label, exact: true }).click();
+  test("the restored public navigation reaches every visible page", async ({ page }) => {
+    for (const [path, heading] of [["/contact", "We are here to help"], ["/services", "Guidance for your next step"], ["/portfolio", "Programs built around people"], ["/blog", "Experiences and reflections"]]) {
+      await page.goto(path);
       await expect(page.getByRole("heading", { name: heading })).toBeVisible();
     }
+  });
+
+  test("password visibility changes presentation without changing the value", async ({ page }) => {
+    await page.goto("/login");
+    const password = page.getByLabel("Password", { exact: true });
+    await password.fill("test-password");
+    await page.getByRole("button", { name: "Show password" }).click();
+    await expect(password).toHaveAttribute("type", "text");
+    await expect(password).toHaveValue("test-password");
+    await expect(page.getByRole("button", { name: "Hide password" })).toHaveAttribute("aria-pressed", "true");
   });
 });

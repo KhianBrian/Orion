@@ -90,6 +90,7 @@ pilot Phase 0–6 gates are closed:
 | Step | Covers | Status |
 | --- | --- | --- |
 | [Phase 7 — Frontend state and session foundation](phase-7-frontend-state-foundation.md) | Refresh-safe synthetic sessions, server-state cache boundaries, invalidation, persistent authenticated-shell boundary, and clock-driven join visibility. | Completed ✅ |
+| [Phase 8 — UI system and application shell](phase-8-ui-system-and-app-shell.md) | Responsive public/authenticated shells, accessible shared primitives, scoped navigation, and a dedicated sign-in surface. | Implemented — review pending |
 | [Phase 8 — UI system and application shell](phase-8-ui-system-and-app-shell.md) | Responsive shell, approved navigation, shared buttons/dialogs/statuses, and accessibility foundations. | Planned |
 | [Phase 9 — Appointment experience](phase-9-appointment-experience.md) | Safe patient display name for assigned psychiatrists, appointment presentation, and centered cancellation confirmation/denial. | Planned |
 | [Phase 10 — Focused meeting experience](phase-10-meeting-experience.md) | Unobscured responsive call layout, dedicated meeting shell, and lazy-loaded JaaS route. | Planned |

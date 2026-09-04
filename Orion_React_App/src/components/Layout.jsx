@@ -10,7 +10,8 @@ const Layout = () => {
     <div className="orion-layout">
       <Navbar />
 
-      <main className="orion-main">
+      <a className="skip-link" href="#main-content">Skip to content</a>
+      <main id="main-content" className="orion-main" tabIndex="-1">
         <Outlet />
       </main>
 

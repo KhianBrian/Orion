@@ -1,0 +1,12 @@
+.ui-button { align-items: center; background: var(--color-navy); border: 1px solid transparent; border-radius: var(--radius-sm); color: #fff; cursor: pointer; display: inline-flex; font: inherit; font-weight: 700; justify-content: center; line-height: 1.2; min-height: 44px; padding: .7rem 1rem; text-align: center; text-decoration: none; transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast); }
+.ui-button:hover:not(:disabled) { background: var(--color-navy-dark); transform: translateY(-1px); }
+.ui-button:disabled { cursor: wait; opacity: .7; }
+.ui-button--secondary, .ui-button--quiet { background: transparent; border-color: var(--color-navy); color: var(--color-navy); }
+.ui-button--secondary:hover:not(:disabled), .ui-button--quiet:hover:not(:disabled) { background: #e8f0f5; }
+.ui-button--danger { background: var(--color-danger); }
+.ui-button--danger:hover:not(:disabled) { background: #8c1d15; }
+.ui-button--quiet { border-color: transparent; }
+.ui-button--icon { background: transparent; border-color: transparent; color: var(--color-navy); min-width: 44px; padding: .45rem; }
+.ui-status { border: 1px solid currentColor; border-radius: var(--radius-sm); margin: 1rem 0; padding: .85rem 1rem; }
+.ui-status--info { background: #e8f0f5; color: #17435e; }.ui-status--success { background: #e5f5ed; color: #12643e; }.ui-status--warning { background: #fff5dd; color: #725100; }.ui-status--error { background: #fce9e7; color: #9b241b; }
+.ui-dialog { border: 0; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); color: var(--color-black); max-width: min(32rem, calc(100% - 2rem)); padding: 0; width: 100%; }.ui-dialog::backdrop { background: rgb(11 32 50 / .62); }.ui-dialog__header { align-items: center; display: flex; justify-content: space-between; padding: 1.25rem 1.25rem 0; }.ui-dialog__header h2 { font-size: 1.3rem; }.ui-dialog__content { padding: 1rem 1.25rem; }.ui-dialog__actions { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: end; padding: 0 1.25rem 1.25rem; }

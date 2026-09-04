@@ -6,7 +6,7 @@ const About = () => {
       <div className="about-hero">
         <h1 className="about-title">About Orion Interface Philippines</h1>
         <p className="about-tagline">
-          Guiding the Filipino Youth to Greater Futures
+          Appointment access designed around clear, simple steps
         </p>
       </div>
 
@@ -27,9 +27,7 @@ const About = () => {
               </strong>{" "}
               is a brain child of{" "}
               <strong className="founder-name">"Marwen A. Casteñada"</strong>{" "}
-              who founded the institution in order to provide right guidance for
-              the assets of the nation{" "}
-              <strong className="youth-emphasis">"The Filipino Youth"</strong>
+              provides a focused psychiatry appointment experience for approved Orion accounts.
             </h2>
           </div>
         </div>
@@ -38,18 +36,14 @@ const About = () => {
           <div className="mission-card card">
             <h2 className="section-title">Our Mission</h2>
             <p className="section-text">
-              To empower individuals through comprehensive guidance and
-              counseling services, helping them discover their true potential
-              and navigate their career paths with confidence.
+              To make appointment booking, review, and access easy to understand.
             </p>
           </div>
 
           <div className="vision-card card">
             <h2 className="section-title">Our Vision</h2>
             <p className="section-text">
-              To be the leading guidance and career counseling institution in
-              the Philippines, shaping futures and creating opportunities for
-              every Filipino youth.
+              To provide a calm, accessible interface for the approved psychiatry booking scope.
             </p>
           </div>
         </div>

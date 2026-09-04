@@ -76,7 +76,7 @@ async function signIn(page, email, password) {
   await page.goto("/login");
   await page.getByLabel("Email address").fill(email);
   await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: "Login" }).click();
+  await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(/\/app$/);
 }
 
@@ -116,6 +116,22 @@ test.describe("database-backed scheduling", () => {
     await expect(page).toHaveURL(/\/login$/);
     await page.goto("/appointments");
     await expect(page).toHaveURL(/\/login$/);
+  });
+
+  test("a signed-in account remains signed in across every restored public route", async ({ page }, testInfo) => {
+    const users = syntheticUsers[testInfo.project.name];
+    await signIn(page, users.patient.email, users.patient.password);
+
+    for (const route of ["/home", "/about", "/contact", "/services", "/portfolio", "/blog"]) {
+      await page.goto(route);
+      await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
+      await expect(page.getByRole("link", { name: "Account", exact: true })).toBeVisible();
+      await expect(page.getByRole("link", { name: "Sign in to the demo" })).toHaveCount(0);
+    }
+
+    await page.getByRole("link", { name: "Account", exact: true }).click();
+    await expect(page).toHaveURL(/\/app$/);
+    await expect(page.getByTestId("authenticated-shell")).toBeVisible();
   });
 
   test("a patient books a slot and the assigned psychiatrist can view appointments", async ({ page }, testInfo) => {
