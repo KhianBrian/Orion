@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
-const required = [
+const individualPasswordVariables = [
   "SUPABASE_URL",
   "SUPABASE_SERVICE_ROLE_KEY",
   "DEMO_ADMIN_PASSWORD",
@@ -10,10 +10,17 @@ const required = [
   "DEMO_PSYCHIATRIST_TWO_PASSWORD",
 ];
 
-const missing = required.filter((name) => !process.env[name]);
+const missing = individualPasswordVariables.slice(0, 2).filter((name) => !process.env[name]);
+const hasSharedPassword = Boolean(process.env.DEMO_SHARED_PASSWORD);
+const hasAllIndividualPasswords = individualPasswordVariables.slice(2).every((name) => process.env[name]);
 if (missing.length > 0) {
   throw new Error(`Missing required environment variables: ${missing.join(", ")}`);
 }
+if (!hasSharedPassword && !hasAllIndividualPasswords) {
+  throw new Error("Set DEMO_SHARED_PASSWORD or all five individual demo password variables.");
+}
+
+const passwordFor = (variableName) => process.env.DEMO_SHARED_PASSWORD || process.env[variableName];
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -24,32 +31,32 @@ const supabase = createClient(
 const accounts = [
   {
     email: "admin@demo.orion.invalid",
-    password: process.env.DEMO_ADMIN_PASSWORD,
+    password: passwordFor("DEMO_ADMIN_PASSWORD"),
     fullName: "Orion Demo Administrator",
     role: "admin",
   },
   {
     email: "patient.one@demo.orion.invalid",
-    password: process.env.DEMO_PATIENT_ONE_PASSWORD,
+    password: passwordFor("DEMO_PATIENT_ONE_PASSWORD"),
     fullName: "Alex Reyes",
     role: "patient",
   },
   {
     email: "patient.two@demo.orion.invalid",
-    password: process.env.DEMO_PATIENT_TWO_PASSWORD,
+    password: passwordFor("DEMO_PATIENT_TWO_PASSWORD"),
     fullName: "Sam Cruz",
     role: "patient",
   },
   {
     email: "psychiatrist.one@demo.orion.invalid",
-    password: process.env.DEMO_PSYCHIATRIST_ONE_PASSWORD,
+    password: passwordFor("DEMO_PSYCHIATRIST_ONE_PASSWORD"),
     fullName: "Dr. Maya Santos",
     role: "psychiatrist",
     displayName: "Dr. Maya Santos",
   },
   {
     email: "psychiatrist.two@demo.orion.invalid",
-    password: process.env.DEMO_PSYCHIATRIST_TWO_PASSWORD,
+    password: passwordFor("DEMO_PSYCHIATRIST_TWO_PASSWORD"),
     fullName: "Dr. Luis Navarro",
     role: "psychiatrist",
     displayName: "Dr. Luis Navarro",
@@ -64,7 +71,14 @@ async function createOrGetUser(account) {
   if (listError) throw listError;
 
   const found = existing.users.find((user) => user.email === account.email);
-  if (found) return found;
+  if (found) {
+    const { data, error } = await supabase.auth.admin.updateUserById(found.id, {
+      password: account.password,
+      email_confirm: true,
+    });
+    if (error) throw error;
+    return data.user;
+  }
 
   const { data, error } = await supabase.auth.admin.createUser({
     email: account.email,

@@ -16,7 +16,7 @@ export default function AccountHome() {
     <section className="account-home">
       <p className="eyebrow">Signed in</p>
       <h1>Welcome, {profile.full_name}</h1>
-      <p className="marketing-lead">{roleLabels[profile.role]} access is active for this synthetic demo account.</p>
+      <p className="marketing-lead">{roleLabels[profile.role]} access is active for this account.</p>
       <div className="account-actions">
         {links.map(({ label, path }) => <ButtonLink key={path} to={path}>{label}</ButtonLink>)}
       </div>

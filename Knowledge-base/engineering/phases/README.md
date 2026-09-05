@@ -92,10 +92,11 @@ pilot Phase 0–6 gates are closed:
 | [Phase 7 — Frontend state and session foundation](phase-7-frontend-state-foundation.md) | Refresh-safe synthetic sessions, server-state cache boundaries, invalidation, persistent authenticated-shell boundary, and clock-driven join visibility. | Completed ✅ |
 | [Phase 8 — UI system and application shell](phase-8-ui-system-and-app-shell.md) | Responsive public/authenticated shells, accessible shared primitives, scoped navigation, and a dedicated sign-in surface. | Implemented — review pending |
 | [Phase 8 — UI system and application shell](phase-8-ui-system-and-app-shell.md) | Responsive shell, approved navigation, shared buttons/dialogs/statuses, and accessibility foundations. | Planned |
-| [Phase 9 — Appointment experience](phase-9-appointment-experience.md) | Safe patient display name for assigned psychiatrists, appointment presentation, and centered cancellation confirmation/denial. | Planned |
+| [Phase 9 — Appointment experience](phase-9-appointment-experience.md) | Safe patient display name for assigned psychiatrists, appointment presentation, and centered cancellation confirmation/denial. | Completed ✅ — audit dated 5 September 2026 |
 | [Phase 10 — Focused meeting experience](phase-10-meeting-experience.md) | Unobscured responsive call layout, dedicated meeting shell, and lazy-loaded JaaS route. | Planned |
 | [Phase 11 — Frontend performance and acceptance](phase-11-frontend-acceptance.md) | Performance, privacy, accessibility, regression matrix, and deferred owner walkthrough. | Planned |
 | [Phase 12 — Multi-factor authentication and privileged access](phase-12-mfa-and-privileged-access.md) | Second-factor enforcement, recovery/offboarding protection, and privileged-access verification. | Planned — owner role decision required |
+| [Phase 13 — Appointment outcomes and rescheduling](phase-13-appointment-outcomes-and-rescheduling.md) | Clinician-recorded outcomes, no-show handling, server-authoritative rescheduling, and status-aware history. | Planned — clinical and owner decisions required |
 
 Each step requires its own dated as-built audit before the next step is treated as complete. These
 steps remain synthetic-data-only and authorise no real accounts, appointments, or consultations.

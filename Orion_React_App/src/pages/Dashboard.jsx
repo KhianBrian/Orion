@@ -15,7 +15,7 @@ const Dashboard = () => {
     },
     {
       title: "Administration",
-      description: "Approved synthetic demo administration tasks",
+      description: "Approved administration tasks",
       path: "/dashboard",
       icon: "⚙️",
     },

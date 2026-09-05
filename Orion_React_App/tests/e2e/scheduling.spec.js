@@ -6,12 +6,12 @@ const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const syntheticUsers = {
   chromium: {
-    patient: { email: "patient.one@demo.orion.invalid", password: process.env.DEMO_PATIENT_ONE_PASSWORD },
-    psychiatrist: { email: "psychiatrist.one@demo.orion.invalid", password: process.env.DEMO_PSYCHIATRIST_ONE_PASSWORD, displayName: "Dr. Maya Santos" },
+    patient: { email: "patient.one@demo.orion.invalid", password: process.env.DEMO_SHARED_PASSWORD || process.env.DEMO_PATIENT_ONE_PASSWORD },
+    psychiatrist: { email: "psychiatrist.one@demo.orion.invalid", password: process.env.DEMO_SHARED_PASSWORD || process.env.DEMO_PSYCHIATRIST_ONE_PASSWORD, displayName: "Dr. Maya Santos" },
   },
   "mobile-chrome": {
-    patient: { email: "patient.two@demo.orion.invalid", password: process.env.DEMO_PATIENT_TWO_PASSWORD },
-    psychiatrist: { email: "psychiatrist.two@demo.orion.invalid", password: process.env.DEMO_PSYCHIATRIST_TWO_PASSWORD, displayName: "Dr. Luis Navarro" },
+    patient: { email: "patient.two@demo.orion.invalid", password: process.env.DEMO_SHARED_PASSWORD || process.env.DEMO_PATIENT_TWO_PASSWORD },
+    psychiatrist: { email: "psychiatrist.two@demo.orion.invalid", password: process.env.DEMO_SHARED_PASSWORD || process.env.DEMO_PSYCHIATRIST_TWO_PASSWORD, displayName: "Dr. Luis Navarro" },
   },
 };
 
@@ -75,7 +75,7 @@ async function removeIsolatedSlot(slotId) {
 async function signIn(page, email, password) {
   await page.goto("/login");
   await page.getByLabel("Email address").fill(email);
-  await page.getByLabel("Password").fill(password);
+  await page.getByRole("textbox", { name: "Password" }).fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(/\/app$/);
 }
@@ -126,7 +126,7 @@ test.describe("database-backed scheduling", () => {
       await page.goto(route);
       await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
       await expect(page.getByRole("link", { name: "Account", exact: true })).toBeVisible();
-      await expect(page.getByRole("link", { name: "Sign in to the demo" })).toHaveCount(0);
+      await expect(page.getByRole("link", { name: "Sign in" })).toHaveCount(0);
     }
 
     await page.getByRole("link", { name: "Account", exact: true }).click();
@@ -145,12 +145,12 @@ test.describe("database-backed scheduling", () => {
     await expect(psychiatristSlot.getByRole("button", { name: "Choose this slot" })).toBeVisible();
     await psychiatristSlot.getByRole("button", { name: "Choose this slot" }).click();
     await page.getByRole("button", { name: "Confirm booking" }).click();
-    await expect(page.getByText("Your synthetic demo appointment is booked.")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "You’re all set." })).toBeVisible();
 
     await signIn(page, users.psychiatrist.email, users.psychiatrist.password);
     await page.getByRole("main").getByRole("link", { name: "My appointments" }).click();
     await expect(page.getByRole("heading", { name: "Assigned appointments" })).toBeVisible();
-    await expect(page.getByLabel("Appointments").getByText("Assigned patient appointment").first()).toBeVisible();
+    await expect(page.getByLabel("Appointments").getByRole("heading", { level: 3 }).first()).not.toHaveText("Assigned patient appointment");
   });
 
   test("a patient can cancel a booked appointment", async ({ page }, testInfo) => {
@@ -160,12 +160,14 @@ test.describe("database-backed scheduling", () => {
     await page.getByRole("main").getByRole("link", { name: "My appointments" }).click();
     await expect(page.getByRole("heading", { name: "My appointments" })).toBeVisible();
 
-    const bookedAppointment = page.getByLabel("Appointments").locator("article").filter({ hasText: users.psychiatrist.displayName }).last();
+    const bookedAppointment = page.getByRole("region", { name: "Upcoming appointments" }).locator("article").filter({ hasText: users.psychiatrist.displayName }).last();
     await expect(bookedAppointment.getByRole("button", { name: "Cancel appointment" })).toBeVisible();
     await bookedAppointment.getByRole("button", { name: "Cancel appointment" }).click();
     await expect(page.getByRole("heading", { name: "Cancel this appointment?" })).toBeVisible();
-    await page.getByRole("button", { name: "Confirm cancellation" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Cancel appointment" }).click();
     await expect(page.getByText("Your appointment has been cancelled.")).toBeVisible();
-    await expect(page.getByLabel("Appointments").getByText(/cancelled/).first()).toBeVisible();
+    const appointmentHistory = page.getByRole("region", { name: "Appointment history" });
+    await expect(appointmentHistory.getByText(/cancelled/i).first()).toBeVisible();
+    await expect(appointmentHistory.getByRole("button", { name: "Cancel appointment" })).toHaveCount(0);
   });
 });

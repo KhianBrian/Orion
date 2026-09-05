@@ -18,6 +18,7 @@ This folder contains dated records of completed audits and implementation passes
 | [2026-09-02 D7 synthetic-demo verification](2026-09-02-d7-synthetic-demo-verification-audit.md) | Completed unit, transaction, RLS, authenticated desktop/mobile, public-route, and repeatable human cancellation evidence; owner walkthrough is deferred to frontend acceptance. |
 | [2026-09-04 Phase 7 frontend state foundation](2026-09-04-phase-7-frontend-state-foundation-audit.md) | Synthetic-session refresh, in-memory server-state cache and invalidation, protected-cache clearing, persistent authenticated shell, and meeting-window boundary refresh. |
 | [2026-09-04 Phase 8 UI system and application shell](2026-09-04-phase-8-ui-system-and-app-shell-audit.md) | Responsive public and authenticated shells, shared accessible primitives, login accessibility, and removal of current React legacy marketing routes. |
+| [2026-09-05 Phase 9 appointment experience](2026-09-05-phase-9-appointment-experience-audit.md) | Safe relationship-scoped appointment projection, booking/cancellation experience, history-action correction, and Phase 9 verification. |
 
 Read an audit when you need to understand why an existing UI or file looks the way it does, what was already verified, or which limitations remain open. When an audit conflicts with current product scope or architecture, the current parent document wins.
 

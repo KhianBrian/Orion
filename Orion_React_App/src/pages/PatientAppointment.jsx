@@ -25,6 +25,7 @@ export default function PatientAppointment() {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [requestId, setRequestId] = useState(null);
   const [message, setMessage] = useState(null);
+  const [bookingConfirmation, setBookingConfirmation] = useState(null);
   const client = useQueryClient();
   const { data: slots = [], error, isPending, refetch } = useQuery({
     queryKey: openAvailabilityQueryKey,
@@ -63,7 +64,8 @@ export default function PatientAppointment() {
       return;
     }
 
-    setMessage({ kind: "success", text: "Your synthetic demo appointment is booked." });
+    setBookingConfirmation(selectedSlot);
+    setMessage(null);
     setSelectedSlot(null);
     setRequestId(null);
     await Promise.all([
@@ -73,7 +75,8 @@ export default function PatientAppointment() {
   };
 
   return <section className="scheduling-page">
-    <div className="scheduling-header"><div><p className="eyebrow">Synthetic demo</p><h1>Book an appointment</h1><p>All times are shown in Manila time. Each session is 45 minutes.</p></div><ButtonLink variant="secondary" to="/appointments">My appointments</ButtonLink></div>
+    <div className="scheduling-header"><div><h1>Book an appointment</h1><p>All times are shown in Manila time. Each session is 45 minutes.</p></div><ButtonLink variant="secondary" to="/appointments">My appointments</ButtonLink></div>
+    {bookingConfirmation && <section className="booking-success" aria-labelledby="booking-success-title"><span className="booking-success__mark" aria-hidden="true">✓</span><div><p className="booking-success__eyebrow">Appointment confirmed</p><h2 id="booking-success-title">You’re all set.</h2><p>Your appointment with <strong>{psychiatristName(bookingConfirmation)}</strong> is reserved for {manilaDateTime.format(new Date(bookingConfirmation.starts_at))}.</p></div><ButtonLink to="/appointments">View my appointments</ButtonLink></section>}
     {message && <StatusMessage tone={message.kind === "success" ? "success" : "error"}>{message.text}</StatusMessage>}
     {isPending && <StatusMessage>Loading available psychiatrists and appointment slots…</StatusMessage>}
     {error && <StatusMessage tone="error">Available slots could not be loaded. <Button variant="quiet" onClick={() => refetch()}>Try again</Button></StatusMessage>}

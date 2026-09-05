@@ -4,10 +4,7 @@ export const appointmentQueryKey = (accountId) => ["appointments", accountId];
 export const openAvailabilityQueryKey = ["availability", "open"];
 
 export async function fetchAppointments() {
-  const { data, error } = await supabase
-    .from("appointments")
-    .select("id, starts_at, ends_at, status, psychiatrist:psychiatrists!appointments_psychiatrist_id_fkey(display_name)")
-    .order("starts_at", { ascending: true });
+  const { data, error } = await supabase.rpc("get_my_appointments");
 
   if (error) throw error;
   return data || [];

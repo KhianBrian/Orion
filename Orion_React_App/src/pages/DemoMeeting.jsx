@@ -62,14 +62,14 @@ export default function DemoMeeting() {
   const leave = () => navigate("/appointments");
 
   return <main className="demo-meeting-page">
-    <div className="synthetic-banner" role="note">Synthetic demo only — not a real consultation.</div>
+    <div className="synthetic-banner" role="note">For scheduled appointments only.</div>
     <div className="demo-meeting-header">
-      <div><p className="eyebrow">JaaS synthetic demo</p><h1>Secure demo call</h1><p>Only the booked synthetic participants can enter during the 45-minute appointment window.</p></div>
+      <div><p className="eyebrow">Private video appointment</p><h1>Secure call</h1><p>Only booked participants can enter during the 45-minute appointment window.</p></div>
       <button className="secondary-action-button" onClick={leave}>Leave call</button>
     </div>
     {state === "loading" && <p role="status">Requesting secure meeting access…</p>}
     {state === "denied" && <div className="schedule-message error"><h2>Meeting unavailable</h2><p>This meeting is not available for your account or at this time.</p><button onClick={leave}>Return to appointments</button></div>}
-    {state === "unavailable" && <div className="schedule-message error"><h2>Meeting unavailable</h2><p>The synthetic demo call could not be started. Please reschedule the demonstration.</p><button onClick={leave}>Return to appointments</button></div>}
+    {state === "unavailable" && <div className="schedule-message error"><h2>Meeting unavailable</h2><p>The call could not be started. Please return to your appointments.</p><button onClick={leave}>Return to appointments</button></div>}
     {state === "ready" && appId && <div className="meeting-frame"><JaaSMeeting
       appId={appId}
       roomName={access.roomName}

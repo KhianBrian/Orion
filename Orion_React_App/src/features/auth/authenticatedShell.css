@@ -1,1 +1,44 @@
-.app-shell { background: var(--color-gray-light); display: flex; flex-direction: column; min-height: 100vh; }.app-header { align-items: center; background: var(--color-black); border-bottom: 3px solid var(--color-bronze); display: flex; justify-content: space-between; min-height: 80px; padding: .5rem max(1rem, calc((100% - 72rem) / 2)); }.app-brand { align-items: center; display: flex; text-decoration: none; }.app-brand img { height: 56px; object-fit: contain; object-position: left center; width: 178px; }.app-navigation { align-items: center; display: flex; gap: .25rem; overflow-x: auto; }.app-navigation a { border-radius: var(--radius-sm); color: #fff; flex: 0 0 auto; font-weight: 650; padding: .65rem .75rem; text-decoration: none; }.app-navigation a:hover { background: #274154; }.app-navigation .ui-button { color: #fff; flex: 0 0 auto; }.app-content { flex: 1; min-height: calc(100vh - 80px); }.app-content:focus { outline: none; } @media (max-width: 700px) { .app-header { align-items: stretch; flex-direction: column; gap: .5rem; }.app-navigation { padding-bottom: .25rem; } }
+.app-shell { background: var(--color-gray-light); display: flex; flex-direction: column; min-height: 100vh; }
+.app-header {
+  align-items: stretch;
+  background-color: #030509;
+  background-image:
+    radial-gradient(circle at 5% 24%, rgb(255 255 255 / .85) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 16% 70%, rgb(255 255 255 / .65) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 29% 33%, rgb(188 214 255 / .7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 43% 78%, rgb(255 255 255 / .8) 0 1.25px, transparent 1.75px),
+    radial-gradient(circle at 58% 20%, rgb(255 255 255 / .7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 71% 58%, rgb(195 220 255 / .7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 84% 28%, rgb(255 255 255 / .85) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 95% 72%, rgb(255 255 255 / .65) 0 1px, transparent 1.5px),
+    linear-gradient(90deg, rgb(0 0 0 / .2), transparent 60%),
+    url("/images/login-space-header.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-bottom: 3px solid var(--color-bronze);
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  justify-content: center;
+  min-height: 8.5rem;
+  padding: .75rem max(1rem, calc((100% - 72rem) / 2));
+}
+.app-brand { align-items: center; align-self: flex-start; display: flex; padding: .2rem .4rem; text-decoration: none; }
+.orion-logo { display: block; position: relative; width: 182px; }
+.orion-logo img { display: block; height: auto; object-fit: contain; object-position: left center; width: 100%; }
+.orion-logo .logo-planet-o { border-width: 3px; }
+.app-navigation {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem .5rem;
+  justify-content: flex-start;
+  overflow: visible;
+}
+.app-navigation a { border-radius: var(--radius-sm); color: #fff; flex: 0 0 auto; font-size: clamp(.95rem, 1.2vw, 1.05rem); font-weight: 650; padding: .65rem .9rem; text-decoration: none; }
+.app-navigation a:hover { background: rgb(39 65 84 / .75); }
+.app-navigation .ui-button { color: #fff; flex: 0 0 auto; font-size: clamp(.95rem, 1.2vw, 1.05rem); }
+.app-content { flex: 1; min-height: calc(100vh - 80px); }
+.app-content:focus { outline: none; }
+@media (max-width: 700px) { .app-header { min-height: 9.5rem; }.app-navigation { padding-bottom: .25rem; } }
