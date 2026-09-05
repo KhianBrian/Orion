@@ -1,86 +1,41 @@
-.orion-navbar {
-  width: 100%;
-  background-color: var(--color-black);
-  z-index: 1000;
-  box-shadow: var(--shadow-md);
-}
-
-.navbar-container {
-  display: flex;
-  justify-content: space-between;
+.app-header {
   align-items: center;
-  margin: 0 auto; max-width: 72rem; min-height: 72px; padding: .5rem 1rem;
-}
-
-.navbar-logo {
+  background-color: #030509;
+  background-image:
+    radial-gradient(circle at 5% 24%, rgb(255 255 255 / .85) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 16% 70%, rgb(255 255 255 / .65) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 29% 33%, rgb(188 214 255 / .7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 43% 78%, rgb(255 255 255 / .8) 0 1.25px, transparent 1.75px),
+    radial-gradient(circle at 58% 20%, rgb(255 255 255 / .7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 71% 58%, rgb(195 220 255 / .7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 84% 28%, rgb(255 255 255 / .85) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 95% 72%, rgb(255 255 255 / .65) 0 1px, transparent 1.5px),
+    linear-gradient(90deg, rgb(0 0 0 / .2), transparent 60%),
+    url("/images/login-space-header.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-bottom: 3px solid var(--color-bronze);
   display: flex;
-  align-items: center;
+  flex-direction: row;
+  gap: 2rem;
+  justify-content: flex-start;
+  min-height: 8.5rem;
+  padding: .75rem max(1rem, calc((100% - 72rem) / 2));
 }
 
-.navbar-logo img {
-  height: 58px;
-  width: auto;
-  object-fit: contain;
-}
+.app-brand { align-items: center; display: flex; flex: 0 0 auto; padding: .2rem .4rem; text-decoration: none; }
+.orion-logo { display: block; position: relative; width: 182px; }
+.orion-logo img { display: block; height: auto; object-fit: contain; object-position: left center; width: 100%; }
+.orion-logo .logo-planet-o { border-width: 3px; }
+.app-navigation { align-items: center; display: flex; flex-wrap: wrap; gap: .35rem .5rem; justify-content: flex-start; overflow: visible; }
+.app-navigation a, .app-sign-out { border-radius: var(--radius-sm); color: #fff; flex: 0 0 auto; font-size: clamp(.95rem, 1.2vw, 1.05rem); font-weight: 650; padding: .65rem .9rem; text-decoration: none; }
+.app-navigation a:hover, .app-sign-out:hover { background: rgb(39 65 84 / .75); }
+.app-sign-out { background: transparent; border: 0; cursor: pointer; font-family: inherit; }
+.app-sign-in { background: var(--gradient-login-btn); }
 
-.navbar-links {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: nowrap;
-}
-
-.nav-link {
-  background-color: transparent;
-  color: var(--color-ghostwhite);
-  text-shadow: 0 0 10px rgba(248, 248, 255, 0.5);
-  border: none;
-  padding: 0.5rem 1rem;
-  font-size: 1.05rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  text-decoration: none;
-  font-family: var(--font-primary);
-}
-
-.nav-link:hover {
-  color: var(--color-bronze-light);
-  font-style: italic;
-}
-
-.nav-link-login {
-  background: var(--gradient-login-btn);
-  color: var(--color-white);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  text-decoration: none;
-  font-family: var(--font-primary);
-  display: inline-block;
-}
-
-.nav-link-login:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-  filter: brightness(1.1);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .navbar-container { min-height: 64px; }.navbar-logo img { height: 48px; }.navbar-links { gap: .15rem; }
-
-  .nav-link {
-    font-size: 0.875rem;
-    padding: 0.4rem 0.6rem;
-  }
-
-  .nav-link-login {
-    font-size: 0.875rem;
-    padding: 0.4rem 1rem;
-  }
+@media (max-width: 700px) {
+  .app-header { align-items: stretch; flex-direction: column; gap: .5rem; min-height: 9.5rem; }
+  .app-brand { align-self: flex-start; }
+  .app-navigation { padding-bottom: .25rem; }
 }

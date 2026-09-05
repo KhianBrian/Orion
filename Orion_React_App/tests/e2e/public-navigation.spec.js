@@ -5,6 +5,8 @@ test.describe("public navigation", () => {
     await page.goto("/");
 
     await expect(page.getByRole("heading", { name: "Sign in to Orion" })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Public navigation" })).toHaveText(/Home.*About.*Contact.*Services.*Blog/);
+    await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveCount(0);
     await page.goto("/home");
     await page.getByRole("link", { name: "About", exact: true }).click();
 
@@ -33,11 +35,15 @@ test.describe("public navigation", () => {
     await expect(page).toHaveURL(/\/login$/);
   });
 
-  test("the restored public navigation reaches every visible page", async ({ page }) => {
-    for (const [path, heading] of [["/contact", "We are here to help"], ["/services", "Guidance for your next step"], ["/portfolio", "Programs built around people"], ["/blog", "Experiences and reflections"]]) {
+  test("the signed-out navigation contains only approved public destinations", async ({ page }) => {
+    for (const [path, heading] of [["/contact", "We are here to help"], ["/services", "Guidance for your next step"], ["/blog", "Experiences and reflections"]]) {
       await page.goto(path);
       await expect(page.getByRole("heading", { name: heading })).toBeVisible();
     }
+
+    await page.goto("/home");
+    await expect(page.getByRole("navigation", { name: "Public navigation" })).toHaveText(/Home.*About.*Contact.*Services.*Blog.*Sign in/);
+    await expect(page.getByRole("link", { name: "Portfolio", exact: true })).toHaveCount(0);
   });
 
   test("password visibility changes presentation without changing the value", async ({ page }) => {

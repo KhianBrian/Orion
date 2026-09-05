@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useAuth } from "../features/auth/authContext";
 import "./Login.css";
 import { Button } from "../components/ui/Button";
+import Navbar from "../components/Navbar";
 import { StatusMessage } from "../components/ui/StatusMessage";
 
 const Login = () => {
@@ -32,6 +33,7 @@ const Login = () => {
 
   return (
     <div className="login-page">
+      <Navbar showSignIn={false} />
       <main className="login-main">
         <div className="login-card">
           <header className="login-brand-header">
