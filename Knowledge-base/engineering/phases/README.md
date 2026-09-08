@@ -97,6 +97,7 @@ pilot Phase 0–6 gates are closed:
 | [Phase 11 — Frontend performance and acceptance](phase-11-frontend-acceptance.md) | Performance, privacy, accessibility, regression matrix, and deferred owner walkthrough. | Planned |
 | [Phase 12 — Multi-factor authentication and privileged access](phase-12-mfa-and-privileged-access.md) | Second-factor enforcement, recovery/offboarding protection, and privileged-access verification. | Planned — owner role decision required |
 | [Phase 13 — Appointment outcomes and rescheduling](phase-13-appointment-outcomes-and-rescheduling.md) | Clinician-recorded outcomes, no-show handling, server-authoritative rescheduling, and status-aware history. | Planned — clinical and owner decisions required |
+| [Phase 14 — Doctor-managed availability and patient time selection](phase-14-doctor-managed-availability.md) | Clinician-owned weekday availability, 15-minute patient time choices, a two-week horizon, and server-authoritative conflict protection. | Planned — implementation must re-ground against the scheduling schema and RLS |
 
 Each step requires its own dated as-built audit before the next step is treated as complete. These
 steps remain synthetic-data-only and authorise no real accounts, appointments, or consultations.

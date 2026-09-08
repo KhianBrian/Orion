@@ -160,13 +160,14 @@ test.describe("database-backed scheduling", () => {
     await page.getByRole("main").getByRole("link", { name: "My appointments" }).click();
     await expect(page.getByRole("heading", { name: "My appointments" })).toBeVisible();
 
-    const bookedAppointment = page.getByRole("region", { name: "Upcoming appointments" }).locator("article").filter({ hasText: users.psychiatrist.displayName }).last();
+    const bookedAppointment = page.getByRole("tabpanel", { name: "Upcoming appointments" }).locator("article").filter({ hasText: users.psychiatrist.displayName }).last();
     await expect(bookedAppointment.getByRole("button", { name: "Cancel appointment" })).toBeVisible();
     await bookedAppointment.getByRole("button", { name: "Cancel appointment" }).click();
     await expect(page.getByRole("heading", { name: "Cancel this appointment?" })).toBeVisible();
     await page.getByRole("dialog").getByRole("button", { name: "Cancel appointment" }).click();
     await expect(page.getByText("Your appointment has been cancelled.")).toBeVisible();
-    const appointmentHistory = page.getByRole("region", { name: "Appointment history" });
+    await page.getByRole("tab", { name: /History/ }).click();
+    const appointmentHistory = page.getByRole("tabpanel", { name: "Appointment history" });
     await expect(appointmentHistory.getByText(/cancelled/i).first()).toBeVisible();
     await expect(appointmentHistory.getByRole("button", { name: "Cancel appointment" })).toHaveCount(0);
   });
