@@ -12,14 +12,15 @@ the legacy prototype.
 - The login page duplicates the main navbar and footer with separate styling.
 - Fixed desktop/mobile navigation wraps into multiple rows, while a fixed footer can cover content.
 - Button styling is spread across global, navbar, login, scheduling, and sidebar styles.
-- Blog, portfolio, testimonials, career counseling, and inert footer controls remain visible despite
-  being out of scope ([product scope](../../product/product-scope.md#out-of-scope)).
+- Portfolio, testimonials, career counseling, and inert footer controls remain visible despite being
+  out of scope. Blog content and submission remain out of scope, but R1 permits a non-interactive
+  coming-soon blog surface ([product scope](../../product/product-scope.md#in-scope)).
 - There is no shared dialog, status message, focus-visible standard, skip link, or reduced-motion rule.
 
 ## Non-Goals
 
 - No new product workflows, design animation library, marketing expansion, account settings, session
-  notes, or production consent copy.
+  notes, blog CMS/submissions, or production consent copy.
 - No redesign of the embedded JaaS interface, which is provider-owned.
 
 ## Decisions Needed
@@ -109,7 +110,8 @@ No analytics added. Visual and accessibility assertions remain local and synthet
    the accessible password visibility toggle and loading/error states, without placing it inside
    protected navigation.
 4. Remove out-of-scope public routes, testimonials, dead CTAs, and unreachable legacy source after an
-   import/route inventory confirms no active dependency.
+   import/route inventory confirms no active dependency; retain or add only the non-interactive
+   blog-coming-soon route authorised by R1.
 5. Add metadata, skip navigation, focus-visible, landmark, heading, and reduced-motion foundations.
 
 Likely areas: `src/components/`, `src/components/ui/`, `src/routes/routeConfig.jsx`, `src/pages/Login.jsx`,

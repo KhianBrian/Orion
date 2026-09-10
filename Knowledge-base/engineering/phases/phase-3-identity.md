@@ -1,5 +1,25 @@
 # Phase 3 — Replace Prototype Identity
 
+## R1 supersession boundary
+
+The adults-only instructions in this historical Phase 3 plan are superseded for future real-user work
+by the 8 September register amendment. R1.2, not a silent edit to this dated Tier 2 plan, will define
+the adult and minor/guardian-consent registration paths, the non-bookable pending state, and the
+approved consent-document dependency. Until R1.2 exists, this phase does not authorise a minor flow.
+
+## R1 impact and work ownership — 10 September 2026
+
+The current target now includes public adult registration, a non-bookable minor pending state, a
+guardian-consent review path, invitation-only psychiatrist/secretary provisioning, and versioned
+consents. The existing Phase 3 plan must not be read as permission to build a minor path before
+those R1.2 decisions and approved wording exist.
+
+Phase 3 remains responsible for the core identity replacement: Supabase Auth, secure recovery,
+server-held roles, clinician provisioning/approval, removal of mock identity paths, and role-aware
+routes. [Phase 16](phase-16-identity-and-minor-eligibility.md) owns the R1 eligibility and
+guardian-consent behavior, including the server-held booking/admission predicate. The two phases
+must share one profile/role/provisioning boundary; Phase 16 must not create a second identity system.
+
 **Tier 2 status:** Planned 27 August 2026. The implementation plan is below the charter and is written against the prototype as it stands; it must be re-grounded against the Phase 2 as-built schema before work starts.
 
 ## Purpose
@@ -194,17 +214,20 @@ dependency is uninstalled, not that the path is unreachable.
 ### P3-2 — Patient self-registration
 
 - Public sign-up, per the Q1 decision, creating a profile whose role is fixed server-side at `patient` — never taken from sign-up input. The mechanism is the Phase 2 trigger; this phase supplies the screen.
-- **Adults-only eligibility established at sign-up**, per Q4 and the charter. The initial launch uses an age self-declaration and collects no ID. Any future expansion to minors, guardian involvement, or age/identity verification is a separately recorded clinical and legal decision; do not build it into this slice.
+- **Superseded for real-launch by R1.2.** This baseline plan's adults-only self-declaration and refusal
+  path do not authorise the current minor-consent direction. R1.2 defines the pending guardian-consent
+  state and the clinical/legal approval conditions before any minor may book; it does not assume ID or
+  relationship-verification requirements before they are decided.
 - **A refusal path** that shows the approved crisis and referral information to an applicant who is ineligible, per [clinical safety](../../product/clinical-safety-and-telepsychiatry-policy.md#product-safeguards). The content is the clinical lead's to approve; the surface is this phase's to build. Until the content is approved the surface renders nothing rather than placeholder text — a placeholder crisis contact is worse than an absent one.
 - **Email verification before any booking.** The charter asks for this, and it is the control that replaces the invitation vetting Q1 removed. A profile may exist unverified; it may not book.
 - **Rate limiting and abuse controls on sign-up**, for the same reason. Sign-up is now the only unauthenticated write path in the system.
 
 ### P3-3 — Uncapped public registration
 
-No active-patient cap, waitlist, or approval queue is implemented. Public registration still requires
-the adults-only declaration, email verification before booking, rate limiting, monitoring, and the
-approved geography. The team records activity and plans scaling when demand warrants it; the operating
-review cadence remains an owner decision under Q1.
+No active-patient cap, waitlist, or approval queue is implemented. Public registration requires the
+applicable R1 eligibility status, email verification before booking, rate limiting, monitoring, and
+the approved geography. The team records activity and plans scaling when demand warrants it; the
+operating-review cadence remains an owner decision under Q1.
 
 ### P3-4 — Provisioning for psychiatrists and secretaries
 
@@ -271,7 +294,7 @@ The gate is that legacy authentication never coexists with real accounts.
 | Gap | Owner | How this plan handles it |
 | --- | --- | --- |
 | Approved geography and operating-review cadence (Q1) | Company owners | No capacity gate is built. Registration remains public, with monitoring and scaling work triggered by real activity. |
-| Future minors, guardian involvement, or age/identity verification | Clinical lead and company owners | Not built. Initial launch remains adults-only by self-declaration with no ID collection. |
+| Minor/guardian pathway, including age and identity/relationship assurance | Clinical lead, company owners, and DPO/legal owner | R1.2 owns the flow. No minor may become bookable until its approval conditions are recorded. |
 | Approved crisis and referral content | Clinical lead | The refusal surface is built; it renders nothing until approved content exists. |
 | Psychiatrist approver and verification criteria (Q3) | Company owners with clinical lead | Approver assignable, criteria stored as data. |
 | MFA role scope and enforcement | Phase 12 | Phase 3 exposes the identity/recovery boundary; Phase 12 enforces the owner-selected roles. |

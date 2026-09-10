@@ -10,6 +10,11 @@ The current entry records Jitsi as a Service (JaaS), Orion's selected D5 synthet
 and Direct WebRTC + TURN, a possible future self-operated video-infrastructure path. Additional
 scale options can be added here as separate sections.
 
+**R1 update, 8 September 2026.** JaaS remains the selected D5 synthetic-demo provider. Google Meet is
+the proposed real-launch direction; its current decision and validation gate are maintained in the
+[video provider decision record](video-provider-decision-record.md). Statements below about an option
+not requiring a Google Meet account describe that historical option only and must not be used for R1.
+
 ## Status
 
 JaaS is selected for the synthetic demo because its free developer allowance supports 25 monthly

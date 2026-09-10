@@ -3,12 +3,13 @@
 ## Canonical states
 
 ```text
-open_slot -> held (optional, expires) -> booked -> completed | cancelled | no_show
+open_slot -> held (optional, expires) -> payment_pending (expires) -> booked -> completed | cancelled | no_show
 ```
 
 - A slot is exactly 45 minutes and belongs to one active psychiatrist.
 - `held` is optional and must expire automatically; it is never an appointment.
-- Only a server transaction may create `booked` from an open/valid held slot.
+- `payment_pending` is an appointment with an ID only so a payment attempt can be tracked against its patient and psychiatrist. It is not a confirmed consultation and does not grant meeting admission.
+- Only a server-verified successful payment may transition `payment_pending` to `booked`. A browser redirect from PayMaya is not payment evidence.
 - `cancelled`, `completed`, and `no_show` retain immutable appointment history.
 - Reopening a cancelled slot, rescheduling, psychiatrist cancellation, and no-show handling are defined under *Approved transitions* below.
 
@@ -17,6 +18,17 @@ open_slot -> held (optional, expires) -> booked -> completed | cancelled | no_sh
 Recorded 27 August 2026 in answer to register question 5. Rescheduling deliberately adds no canonical
 state. Items still requiring a clinical ruling are listed under *Outstanding* and must not be filled in
 by engineering.
+
+### Payment-authorised booking
+
+Recorded in the 8 September register amendment. The server locks the selected slot, creates a
+`payment_pending` appointment and payment attempt with the appointment, patient, and psychiatrist IDs,
+then creates the PayMaya checkout. The provider's authenticated result, not a client-controlled return
+URL, determines whether the appointment becomes `booked`.
+
+The payment-pending expiry, failed/abandoned-payment treatment, duplicate-payment prevention,
+rescheduling/refund/no-show treatment, and reconciliation rules are not decided. They are commercial
+and operations policy; no implementation may choose them by default.
 
 ### Patient cancellation
 
@@ -55,7 +67,12 @@ by engineering.
 - The server/database clock is authoritative. The client may display eligibility but never decides it.
 - Patient cancellation is allowed only when `starts_at > server_now + 24 hours`.
 - Psychiatrist self-service cancellation is allowed only when `starts_at > server_now + 48 hours`.
-- The clinical lead defines the early join window, late grace period, session-end treatment, and any geographic/timezone expansion.
+- The patient join window begins 15 minutes before `starts_at` and ends at the scheduled `ends_at`.
+- The consultation lasts exactly 45 minutes. At its scheduled end the call is ended; the following
+  15 minutes are a psychiatrist note-writing window, not additional patient-call time.
+- The psychiatrist manually controls note release. The system does not automatically complete, lock,
+  or release a note when that 15-minute window ends.
+- The clinical lead confirms the early-end, late-note, no-show, and geographic/timezone edges.
 
 ## Integrity rules
 
@@ -75,7 +92,8 @@ Engineering must not fill these in. Each is recorded on the
 | Item | Owner | Blocks |
 | --- | --- | --- |
 | Late grace period before a no-show may be set. Recommended value for consideration: 15 minutes. | Clinical lead | Phase 4 no-show behaviour |
-| Early join window and session-end treatment. | Clinical lead | Phase 4 join behaviour |
+| Early-end treatment, late-note completion, and the clinical confirmation of the recorded 15/45/15 timeline. | Clinical lead | R1.1/R1.4 timing behaviour |
+| Payment-pending expiry, failed/abandoned payment, duplicate payment, cancellation/refund/no-show treatment, chargeback, receipt, and reconciliation rules. | Company owners with operations and DPO/legal advice | R1.3 payment-authorised booking and R1.5 operations |
 | Consequences of a no-show — forfeiture, fee treatment, whether it counts against a patient. | Company owners with clinical lead | Phase 4 post-session handling, Phase 6 support procedure |
 | Whether a psychiatrist no-show is distinguishable from a patient no-show. The canonical list has one `no_show` state and does not say whose. Recommendation: keep the single state and record the absent party as a field, rather than adding a canonical state. | Clinical lead | Phase 2 status model |
 | Whether the secretary, the admin, or either may execute a late cancellation on a psychiatrist's behalf. | Company owners | Phase 3 role permissions, Phase 4 cancellation path |

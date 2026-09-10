@@ -23,6 +23,9 @@ No real client, psychiatrist, or appointment may be accepted until all are true:
 - A product owner, clinical lead, legal entity/PIC, DPO/privacy lead, security owner, and operations owner are named.
 - Clinical safety, privacy, consent, retention, clinician-verification, and emergency procedures are approved by their owners.
 - A private authenticated video provider is approved; public Jitsi is excluded.
+- The minor/guardian-consent pathway, PayMaya payment/refund/reconciliation process, support-ticket
+  operating model, and all related notices are approved by their clinical, legal/DPO, product, and
+  operations owners.
 - Authentication, RBAC/RLS, booking, cancellation, video admission, session-note access control, audit, backups, and incident procedures have passed their verification gates.
 - Staging and production are separate; production contains no test fixtures or test accounts.
 - No critical or high security finding remains open, and residual risks have written acceptance.

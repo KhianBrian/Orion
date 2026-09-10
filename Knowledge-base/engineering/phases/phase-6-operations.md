@@ -2,6 +2,27 @@
 
 **Tier 2 status:** Blocked. Needs the Phase 5 as-built provider integration and register answers Q1, Q10, Q11 — all still open or partial.
 
+## R1 operations extension
+
+R1.5 extends this phase's future launch work with support-ticket handling, PayMaya reconciliation and
+payment exceptions, Google Meet incidents, guardian-consent privacy requests, and activation of the
+deferred support email. This historical charter does not provide those operating procedures; they must
+be planned only after R1.1, R1.3, and R1.4 settle the relevant data and provider contracts.
+
+## R1 impact and work ownership — 10 September 2026
+
+The new launch direction expands operations to include patient support tickets, payment exceptions,
+Google Meet incidents, guardian/privacy requests, independent kill switches, and controlled feature
+activation. These additions do not close Phase 6.
+
+Phase 6 remains responsible for the baseline operations foundation: access review and offboarding,
+monitoring, restore, incident response, security/accessibility/performance review, and the overall
+controlled-pilot gate. [Phase 19](phase-19-support-tickets-and-launch-operations.md) owns the new
+support and exception operations, and [Phase 20](phase-20-integrated-launch-verification-and-controlled-release.md)
+owns integrated acceptance, rollback rehearsal, named approvals, and the final go/no-go package.
+Phase 6 still needs to provide its as-built operational controls to those phases, and unresolved
+Q1/Q2/Q8/Q9/Q10/Q11 decisions remain launch blockers.
+
 ## Purpose
 
 Make Orion operable and then release it under control: minimal admin tooling, clinician and secretary

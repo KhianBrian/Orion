@@ -2,6 +2,32 @@
 
 **Tier 2 status:** Planned 27 August 2026. The implementation plan is below the charter, and it carries one unmet prerequisite — see *The prerequisite is larger than the charter states*.
 
+## R1 supersession boundary
+
+This is the pre-R1 data/RBAC plan. Its original notes, four-role model, consent design, and session-note
+controls remain inputs, but its schema is not sufficient for the 8 September change set. R1.1 owns the
+guardian-consent, payment attempt/event, support-ticket, and 15/45/15 timing extensions. Do not add
+them opportunistically to this phase's old Tier 2 plan; draft R1.1 from the applied schema and the
+reconciled [data dictionary](../../governance/data-classification-and-data-dictionary.md).
+
+## R1 impact and work ownership — 10 September 2026
+
+The decisions about session notes, three consent categories, the secretary role, clinician approval,
+public patient registration, and the appointment state machine are now part of the current target.
+They do not mean this phase was completed: the current database still has only the original three
+roles and core tables.
+
+Phase 2 remains responsible for its original data/RBAC foundation: protected profiles and clinician
+approval, session notes and their release/read rules, baseline consent records, appointment lifecycle
+facts, slot locking, and the complete allow/deny matrix.
+
+[Phase 15](phase-15-data-consent-and-audit-foundation.md) is the implementation owner for the new R1
+extensions: eligibility and guardian-consent evidence, `payment_pending`/reserved compatibility,
+payment attempts/events, support tickets/messages, and shared R1 audit/RLS additions. If Phase 15
+adds the secretary enum or shared compatibility constraints, its as-built audit must record that this
+fulfills the corresponding Phase 2 prerequisite; no second migration should be written for the same
+object. [Phase 16](phase-16-identity-and-minor-eligibility.md) then consumes the exact result.
+
 ## Purpose
 
 Build the protected data foundation: profiles, verified clinicians, availability, appointments,

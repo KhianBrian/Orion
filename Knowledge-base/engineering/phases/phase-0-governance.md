@@ -2,6 +2,39 @@
 
 **Tier 2 status:** Planned 27 August 2026. The implementation plan is below the charter. The phase itself remains open and cannot be closed by the developer.
 
+## Historical baseline and R1 handoff
+
+This Phase 0 document remains the **27 August governance baseline**. It records the questions,
+assumptions, and blockers that existed then and must not be silently rewritten as if the 8 September
+meeting had already happened.
+
+The later owner direction is tracked in [Launch Readiness R1.0](../launch-readiness/r1.0-governance-and-change-control.md),
+with the superseding decisions recorded first in the
+[pilot decision register](../../product/pilot-decision-register.md#amendment--8-september-2026-initial-launch-change-set).
+R1.0 consumes this charter as evidence and revises future work only; it does not close this phase's
+gate, change its dated Tier 2 plan, or convert synthetic-demo evidence into real-launch approval.
+
+## R1 impact and work ownership — 10 September 2026
+
+The 8 September direction now gives engineering a clearer target: public adult registration, a gated
+minor/guardian path, session notes, three consent categories, payment-authorised booking, support
+tickets, a 15/45/15 timing rule, and Google Meet as a proposed real-launch provider. These are scope
+directions, not proof that Phase 0 is closed or that every detail is approved.
+
+Phase 0 still owns the decisions that only the owners, DPO/legal adviser, or clinical lead can make:
+the legal entity and DPO, clinical lead and verification criteria, launch geography and review
+cadence, Q5 ratification and no-show/late-cancellation details, final consent/legal wording, vendor
+terms, stop authority, support hours/escalation, and retention/deletion rules.
+
+The implementation handoff is now explicit: [R1.0](../launch-readiness/r1.0-governance-and-change-control.md)
+records the amendment; [Phase 15](phase-15-data-consent-and-audit-foundation.md) owns the shared R1
+data/RLS/audit foundation; [Phase 16](phase-16-identity-and-minor-eligibility.md) owns eligibility;
+[Phase 17](phase-17-paymaya-payment-authorised-booking.md) owns payment booking;
+[Phase 18](phase-18-google-meet-and-session-timing.md) owns real meeting/timing;
+[Phase 19](phase-19-support-tickets-and-launch-operations.md) owns support operations; and
+[Phase 20](phase-20-integrated-launch-verification-and-controlled-release.md) owns integrated release
+evidence. Phase 0 is not complete until its outstanding decisions are formally recorded.
+
 ## Purpose
 
 Name the accountable owners and obtain written approval for the service boundary and for privacy,

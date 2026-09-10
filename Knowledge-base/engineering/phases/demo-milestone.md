@@ -44,7 +44,7 @@ detailed plan is in [JaaS video work package](demo-milestone-jaas-video.md).
 Two things the implementation plan must hold:
 
 1. **The fake-data label must be unmissable and impossible to disable from the client.** It is the only thing distinguishing a permitted demo call from a prohibited real one.
-2. **Demo video success is not Phase 5 progress.** A working call between two synthetic accounts proves the integration boundary. It does not prove participant entitlement, token revocation, copied-link denial, or outage handling — which is what the Phase 5 gate tests. The real-launch provider decision (Q8) is deferred and remains open.
+2. **Demo video success is not Phase 5 progress.** A working call between two synthetic accounts proves the integration boundary. It does not prove participant entitlement, token revocation, copied-link denial, or outage handling — which is what the Phase 5 gate tests. Google Meet is now the proposed R1 real-launch direction, but remains unapproved pending Workspace and Q8/Q9 review.
 
 ## Gate
 

@@ -2,34 +2,36 @@
 
 ## As-built demo foundation — 30 August 2026
 
-**Completed ✅** Orion's non-production Supabase project now has the initial three-role schema applied
+**Historical baseline, completed ✅.** On 30 August, Orion's non-production Supabase project had the initial three-role schema applied
 through reviewable migrations. It contains `profiles`, `psychiatrists`, `availability_slots`,
 `appointments`, and `audit_events`; every public table has RLS enabled and the Supabase security
 advisor is clean. The 45-minute checks, slot-overlap exclusion constraint, appointment idempotency
 index, and protected role field are present.
 
-This is a deliberately narrow foundation, not completion of this architecture: no five demo accounts
-have been provisioned yet, no booking/cancellation Edge Function is deployed, and no client is yet
-connected to the database. The three application roles remain `patient`, `psychiatrist`, and `admin`;
-no secretary role was created.
+This was a deliberately narrow foundation, not completion of this architecture. The dated as-built
+description is retained as evidence; later D0–D7 work provisioned the synthetic accounts and added
+booking/cancellation. It is not a current role or schema authority.
 
 See [Supabase integration](../engineering/supabase.md) for the scoped connection and exact applied
 migrations.
 
 ## Roles
 
-The sole application roles are `patient`, `psychiatrist`, and `admin`. Roles live in the protected `profiles` table. They must never be inferred from email text or editable user metadata.
+The current approved application roles are `patient`, `psychiatrist`, `secretary`, and `admin`. Roles
+live in the protected `profiles` table. They must never be inferred from email text or editable user
+metadata. R1 adds no new support role: support-ticket access is assigned explicitly to the existing
+least-privilege roles.
 
-| Capability | Patient | Psychiatrist | Admin |
-| --- | --- | --- | --- |
-| Read/update own profile | Yes | Yes | Yes |
-| Browse active psychiatrists and open slots | Yes | No | Yes |
-| Create appointment | Yes | No | No by default |
-| Read appointment | Own only | Assigned only | No unrestricted access |
-| Cancel appointment | Own, only >24h | Only under approved clinical policy | Exceptional, audited policy only |
-| Join appointment room | Own, in session window | Assigned, in session window | No default |
-| Create availability | No | Own only after activation | Approved administration only |
-| Provision psychiatrists | No | No | Yes |
+| Capability | Patient | Psychiatrist | Secretary | Admin |
+| --- | --- | --- | --- | --- |
+| Read/update own profile | Yes | Yes | Yes | Yes |
+| Browse active psychiatrists and open slots | Yes | No | Approved appointment-support projection only | Yes |
+| Create appointment | Yes, subject to payment policy | No | Not until owner policy approves on-behalf booking | No by default |
+| Read appointment | Own only | Assigned only | Appointment and contact projection only; never notes | No unrestricted access |
+| Cancel appointment | Own, only >24h | Only under approved clinical policy | Only the approved coordinator path, with audit | Exceptional, audited policy only |
+| Join appointment room | Own, in session window | Assigned, in session window | No default | No default |
+| Create availability | No | Own only after activation | No | Approved administration only |
+| Provision psychiatrists/secretaries | No | No | No | Yes |
 
 ## Core model
 
@@ -59,7 +61,12 @@ Supabase Auth's database role (`authenticated`) confirms sign-in; it does not pr
 
 ### Book appointment
 
-The `book-appointment` Edge Function validates the caller is a patient, validates slot time/status, locks the requested slot, derives appointment time from the slot, creates the appointment, and marks the slot booked in one database transaction. An idempotency key and database constraints prevent retry and concurrency errors.
+The existing synthetic `book-appointment` Edge Function validates the caller is a patient, validates
+slot time/status, locks the requested slot, derives appointment time from the slot, creates the
+appointment, and marks the slot booked in one database transaction. An idempotency key and database
+constraints prevent retry and concurrency errors. R1.3 replaces this real-launch assumption with the
+payment-pending lifecycle in [appointment lifecycle](../product/appointment-lifecycle.md); it must not
+grant meeting access until PayMaya payment verification succeeds.
 
 If two patients attempt the same slot, exactly one booking succeeds. The other receives a conflict response and refreshes availability.
 

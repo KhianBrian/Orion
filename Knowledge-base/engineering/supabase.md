@@ -36,6 +36,7 @@ documentation, source files, or Git.
 | `20260831090000` | [`add_server_authoritative_booking.sql`](../../supabase/migrations/20260831090000_add_server_authoritative_booking.sql) | Adds the locked, idempotent booking transaction, an active-appointment overlap constraint, and audit-event write. |
 | `20260831093502` | [`restrict_booking_rpc_to_edge_function.sql`](../../supabase/migrations/20260831093502_restrict_booking_rpc_to_edge_function.sql) | Restricts the privileged booking transaction to the Edge Function service role after the security advisor identified the direct authenticated-RPC surface. |
 | `20260831123836` | [`patient_appointment_cancellation.sql`](../../supabase/migrations/20260831123836_patient_appointment_cancellation.sql) | Adds the service-role-only patient cancellation transaction, cancellation idempotency, slot reopening, and cancellation audit event. |
+| `20260905090000` | [`safe_appointment_projection.sql`](../../supabase/migrations/20260905090000_safe_appointment_projection.sql) | Adds the authenticated, relationship-scoped `get_my_appointments()` projection with only appointment ID, times, status, and permitted counterpart display name. |
 
 The local filenames intentionally match the remote migration history. Never edit either migration after
 application; create a new forward migration for every correction.
