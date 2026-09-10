@@ -105,7 +105,7 @@ Google Meet behavior.
 - Add approved preflight, waiting/denied, provider-unavailable, session-ended, and return states.
 - Show psychiatrist note-window guidance from server boundaries while keeping manual authoring/release
   independent before, during, and after `ends_at + 15 minutes` as approved.
-- Preserve function-only note reads, patient-after-release, and secretary/default-admin denial.
+- Preserve function-only note reads, patient-after-release, and default-admin denial.
 
 ### P18-5 — Outage and operational controls
 

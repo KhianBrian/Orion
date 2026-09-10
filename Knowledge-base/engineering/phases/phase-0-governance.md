@@ -58,7 +58,7 @@ until this gate closes.
 | Answered | Q4 eligibility and crisis path, Q6 data boundary including session notes, Q7 consent structure, Q12 approval authority |
 | Answered for the demo only | Q8 video provider |
 | Answered — pending ratification | Q5 appointment transitions |
-| Partially answered | Q1 registration model, Q3 psychiatrist approval, Q10 support and secretary role, Q11 retention |
+| Partially answered | Q1 registration model, Q3 psychiatrist approval, Q10 support operations, Q11 retention |
 | Deferred by the owners | Q2 entity and DPO, Q9 vendor terms |
 
 Two decisions changed the project's shape rather than merely filling a gap, and the implementation
@@ -68,9 +68,12 @@ the invitation vetting the original plan relied on.
 
 ## Remaining work in this phase
 
+The deferred items from this phase are consolidated in
+[deferredpostdevelopment.md](deferredpostdevelopment.md).
+
 - Obtain the outstanding answers listed in the register's *Outstanding for the next owner meeting* section: Q3 approver and criteria, Q5 ratification and referred items, Q10 stop authority and escalation, Q11 retention and deletion, and Q1 geography/operating review.
 - Obtain a clinical ruling on the two items in the register's *Referred to the clinical lead* section: the clinical-emergency position, and the governance of patient-visible session notes.
-- Confirm the two *New decisions arising*: secretary role detail, and whether the demo account set expands to six.
+- Confirm the remaining *New decisions arising*: support operations detail and whether the demo account set expands.
 - Draft for owner approval: privacy notice, telepsychiatry consent wording now covering session notes, retention schedule, and emergency/referral routing.
 - Confirm the four knowledge-base documents recorded by the register as reconciled, and complete the two additional architecture-document corrections identified in P0-4 before Phase 2 implementation begins.
 
@@ -180,7 +183,7 @@ Ordered by what each answer releases, not by register number.
 | 4 | Q11 retention — the half the owners can choose | Phase 2 retention fields; the clinical-records category stays open pending item 1 |
 | 5 | Q1 approved geography and operating-review cadence | Real-user launch scope and Phase 6 release scoping |
 | 6 | Q10 stop authority, support hours, incident communication, escalation contact | Phase 6 runbooks |
-| 7 | Secretary detail and the demo account-set questions | Phase 2's fourth role, and the demo's two separable increments |
+| 7 | Support operations and the demo account-set questions | Phase 2's three-role model and the demo's remaining increments |
 | 8 | Q3 approver identity and verification criteria | Phase 3 provisioning |
 | 9 | Q8 real-launch provider, Q9 vendor terms | Phase 5, and Phase 1 production vendor use |
 
@@ -218,10 +221,10 @@ Briefs required:
 - **Q5 ratification.** Not a fresh decision. The brief presents the recorded transitions for confirmation and flags that the no-show mechanism additionally needs a clinical ratification, which the owners cannot supply.
 - **Q1 — the cap.** Its value, its mechanism, the approved geography, and the review cadence. Options are a hard limit, an approval queue, and a waitlist; the brief sets out what each costs at the registration boundary and how each behaves when the cap is reached, since that moment is a patient-facing experience and not only a counter.
 - **Q10 — stop authority.** Who may halt bookings, who may halt video, whether those are the same person, support hours, what a client is told during an incident, and the clinical escalation contact. The [incident flow](../../operations/operations-and-incident-response.md#incident-flow) requires containment and simultaneous escalation, both of which need a name attached.
-- **Late-cancellation executor.** Whether the secretary, the admin, or either may execute a late cancellation on a psychiatrist's behalf. The brief notes that the path itself is not optional — the [lifecycle](../../product/appointment-lifecycle.md#psychiatrist-cancellation) states that without it a phoned-in cancellation leaves an appointment booked while it is off in reality.
+- **Late-cancellation executor.** Admin executes a late cancellation on a psychiatrist's behalf. The brief notes that the path itself is not optional — the [lifecycle](../../product/appointment-lifecycle.md#psychiatrist-cancellation) states that without it a phoned-in cancellation leaves an appointment booked while it is off in reality.
 - **No-show consequences.** Forfeiture, fee treatment, and whether a no-show counts against a patient. The brief notes that Phase 4 records the state regardless, and that consequences are a separate build.
-- **Secretary detail.** Per-psychiatrist or clinic-wide; whether they may book or cancel on a client's behalf; whether they may see that a note exists without opening it. The brief should treat the last as a privacy question rather than a convenience one, since the [reader matrix](../../governance/data-classification-and-data-dictionary.md#readers) currently reads *never* without qualification.
-- **Demo account set.** Whether it expands to six with a secretary, and whether session notes appear in the demo. The brief carries the two separable increments already scoped in the [demo milestone](demo-milestone.md) plan, so the cost of each is a known quantity.
+- **Support operations.** Admin owns booking and operational support in the current three-role model; no separate support account or note-access surface is planned.
+- **Demo account set.** The demo remains limited to the existing accounts, and session notes remain a separate product decision.
 - **Q3 — approver and criteria.** Who approves a psychiatrist and against what verification. The brief notes that the approval mechanism can be built now with the approver left assignable, so this answer is not on Phase 3's critical path — only on its completion.
 
 ### P0-3 — Drafts for owner approval
@@ -259,11 +262,11 @@ Four documents were reconciled on 27 August 2026 and the register records which.
 milestone surfaced two more that were missed, both in the architecture tier and both now contradicting
 answered register questions:
 
-- [Database and RBAC](../../architecture/database-and-rbac.md) — names three roles as the sole application roles with no secretary, lists no session-notes table, and describes cancellation as the 24-hour patient rule only, with no 48-hour psychiatrist boundary and no coordinator-executed path.
+- [Database and RBAC](../../architecture/database-and-rbac.md) — names three roles as the sole application roles with no separate support role, lists no session-notes table, and describes cancellation as the 24-hour patient rule only, with no 48-hour psychiatrist boundary and no coordinator-executed path.
 - [Access control and audit policy](../../architecture/access-control-and-audit-policy.md) — states that a support role is not created until a separate policy approves a minimum-data support model. Register Q10 is that approval.
 
 Under the [authority order](../../README.md#authority-order) these govern until deliberately updated,
-so **Phase 2 must not build the four-role model or the notes table ahead of them**. Phase 2's charter
+so **Phase 2 must not build a role expansion or the notes table ahead of them**. Phase 2's charter
 names the prerequisite as three documents, all now complete; the list is incomplete and these two
 belong on it. Reconciling them is a Phase 0 task because it is a knowledge-base decision, not a code
 change, and it needs no owner input beyond the Q6 and Q10 answers already recorded.

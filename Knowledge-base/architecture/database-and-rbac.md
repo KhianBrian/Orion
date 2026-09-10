@@ -17,21 +17,26 @@ migrations.
 
 ## Roles
 
-The current approved application roles are `patient`, `psychiatrist`, `secretary`, and `admin`. Roles
+The current approved application roles are `patient`, `psychiatrist`, and `admin`. Roles
 live in the protected `profiles` table. They must never be inferred from email text or editable user
 metadata. R1 adds no new support role: support-ticket access is assigned explicitly to the existing
 least-privilege roles.
 
-| Capability | Patient | Psychiatrist | Secretary | Admin |
+| Capability | Patient | Psychiatrist | Admin |
 | --- | --- | --- | --- | --- |
-| Read/update own profile | Yes | Yes | Yes | Yes |
-| Browse active psychiatrists and open slots | Yes | No | Approved appointment-support projection only | Yes |
-| Create appointment | Yes, subject to payment policy | No | Not until owner policy approves on-behalf booking | No by default |
-| Read appointment | Own only | Assigned only | Appointment and contact projection only; never notes | No unrestricted access |
-| Cancel appointment | Own, only >24h | Only under approved clinical policy | Only the approved coordinator path, with audit | Exceptional, audited policy only |
-| Join appointment room | Own, in session window | Assigned, in session window | No default | No default |
-| Create availability | No | Own only after activation | No | Approved administration only |
-| Provision psychiatrists/secretaries | No | No | No | Yes |
+| Read/update own profile | Yes | Yes | Yes |
+| Browse active psychiatrists and open slots | Yes | No | Yes |
+| Create appointment | Yes, subject to payment policy | No | No by default |
+| Read appointment | Own only | Assigned only | No unrestricted access |
+| Cancel appointment | Own, only >24h | Only under approved clinical policy | Exceptional, audited policy only |
+| Join appointment room | Own, in session window | Assigned, in session window | No default |
+| Create availability | No | Own only after activation | Approved administration only |
+| Provision psychiatrists | No | No | Yes |
+
+Psychiatrists are created by the backend provisioning path used by developers or authorized admins.
+There is no separate pending/approval workflow. The operational `is_active` flag controls whether
+patients can discover and book a psychiatrist; assigned clinicians retain relationship-scoped access
+to their existing appointments and notes.
 
 ## Core model
 
@@ -40,7 +45,8 @@ least-privilege roles.
 | `profiles` | Application user record linked one-to-one to `auth.users`. | `id`, `full_name`, `phone`, `role`, timestamps |
 | `psychiatrists` | Public psychiatrist profile. | `id`, `profile_id`, `display_name`, `bio`, `photo_url`, `is_active` |
 | `availability_slots` | A bookable 45-minute period. | `id`, `psychiatrist_id`, `starts_at`, `ends_at`, `status` |
-| `appointments` | A confirmed or historical booking. | `id`, `patient_id`, `psychiatrist_id`, `slot_id`, derived `starts_at`/`ends_at`, `status`, provider room reference, cancellation timestamps |
+| `appointments` | A confirmed or historical booking. | `id`, `patient_id`, `psychiatrist_id`, `slot_id`, derived `starts_at`/`ends_at`, `status`, synthetic/demo room reference, cancellation/no-show facts, reschedule link |
+| `session_notes` | Versioned clinical note attached to an appointment. | `id`, `appointment_id`, author, version, optional superseded note, body, release timestamp, timestamps |
 | `consent_events` | Versioned evidence of approved notice/consent choices. | `id`, `actor_id`, `document_version`, `choice`, `created_at` |
 | `audit_events` | Security-relevant privileged actions. | `id`, `actor_id`, `action`, `target_type`, `target_id`, `metadata`, `created_at` |
 
@@ -56,6 +62,19 @@ All times use `timestamptz`; the user interface displays `Asia/Manila`. Database
 - Issue a short-lived provider participant token only after server-side participant validation; never return a reusable public meeting URL.
 
 Supabase Auth's database role (`authenticated`) confirms sign-in; it does not provide application authorization by itself. RLS must still restrict rows according to the role and relation to the appointment.
+
+Phase 2 keeps direct `session_notes` table access unavailable to application roles. The protected
+service-role functions are `create_session_note(uuid, text, uuid, uuid)`,
+`release_session_note(uuid, uuid)`, and `read_session_note(uuid, uuid)`; the read function audits
+both successful and denied attempts. Patients receive only the latest released note version for their
+own appointment; superseded note bodies remain protected. Admins may read audit metadata proving the
+access decisions, but never clinical-note content. Google Meet creation and admission remain outside
+this schema and belong to Phase 18.
+
+The complete three-role table/action matrix and its live verification command are recorded in the
+[Phase 2 data/RBAC plan](../engineering/phases/phase-2-data-rbac.md#complete-three-role-rls-allowdeny-matrix). Outcome transitions, psychiatrist
+cancellation, no-show recording, and rescheduling are Phase 13 responsibilities; this schema stores
+their provider-neutral appointment facts without exposing unfinished transition functions.
 
 ## Sensitive commands
 

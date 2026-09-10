@@ -11,7 +11,7 @@ work (Phases 7–11) and must be complete before a real-user pilot.
 
 ## Scope
 
-- Company owners decide which roles require MFA. The recommended minimum is psychiatrist, secretary,
+- Company owners decide which roles require MFA. The recommended minimum is psychiatrist and admin,
   and admin; patients are excluded unless owners decide otherwise.
 - Configure enrollment, challenge, recovery, and loss-of-device handling for the selected roles.
 - Require MFA during privileged sign-in and prevent bypass through password recovery, invitation links,

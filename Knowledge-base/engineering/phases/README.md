@@ -99,7 +99,7 @@ preferences; each one prevents a specific failure this project cannot absorb.
 | [Demo milestone](demo-milestone.md) | The five-account synthetic demo — a cross-cutting track, not a phase. | **Ready to plan — immediate priority** |
 | [Demo milestone — JaaS video work package](demo-milestone-jaas-video.md) | Detailed D5 implementation and verification under the synthetic demo; not production Phase 5. | Companion work package |
 | [Phase 0 — Governance and service design](phase-0-governance.md) | Owner appointments, policy decisions, pilot criteria. | In progress — 6 answered in some form; 4 partial; 2 deferred |
-| [Phase 1 — Secure platform baseline](phase-1-baseline.md) | Environments, secrets, CI/CD, migrations, backups, monitoring. | Ready to plan — non-production scope only |
+| [Phase 1 — Secure platform baseline](phase-1-baseline.md) | Environments, secrets, CI/CD, migrations, backups, monitoring. | Foundation slice implemented; production-readiness gate deferred |
 | [Phase 2 — Data, RBAC, consent, and audit](phase-2-data-rbac.md) | Baseline schema, RLS, private functions, session notes, lifecycle and concurrency. | **Plannable** — R1 extensions are delegated to Phase 15; Q11 retention remains provisional |
 | [Phase 3 — Replace prototype identity](phase-3-identity.md) | Supabase Auth, provisioning, and role-aware routes. | Plannable once Phase 2 as-built exists; Phase 16 owns R1 eligibility/guardian behavior |
 | [Phase 4 — One safe scheduling workflow](phase-4-scheduling.md) | Baseline server-authoritative booking, cancellation, notes, and conflict states. | **Plannable** — Phase 17 owns payment booking and Phase 18 owns real timing/admission |
@@ -143,7 +143,7 @@ pilot Phase 0–6 gates are closed:
 | [Phase 8 — UI system and application shell](phase-8-ui-system-and-app-shell.md) | Responsive public/authenticated shells, accessible shared primitives, scoped navigation, and a dedicated sign-in surface. | Implemented — review pending |
 | [Phase 8 — UI system and application shell](phase-8-ui-system-and-app-shell.md) | Responsive shell, approved navigation, shared buttons/dialogs/statuses, and accessibility foundations. | Planned |
 | [Phase 9 — Appointment experience](phase-9-appointment-experience.md) | Safe patient display name for assigned psychiatrists, appointment presentation, and centered cancellation confirmation/denial. | Completed ✅ — audit dated 5 September 2026 |
-| [Phase 10 — Focused meeting experience](phase-10-meeting-experience.md) | Unobscured responsive call layout, dedicated meeting shell, and lazy-loaded JaaS route. | Planned |
+| [Phase 10 — Focused meeting experience](phase-10-meeting-experience.md) | JaaS-specific synthetic-demo meeting shell and responsive call layout. | Superseded — Google Meet real-launch work belongs to Phase 18 |
 | [Phase 11 — Frontend performance and acceptance](phase-11-frontend-acceptance.md) | Performance, privacy, accessibility, regression matrix, and deferred owner walkthrough. | Planned |
 | [Phase 12 — Multi-factor authentication and privileged access](phase-12-mfa-and-privileged-access.md) | Second-factor enforcement, recovery/offboarding protection, and privileged-access verification. | Planned — owner role decision required |
 | [Phase 13 — Appointment outcomes and rescheduling](phase-13-appointment-outcomes-and-rescheduling.md) | Clinician-recorded outcomes, no-show handling, server-authoritative rescheduling, and status-aware history. | Planned — clinical and owner decisions required |
@@ -172,9 +172,9 @@ confirmed the synthetic demo is showcased to them before any real-user decision.
 Two answers changed the project's shape rather than filling a gap, and every phase file reflects them:
 
 - **Session notes are in scope.** Written by the psychiatrist, released by the psychiatrist, then readable by the patient. Orion now holds clinical content, which reaches Phase 2 schema, Phase 4 surfaces, and Phase 6 retention. Prescriptions, diagnoses, recordings, and transcripts remain excluded.
-- **A secretary role was added.** A fourth role with access to appointments and contact details only, never session notes. It touches Phases 2, 3, 4, and 6.
+- **The separate support-role proposal was removed.** Orion remains a three-role application: patient, psychiatrist, and admin. Operational support is handled through least-privilege admin tooling.
 
-Also changed: patient registration is public at initial launch, while psychiatrist and secretary
+Also changed: patient registration is public at initial launch, while psychiatrist
 accounts stay invitation-only with an approval period before a psychiatrist becomes bookable.
 
 **Q5 was settled the same day.** The appointment transitions are recorded in the

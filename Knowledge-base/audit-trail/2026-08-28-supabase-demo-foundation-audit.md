@@ -33,7 +33,7 @@ ability has been implemented yet.
 - The React app still has mock email-derived roles, dummy tokens, and prototype route behaviour.
 - No Supabase client, CASL ability, route guards, booking/cancellation function, video boundary, or
   end-to-end/RLS allow-and-deny test suite exists yet.
-- No secretary role, real identity, real clinical data, or production configuration was created.
+- No separate support role, real identity, real clinical data, or production configuration was created.
 
 ## Follow-up
 

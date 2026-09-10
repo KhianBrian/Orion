@@ -104,7 +104,7 @@ prove payment.
 - Show `payment_pending` distinctly in My appointments and never show Join.
 - Expose assigned psychiatrist only a coarse operational status needed for their schedule.
 - Add approved admin reconciliation UI only through a protected function and without broad patient or
-  provider-payload access. Secretary remains denied until approved.
+  provider-payload access. Separate support role remains denied until approved.
 
 ### P17-5 — Cancellation and exception compatibility
 

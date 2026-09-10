@@ -4,7 +4,7 @@
 
 This audit records the completed Phase 9 appointment-experience slice for Orion's five-account
 synthetic demo. It does not approve real accounts, clinical outcomes, rescheduling, no-show
-handling, secretary workflows, contact details, or any controlled-pilot gate. Those lifecycle
+handling, separate support role workflows, contact details, or any controlled-pilot gate. Those lifecycle
 extensions are deliberately deferred to [Phase 13](../engineering/phases/phase-13-appointment-outcomes-and-rescheduling.md).
 
 ## As built

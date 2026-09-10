@@ -40,7 +40,7 @@ once the psychiatrist releases them. They are sensitive personal information. Th
 addition to everything above.
 
 - **Consent scope.** The informed consent approved under register Q7 must cover that notes are written, that the patient will be able to read them once released, and who else can and cannot see them. The three-consent structure stands; its scope has widened.
-- **Access is audited.** Every read of a note is recorded, not only every write. This is what evidences that the secretary exclusion and the release rule held.
+- **Access is audited.** Every read of a note is recorded, not only every write. This is what evidences that the default admin exclusion and the release rule held.
 - **Least exposure.** Notes must not reach logs, analytics, error messages, monitoring, support tickets, screenshots, URLs, or test artefacts. Admin tooling must not surface them by default.
 - **Vendor position changed.** Register Q9 was deferred, but Supabase would now store health information. Data location, subprocessors, breach cooperation, and cross-border transfer terms must be reviewed before production use, not merely before scale.
 - **Retention is unresolved.** Register Q11 is open, and clinical records may carry a prescribed minimum retention period. No retention period may be invented and no deletion path built until it is recorded.

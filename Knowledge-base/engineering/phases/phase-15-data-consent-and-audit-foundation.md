@@ -41,7 +41,6 @@ booking to `booked`, and no R1 object. Reverify rather than relying on this sent
 - Finalize the field-by-field dictionary and role/action matrix for every object actually created.
 - Add provider-neutral current-state and append-only evidence objects through new migrations.
 - Add `payment_pending`, reserved-slot, active-conflict, and booking-authorisation compatibility facts.
-- Add the fourth approved `secretary` role value without granting an account or capability.
 - Add deny-first RLS/grants and protected function boundaries.
 - Add typed, content-free audit codes/fields needed by later phases.
 - Add synthetic database/RLS/constraint/idempotency/redaction tests.
@@ -63,7 +62,7 @@ booking to `booked`, and no R1 object. Reverify rather than relying on this sent
 | Patient eligibility | Clinical eligibility model; DPO-approved age representation/readers/retention; product transition ownership. |
 | Guardian consent | Account versus bounded subject; relationship/identity assurance; reviewer; case/status visibility; clinical acceptance; DPO/legal fields and rights. |
 | Payment | Owner-approved amount/currency and reservation principles; DPO-approved fields/readers/retention; official provider material before provider-specific fields. |
-| Support ticket | Owner-approved category/content/lifecycle/responders/secretary scope; DPO-approved fields/readers/retention. |
+| Support ticket | Owner-approved category/content/lifecycle/responders/admin scope; DPO-approved fields/readers/retention. |
 | Audit/retention | Named audit readers/review owner and Q11 retention/disposal/export/legal-hold decisions before lifecycle behavior. |
 
 Schema work may be split so an approved object proceeds while another remains absent. Do not create a
@@ -86,7 +85,6 @@ contract is approved.
 
 ### P15-1 — Compatibility and enumerated states
 
-- Add `secretary` to `app_role` without policies or accounts.
 - Add `payment_pending` to appointment status and `reserved` to slot status.
 - Add an immutable booking-authorisation basis that distinguishes historical `synthetic_demo` booked
   rows from future `verified_payment` bookings.
@@ -114,13 +112,13 @@ contract is approved.
   plus protected insert/update paths.
 - Add request/provider-event uniqueness and indexes for safe reconciliation.
 - Create no raw provider-payload, card, wallet, credential, or client-trusted amount/status field.
-- Provide only patient-safe, assigned-psychiatrist coarse, and approved admin projections; secretary
+- Provide only patient-safe, assigned-psychiatrist coarse, and approved admin projections; no separate support role
   remains denied unless explicitly approved.
 
 ### P15-4 — Ticket and message foundation
 
 - Create support ticket metadata and append-only ticket messages only after categories, free-text,
-  lifecycle, responders, and secretary scope are approved.
+  lifecycle, responders, and admin scope are approved.
 - Derive patient ownership from Auth in later functions; never expose a client-settable patient ID.
 - Create no attachment/upload, clinical category, emergency, diagnosis, treatment, provider-secret,
   or note field.

@@ -12,6 +12,8 @@ open_slot -> held (optional, expires) -> payment_pending (expires) -> booked -> 
 - Only a server-verified successful payment may transition `payment_pending` to `booked`. A browser redirect from PayMaya is not payment evidence.
 - `cancelled`, `completed`, and `no_show` retain immutable appointment history.
 - Reopening a cancelled slot, rescheduling, psychiatrist cancellation, and no-show handling are defined under *Approved transitions* below.
+- Meeting-provider setup is not an appointment state. A valid `booked` appointment may temporarily
+  have no production meeting access; Google Meet creation and admission are handled by Phase 18.
 
 ## Approved transitions
 
@@ -38,8 +40,8 @@ and operations policy; no implementation may choose them by default.
 ### Psychiatrist cancellation
 
 - A psychiatrist may cancel in the system only when `starts_at > server_now + 48 hours`. The notice period is deliberately longer than the patient's, because a late clinician cancellation disrupts a patient who has arranged their day around the appointment.
-- Inside 48 hours a psychiatrist has no self-service route. Late cancellation is coordinated by a person and executed on the psychiatrist's behalf by a secretary or admin, with a mandatory reason recorded and an audit event raised.
-- **This path is required, not optional.** Without it an appointment cancelled by phone stays `booked` in the system while being off in reality, and the record goes stale. Whether the secretary, the admin, or either may execute it is *Outstanding*.
+- Inside 48 hours a psychiatrist has no self-service route. Late cancellation is executed by an admin on the psychiatrist's behalf, with a mandatory reason recorded and an audit event raised.
+- **This path is required, not optional.** Without it an appointment cancelled by phone stays `booked` in the system while being off in reality, and the record goes stale.
 - A psychiatrist cancellation does **not** return the slot to availability.
 
 ### Rescheduling
@@ -96,7 +98,6 @@ Engineering must not fill these in. Each is recorded on the
 | Payment-pending expiry, failed/abandoned payment, duplicate payment, cancellation/refund/no-show treatment, chargeback, receipt, and reconciliation rules. | Company owners with operations and DPO/legal advice | R1.3 payment-authorised booking and R1.5 operations |
 | Consequences of a no-show — forfeiture, fee treatment, whether it counts against a patient. | Company owners with clinical lead | Phase 4 post-session handling, Phase 6 support procedure |
 | Whether a psychiatrist no-show is distinguishable from a patient no-show. The canonical list has one `no_show` state and does not say whose. Recommendation: keep the single state and record the absent party as a field, rather than adding a canonical state. | Clinical lead | Phase 2 status model |
-| Whether the secretary, the admin, or either may execute a late cancellation on a psychiatrist's behalf. | Company owners | Phase 3 role permissions, Phase 4 cancellation path |
 
 ## Ratification
 

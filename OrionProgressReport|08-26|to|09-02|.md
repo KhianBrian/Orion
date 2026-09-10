@@ -213,7 +213,7 @@ JaaS is used only for this restricted fake-data demonstration. It is not yet an 
 When a real user needs help, or when there is a security, clinical, or technical issue, the team needs to know who acts and who has the authority to pause the service.
 
 - **Decision needed:** Set support hours, clinical and security escalation contacts, client communication responsibilities, and who can stop bookings or video when needed.
-- **Current starting point:** A secretary role is agreed in principle for bookings and client questions, but not for access to clinical notes.
+- **Historical starting point:** A separate support role was proposed for bookings and client questions, but not for access to clinical notes. That proposal is now superseded.
 - **Until this is decided:** Orion cannot complete its real-user support and incident-response processes.
 
 ### 8. Set the first launch boundary and review process
@@ -224,13 +224,13 @@ The intended first real-user service is adults-only, with people confirming thei
 - **Why it matters:** A clear first boundary helps the team manage demand before it affects quality or reliability.
 - **Until this is decided:** The real-user launch scope remains incomplete.
 
-### 9. Finalise the secretary role and any future demo expansion
+### 9. Close the separate support-role proposal and any future demo expansion
 
-The current demonstration has five synthetic accounts and does not demonstrate session notes. A future phase may add a secretary, but its exact access needs a decision first.
+The current demonstration has five synthetic accounts and does not demonstrate session notes. No separate support account or role will be added.
 
-- **Decision needed:** Decide whether secretaries are assigned per psychiatrist or clinic-wide; whether they may book or cancel for patients; whether they may see that a note exists; and whether a sixth synthetic secretary account or session-note view belongs in a future demo.
-- **Current boundary:** Secretaries may see appointment and contact details, but must never read session-note content.
-- **Until this is decided:** The secretary role and any expanded demo scope will remain unbuilt.
+- **Decision superseded:** The separate support role is not part of the product. Admin owns operational support; a future demo expansion would be a separate decision.
+- **Current boundary:** Separate support role may see appointment and contact details, but must never read session-note content.
+- **Current boundary:** The separate support role and any expanded demo scope remain unbuilt.
 
 ### 10. Confirm the visual direction of the app
 
@@ -248,7 +248,7 @@ The current demo does **not** include or authorise:
 
 - Real patient data, real appointments, real patient sign-up, or real clinical consultations.
 - Session notes in the demo.
-- A secretary account in the demo.
+- A separate support account or role in the demo.
 - Prescriptions, diagnoses, recordings, transcripts, chat, file uploads, or reasons for visit.
 - A production-approved video provider or production vendor agreements.
 - Production operations, incident-response processes, retention/deletion processes, or support runbooks.

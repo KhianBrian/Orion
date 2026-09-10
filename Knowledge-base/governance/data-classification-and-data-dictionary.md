@@ -11,17 +11,17 @@ access.
 
 **Session notes are the most sensitive object in the system.** They are health information and
 therefore sensitive personal information. Unlike every other group below, note *read* access is
-audited, not only writes — the audit record is the evidence that the secretary exclusion and the
+audited, not only writes — the audit record is the evidence that the default admin exclusion and the
 release rule actually held.
 
 | Data group | Allowed at pilot | Purpose | Never place in |
 | --- | --- | --- | --- |
 | Account | name, email, verified contact method, password handled by Auth | account access and support | browser logs, analytics, screenshots, URLs |
 | Client appointment | appointment ID, client ID, psychiatrist ID, time, status, cancelling party, reschedule link | booking and access control | localStorage, Redux persistence, public errors |
-| Session note | note ID, appointment ID, author psychiatrist ID, note body, release state, released timestamp | record the session for the patient and clinician | logs, analytics, screenshots, URLs, error messages, support tickets, monitoring, test artefacts, any secretary-visible surface |
+| Session note | note ID, appointment ID, author psychiatrist ID, note body, release state, released timestamp | record the session for the patient and clinician; retain protected corrections | logs, analytics, screenshots, URLs, error messages, support tickets, monitoring, test artefacts, any non-clinical surface |
 | Psychiatrist profile | approved display name, specialty, photo, active status, approval state | discovery | private verification records/public endpoints |
 | Consent | notice/version hash, actor, timestamp, choice | prove approved acknowledgement | editable client-only state |
-| Audit | event code, actor/target IDs, outcome, timestamp, correlation ID | security/operations review | free text, tokens, room names, clinical content |
+| Audit | event code, actor/target IDs, outcome, timestamp, correlation ID | security/operations review; admin metadata review | free text, tokens, room names, clinical content |
 
 ## R1 data extensions awaiting approval
 
@@ -37,16 +37,16 @@ creates them.
 
 ## Readers
 
-| Data group | Patient | Psychiatrist | Secretary | Admin |
+| Data group | Patient | Psychiatrist | Admin |
 | --- | --- | --- | --- | --- |
 | Own account | yes | yes | contact details of clients | yes |
 | Client appointment | own | own assigned | yes | yes |
-| **Session note** | **own, after release only** | **own authored** | **never** | **not by default** |
+| **Session note** | **own latest version, after release only** | **own authored, including protected prior versions** | **never** | **not by default** |
 | Psychiatrist profile | approved fields | own | approved fields | yes |
 | Consent | own | no | no | yes |
 | Audit | no | no | no | yes |
 
-The secretary exclusion from session notes is a deny that must be explicitly tested, not merely
+The default admin exclusion from session notes is a deny that must be explicitly tested, not merely
 omitted from a grant. Admin tooling must not expose notes by default.
 
 ## Prohibited without a new approved decision

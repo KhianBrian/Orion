@@ -9,7 +9,7 @@ as-built gate.
 
 Patients can enter the approved adult or minor onboarding path. Every account receives a server-held
 eligibility state independent of role. A minor remains unable to reserve, pay, or join until approved
-guardian evidence has been reviewed and accepted. Psychiatrist and secretary roles remain
+guardian evidence has been reviewed and accepted. Psychiatrist roles remain
 invite/provision-only and cannot be obtained through public registration or recovery.
 
 ## Where implementation draws its basis
@@ -34,7 +34,7 @@ The Phase 3 adults-only plan is historical input only where the 8 September amen
 - Approved adult eligibility capture and pending/eligible state transitions.
 - Approved guardian account or bounded submission, versioned evidence, review, and status path.
 - Server bookability/admission predicate used by later booking and meeting functions.
-- Psychiatrist/secretary invite provisioning boundary and reviewer authority where approved.
+- Psychiatrist invite provisioning boundary and reviewer authority where approved.
 - Safe recovery, route/ability presentation, rate limiting, and synthetic verification.
 
 ## Non-goals
@@ -95,9 +95,9 @@ permits it. No real onboarding completes against placeholder or unapproved text.
 
 ### P16-4 — Provisioning, recovery, and route integration
 
-- Ensure public registration can never produce psychiatrist, secretary, admin, guardian reviewer, or
+- Ensure public registration can never produce psychiatrist, admin, guardian reviewer, or
   eligibility authority.
-- Keep psychiatrist and secretary invitation/provision-only and align with the actual four-role schema.
+- Keep psychiatrist invitation/provision-only and align with the actual three-role schema.
 - Ensure recovery changes no role, approval, eligibility, guardian relationship, or reviewer state.
 - Build one frontend eligibility feature boundary and shared server-state query.
 - Add adult/minor/pending/accepted/ineligible states and reviewer UI only for the appointed authority.

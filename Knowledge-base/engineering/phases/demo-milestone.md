@@ -29,10 +29,9 @@ Phase 2–4 gates, and the phases must not be read as blocked on it.
 No public sign-up. No real client or clinician information. No real clinical session. Replacing these
 accounts with real users requires a company-owner decision that has not been made.
 
-**Outstanding:** the 27 August 2026 review introduced a secretary role and session notes. Whether the
-demo expands to a sixth secretary account, and whether notes appear in the demo at all, are open
-questions on the register. Plan the demo at five accounts without notes unless the owners direct
-otherwise, and keep both as clearly separable increments.
+**Superseded:** the 27 August 2026 review proposed a separate support role and session notes. No separate
+support account will be added to the demo; session notes remain a separate product increment. Plan the
+demo at five accounts without notes unless the owners direct otherwise.
 
 ## Video for the demo
 
@@ -177,7 +176,7 @@ constraints, RLS, least-privilege grants, and a clean Supabase security-advisor 
 
 This does **not** close the demo milestone: synthetic account provisioning, real Supabase Auth in the
 client, booking/cancellation functions, database-backed UI, video boundary, and end-to-end/RLS tests
-remain. No secretary role, real data, or production configuration was added. The scoped connection and
+remain. No separate support role, real data, or production configuration was added. The scoped connection and
 migration record are documented in [Supabase integration](../supabase.md).
 
 ### D0 — Preconditions
@@ -198,11 +197,11 @@ Authored as timestamped, append-only migrations. The shape follows [database and
 - `appointments` stores the cancelling party as a column. The lifecycle document requires this as *a stored fact, not inferred from who called the endpoint*, because slot reopening depends on it. The demo only exercises patient cancellation, and the column is still populated.
 - RLS enabled on every table, default `anon` and `authenticated` grants revoked, then separate `select` / `insert` / `update` / `delete` policies each carrying an ownership or assignment predicate, per [database and RBAC](../../architecture/database-and-rbac.md#security-design).
 
-**The role type carries three values — `patient`, `psychiatrist`, `admin` — and not `secretary`.**
+**The role type carries three values — `patient`, `psychiatrist`, and `admin`.**
 This is deliberate. [Database and RBAC](../../architecture/database-and-rbac.md#roles) still states that
 those three are the sole application roles, and under the [authority order](../../README.md#authority-order)
 that document governs until it is deliberately updated. See *Knowledge-base conflict* below; the
-fourth role is Phase 2's to add, after the architecture documents are reconciled.
+No fourth role is planned; Phase 2 extends the three-role model with protected data and RLS.
 
 ### D2 — Authentication and role-correct navigation
 
@@ -318,8 +317,8 @@ Each is a decision belonging to a named owner. The plan states the gap and stops
 
 | Gap | Owner | How this plan handles it |
 | --- | --- | --- |
-| Whether the demo expands to six accounts with a secretary | Company owners — *New decisions arising* on the register | Planned at five. The secretary is a separable increment: one seeded account, one role value, one navigation entry, and the notes denial it exists to be excluded from. |
-| Whether session notes appear in the demo at all | Company owners — same section | Excluded. If added, the increment is a notes table with a release state, patient read-after-release, audited reads, and an explicit secretary deny — and it should not be built before the retention dependency below is understood. |
+| Whether the demo expands beyond its current accounts | Company owners | No separate support account or role is planned. |
+| Whether session notes appear in the demo at all | Company owners | Excluded from the current demo. If added, the increment is a notes table with a release state, patient read-after-release, audited reads, and default admin denial. |
 | Retention period for any data category | Register Q11, open | No retention or disposal behaviour is built. The demo database is disposable and recreated from the seed, which is not a retention policy and must not be recorded as one. |
 | Real-launch video provider | Register Q8, deferred | The demo integration is a proof of the integration boundary. It is not an approved production choice and must not be promoted without a recorded Q8 decision. |
 | No-show, grace period, join window, session-end treatment | Clinical lead, unappointed | Not built. The demo has no no-show transition and admits a participant only for a `booked` appointment. |
@@ -334,7 +333,7 @@ requires stopping and updating the knowledge base deliberately rather than codin
 Two architecture documents were not reconciled in the 27 August 2026 pass, and both now contradict
 answered register questions:
 
-- [Database and RBAC](../../architecture/database-and-rbac.md) states that `patient`, `psychiatrist`, and `admin` are the sole application roles, has no secretary column in its capability matrix, lists no session-notes table in its core model, and describes `cancel-appointment` as enforcing the 24-hour patient rule only — with no 48-hour psychiatrist boundary and no coordinator-executed late cancellation.
+- [Database and RBAC](../../architecture/database-and-rbac.md) states that `patient`, `psychiatrist`, and `admin` are the sole application roles, has no separate support role column in its capability matrix, lists no session-notes table in its core model, and describes `cancel-appointment` as enforcing the 24-hour patient rule only — with no 48-hour psychiatrist boundary and no coordinator-executed late cancellation.
 - [Access control and audit policy](../../architecture/access-control-and-audit-policy.md) states that a support role is "not created until a separate policy approves a minimum-data support model". Register Q10 is that approval, and the document has not caught up.
 
 This does not block the demo, which builds only the three roles both documents already sanction. It
@@ -351,7 +350,7 @@ with the phase that resolves each, per the charter's *Relationship to the phases
 | --- | --- | --- |
 | Identity | No registration, no invitation or provisioning workflow, no psychiatrist approval state, no account recovery | Phase 3 |
 | Privileged access | No MFA in the synthetic demo | Phase 12 |
-| Roles | Three roles rather than four; no secretary | Phase 2, after the architecture documents are reconciled |
+| Roles | Three roles; no separate support role | Phase 2, after the architecture documents are reconciled |
 | Clinical content | No session notes table, no release state, no audited reads | Phase 2, and only once register Q11 is answered |
 | Consent | No consent records captured | Phase 3, against owner-approved wording |
 | Lifecycle | No psychiatrist cancellation, coordinator late cancellation, reschedule, or no-show | Phase 4 |
@@ -364,7 +363,7 @@ with the phase that resolves each, per the charter's *Relationship to the phases
 The rewrite checklist for whoever implements this. Verify each before starting rather than trusting
 this plan.
 
-1. **Whether the owners have since answered the secretary and session-notes demo questions.** Both were open on 27 August 2026. An answer either way changes D1, D6, and the account boundary.
+1. **Whether the owners later expand the demo or add session notes.** The separate support-role proposal is closed; any new role would require a new decision and security review.
 2. **Whether a Supabase project, Daily account, or role email already exists** that this milestone should use rather than create. Nothing in the workspace indicated one, but the workspace is not the whole picture.
 3. **Whether Q5 has been ratified.** The transitions the demo relies on — 45 minutes, the 24-hour patient boundary, patient-cancelled slots reopening — were recorded by the developer and await owner ratification. A change on ratification changes D1 and D3.
 4. **Whether the prototype has changed since 27 August 2026.** Every row of *Verified starting state* is a point-in-time reading of an uncommitted working directory with no version control, which is precisely the condition under which a file changes without a trace.

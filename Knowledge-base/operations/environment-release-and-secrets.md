@@ -18,3 +18,5 @@ Secrets live in an approved secret manager or provider server configuration—no
 ## Recovery
 
 Define backups, recovery objectives, restoration owner, and a tested restore procedure. A backup that has not been restored in a non-production exercise is not accepted as verified recovery.
+
+Phase 1 evidence templates: [access register](access-register.md) and [non-production restore exercise runbook](restore-exercise-runbook.md).

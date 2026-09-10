@@ -18,22 +18,26 @@ privacy, vendor, retention, and operations decisions are recorded.
 
 The last formally implemented and audited phase is [Phase 9 — Appointment Experience](phases/phase-9-appointment-experience.md),
 with evidence in the [5 September Phase 9 audit](../audit-trail/2026-09-05-phase-9-appointment-experience-audit.md).
-The next implementation target is Phase 10. The latest scheduling commit only refined the Phase 9
-appointment surface; it did not implement Phase 14 or any R1 launch feature.
+The owner priority is feature completion in isolated synthetic/non-production environments. The next
+implementation target is Phase 2's feature work; Phase 10 was a JaaS-specific synthetic-demo
+continuation and is superseded now that the demo is complete. Google Meet belongs to Phase 18 and is
+not implemented from the JaaS plan. The latest scheduling commit only refined the Phase 9 appointment
+surface; it did not implement Phase 14 or any R1 launch feature.
 
 Use this section as the starting instruction for a new implementation chat:
 
 1. Read the Phase 9 audit and inspect the current working tree, applied migrations, deployed
    functions, RLS policies, and tests. The live/as-built system is the source of truth.
-2. Complete the safe synthetic continuation: [Phase 10](phases/phase-10-meeting-experience.md),
-   then [Phase 11](phases/phase-11-frontend-acceptance.md). Keep JaaS, accounts, calls, and all
-   verification data synthetic.
-   If the immediate priority is real-launch preparation, this demo work may be paused after its
-   current regression checks; the next real-launch step is Phase 1, not Phase 15.
-3. Finish the missing baseline foundation in dependency order: [Phase 1](phases/phase-1-baseline.md)
-   → [Phase 2](phases/phase-2-data-rbac.md) → [Phase 3](phases/phase-3-identity.md) →
-   [Phase 4](phases/phase-4-scheduling.md). Each phase must produce a dated as-built audit before
-   the next phase consumes it.
+2. Treat the completed JaaS demo as historical synthetic evidence. Do not implement the superseded
+   [Phase 10](phases/phase-10-meeting-experience.md) plan or promote its JaaS route to real sessions.
+   Defer [Phase 11](phases/phase-11-frontend-acceptance.md) unless the synthetic frontend track is
+   explicitly resumed; the next real-launch step is Phase 1, not Phase 15.
+3. Complete feature work in synthetic/non-production scope: [Phase 2](phases/phase-2-data-rbac.md)
+   → [Phase 3](phases/phase-3-identity.md) → [Phase 4](phases/phase-4-scheduling.md). The remaining
+   Phase 1 production-readiness evidence—access review, hosted CI/CD, staging deployment, monitoring,
+   and restore—is deferred until feature work is complete and must be in place before Phase 20 closes.
+   Use local checks while feature work is active. Each feature phase must still produce a dated as-built
+   audit before the next phase consumes it.
 4. After Phase 3 and the owner MFA decision, implement [Phase 12](phases/phase-12-mfa-and-privileged-access.md).
    It may run alongside later scheduling work, but it must be complete before Phase 20 can approve
    release.
@@ -76,7 +80,7 @@ requirements identifiers while the executable plan continues numerically from Ph
 | [Phase 16](phases/phase-16-identity-and-minor-eligibility.md) / R1.2 | Adult eligibility plus a gated guardian-consent/review path, with one server-held booking/admission decision. | Phase 15 as-built plus guardian, clinical, DPO/legal, retention, and approved-wording decisions; complete RLS/role/minor-deny evidence. |
 | [Phase 17](phases/phase-17-paymaya-payment-authorised-booking.md) / R1.3 | One booking path creates a reserved `payment_pending` appointment and changes it to `booked` only from a verified provider event. | Phase 16 as-built, official PayMaya material, commercial/privacy/expiry/refund/reconciliation decisions, and concurrency/idempotency/webhook/forged-return evidence. |
 | [Phase 18](phases/phase-18-google-meet-and-session-timing.md) / R1.4 | Approved Google Meet admission consumes eligibility, `booked`, relationship, and database-authoritative 15/45/15 boundaries. | Phase 17 as-built, Workspace/vendor/privacy and clinical timing approval, and participant/time/outage/no-auto-note evidence. |
-| [Phase 19](phases/phase-19-support-tickets-and-launch-operations.md) / R1.5 | Patient tickets, audited operations, approved payment/provider exceptions, retention/data-rights processes, runbooks, and kill switches. | Phase 15–18 as-built inputs plus approved support/secretary/retention/operations, privacy, finance, and provider decisions. |
+| [Phase 19](phases/phase-19-support-tickets-and-launch-operations.md) / R1.5 | Patient tickets, audited operations, approved payment/provider exceptions, retention/data-rights processes, runbooks, and kill switches. | Phase 15–18 as-built inputs plus approved support/retention/operations, privacy, finance, and provider decisions. |
 | [Phase 20](phases/phase-20-integrated-launch-verification-and-controlled-release.md) / R1.5 | Integrated feature, security, privacy, clinical, accessibility, performance, restore, rollback, and release evidence. | All prior phase gates, production-baseline controls, named-authority approvals, and company-owner go/no-go. |
 
 The first implementation action is not automatically Phase 15: Phase 14 is still planned rather than
@@ -139,13 +143,15 @@ company owners have recorded the role scope and launch requirement in the decisi
 
 The [five-account synthetic demo](phases/demo-milestone.md) is an implementation track, not a phase.
 It borrows non-production slices of Phases 1–4 and includes the [JaaS video work package](phases/demo-milestone-jaas-video.md).
-Its D0–D7 work is complete, but it does not close Phases 0–6 or approve a real-user launch.
+Its D0–D7 work is complete and the JaaS work is historical evidence only; it does not close Phases
+0–6 or approve a real-user launch.
 
 ## Frontend continuation
 
 Phases 7–11 cover frontend state/session foundations, the UI shell, appointment experience, meeting
-experience, and frontend acceptance. They remain synthetic-data-only and are independent of the
-controlled-pilot release gate.
+experience, and frontend acceptance. Phase 10's JaaS-specific plan is superseded; Google Meet meeting
+experience belongs to Phase 18. Any remaining frontend continuation work remains synthetic-data-only
+and independent of the controlled-pilot release gate.
 
 ## Rollback
 

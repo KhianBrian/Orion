@@ -17,7 +17,7 @@
 - Both psychiatrist records are active. Each has one synthetic `open` availability slot, and both
   slots satisfy the required 45-minute duration.
 - All five accounts completed an email/password sign-in verification.
-- No secretary profile, real identity, clinical data, appointment, or production configuration was
+- No separate support role profile, real identity, clinical data, appointment, or production configuration was
   created.
 
 ## Security-advisor follow-up

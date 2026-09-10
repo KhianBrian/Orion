@@ -95,7 +95,7 @@ and the evidence is corrected before testing continues.
 ### P20-2 — Cross-role and security acceptance
 
 - Run the full table, view, function, API, route, navigation, and direct-request allow/deny matrix for
-  patient, assigned/unassigned psychiatrist, secretary, approved operator/admin, guardian context,
+  patient, assigned/unassigned psychiatrist, approved operator/admin, guardian context,
   anonymous caller, and infrastructure role.
 - Test signup/recovery metadata, ID substitution, direct writes, replay, forged browser returns,
   duplicate/out-of-order webhooks, copied meeting data, clock manipulation, ticket content, CSRF/XSS,

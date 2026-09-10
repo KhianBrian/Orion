@@ -1,10 +1,12 @@
 # Phase 2 — Data, RBAC, Consent, and Audit
 
+**Status: Closed with deferred post-development work — 10 September 2026.**
+
 **Tier 2 status:** Planned 27 August 2026. The implementation plan is below the charter, and it carries one unmet prerequisite — see *The prerequisite is larger than the charter states*.
 
 ## R1 supersession boundary
 
-This is the pre-R1 data/RBAC plan. Its original notes, four-role model, consent design, and session-note
+This is the pre-R1 data/RBAC plan. Its original role-expansion notes, consent design, and session-note
 controls remain inputs, but its schema is not sufficient for the 8 September change set. R1.1 owns the
 guardian-consent, payment attempt/event, support-ticket, and 15/45/15 timing extensions. Do not add
 them opportunistically to this phase's old Tier 2 plan; draft R1.1 from the applied schema and the
@@ -12,21 +14,21 @@ reconciled [data dictionary](../../governance/data-classification-and-data-dicti
 
 ## R1 impact and work ownership — 10 September 2026
 
-The decisions about session notes, three consent categories, the secretary role, clinician approval,
+The decisions about session notes, three consent categories, backend-provisioned psychiatrists,
 public patient registration, and the appointment state machine are now part of the current target.
 They do not mean this phase was completed: the current database still has only the original three
 roles and core tables.
 
 Phase 2 remains responsible for its original data/RBAC foundation: protected profiles and clinician
-approval, session notes and their release/read rules, baseline consent records, appointment lifecycle
-facts, slot locking, and the complete allow/deny matrix.
+backend provisioning, session notes and their release/read rules, appointment lifecycle facts, slot locking, and
+the complete allow/deny matrix. Consent persistence and capture remain planned product work, but are
+sequenced after the broader feature set is developed.
 
 [Phase 15](phase-15-data-consent-and-audit-foundation.md) is the implementation owner for the new R1
 extensions: eligibility and guardian-consent evidence, `payment_pending`/reserved compatibility,
-payment attempts/events, support tickets/messages, and shared R1 audit/RLS additions. If Phase 15
-adds the secretary enum or shared compatibility constraints, its as-built audit must record that this
-fulfills the corresponding Phase 2 prerequisite; no second migration should be written for the same
-object. [Phase 16](phase-16-identity-and-minor-eligibility.md) then consumes the exact result.
+payment attempts/events, support tickets/messages, and shared R1 audit/RLS additions. Support-ticket
+access must use the existing least-privilege roles; no new application role or duplicate migration is
+needed. [Phase 16](phase-16-identity-and-minor-eligibility.md) then consumes the exact result.
 
 ## Purpose
 
@@ -39,11 +41,45 @@ This is the most consequential phase for everything after it. Its as-built shape
 signatures, RLS predicates, audit columns — is what Phase 3 routes read and what Phase 4 booking code
 is written directly against.
 
+## Plain-English scope
+
+The database already knows three roles: patient, psychiatrist, and admin. Phase 2 does not add a
+fourth role. It adds the protected records and rules those three roles need:
+
+- **Profiles and clinicians:** keep each person's role on the server, prevent anyone from changing
+  their own role, and allow only the backend/admin provisioning path to create psychiatrists. The
+  operational `is_active` flag controls bookability and patient-facing discovery.
+- **Appointments:** store the lifecycle facts the system must trust, including who cancelled, linked
+  records for rescheduling, no-show information, and the one-slot/one-booking rule. Booking and
+  cancellation remain server-side transactions so two people cannot successfully take the same slot.
+- **Session notes:** add a note linked to an appointment, written and released only by the assigned
+  psychiatrist. The patient can read it only after release. Admin has no note-read path by default.
+- **Consent (deferred):** eventually store three separate, versioned consent histories—privacy
+  acknowledgement, informed consent, and optional communications. This migration and its capture flow
+  are deliberately deferred until the broader feature set is developed. A withdrawal will add a new
+  history record rather than erase old evidence.
+- **Audit:** record who did what, to which record, when, and whether it succeeded. Note reads are
+  audited as well as note writes, without copying note content into the audit log.
+
+In plain English, the RLS work means:
+
+- A patient sees only their own profile, appointments, consents, and released notes, and can use only
+  server-approved booking/cancellation functions.
+- A psychiatrist sees only their own availability and assigned appointments, and can write or release
+  only their own appointment notes.
+- Admin can perform approved operational and provisioning actions, but does not automatically gain
+  access to clinical-note content or every patient's data.
+- Anonymous users get no protected data. A signed-in Supabase user is not automatically trusted; the
+  application role and the person's relationship to the row are checked separately.
+- Direct table permissions stay narrow. Sensitive note reads, writes, releases, role changes, and
+  other privileged actions go through protected server functions that also write the required audit
+  event.
+
 ## Gate
 
 A verified RLS allow and deny matrix, an idempotent slot-lock transaction, and audit evidence.
 
-The allow and deny matrix must now cover four roles and the session notes table, which is the most
+The allow and deny matrix must now cover the three application roles and the session notes table, which is the most
 sensitive object in the schema.
 
 ## Consumes
@@ -58,9 +94,8 @@ sensitive object in the schema.
 | **Q6 — session notes in scope** | A notes table is required: written by the psychiatrist, released by the psychiatrist, then readable by the patient. Prescriptions, diagnoses, recordings, transcripts, reason-for-visit, chat, and files remain excluded. |
 | **Q6 — note release step** | A note has an unreleased and a released state. The patient may read it only once released. Release is an auditable event. |
 | **Q7 — consent structure** | Three separate versioned consent records — privacy acknowledgement, informed consent, optional communications — each independently withdrawable. Consent scope now extends to session notes. |
-| **Q10 — secretary role** | A fourth role. Access to appointments and contact details only. **Never** session notes. This is an RLS deny that must be explicitly tested, not merely omitted. |
-| **Q3 — psychiatrist approval** | Clinician records carry an approval state. A psychiatrist may not appear bookable or read any patient data until approved. |
-| **Q1 — patient self-registration** | Patient rows may be created by self-registration; clinician and secretary rows may not. |
+| **Q3 — psychiatrist provisioning** | Admins/developers add psychiatrists through the backend. A created psychiatrist is trusted; `is_active` controls whether patients can discover or book them. |
+| **Q1 — patient self-registration** | Patient rows may be created by self-registration; psychiatrist and admin rows may not. |
 | **Q5 — appointment transitions** | The status model can now be built. See the [appointment lifecycle](../../product/appointment-lifecycle.md) *Approved transitions* section, which is authoritative. Three schema consequences: a cancellation must store **which party cancelled**, since slot reopening depends on it and it must not be inferred from who called the endpoint; a reschedule links two appointment records created in the same transaction; and no new `rescheduled` state is added. |
 
 ## Still blocked
@@ -73,13 +108,13 @@ sensitive object in the schema.
 ## Deliverables
 
 - Protected profile tables with no role inference from email, client state, editable metadata, or URLs.
-- A four-role model: patient, psychiatrist, secretary, admin.
-- A verified-clinician model with an approval state, where both verification and approval are server-held facts.
+- A three-role model: patient, psychiatrist, admin. There is no separate support role.
+- A backend-provisioned clinician model with server-held role and activation facts.
 - Availability and appointment schema supporting the approved lifecycle, with a provisional status model.
-- A session notes table with an explicit release state, psychiatrist authorship, patient read-after-release, and secretary denial.
-- Versioned consent records capturing what was acknowledged, in which version, and when — independently withdrawable.
+- A session notes table with an explicit release state, psychiatrist authorship, patient read-after-release, and default admin denial.
+- Versioned consent records capturing what was acknowledged, in which version, and when — independently withdrawable; implementation deferred until post-development.
 - An audit schema sufficient to evidence access and change, covering note creation, release, and every read of a note.
-- Row-level security and grants on every table, with a documented allow and deny matrix verified by test across all four roles.
+- Row-level security and grants on every table, with a documented allow and deny matrix verified by test across all three roles.
 - Private or protected functions for every privileged operation, callable only by an authorised server context.
 - An idempotent slot-lock transaction that holds correctly under concurrent booking attempts.
 
@@ -106,11 +141,11 @@ Session notes are sensitive personal information under the Data Privacy Act, and
 Two consequences the implementation plan must address rather than assume away:
 
 1. **"No diagnoses" is unenforceable by the system.** A free-text field can contain anything. The control is clinical guidance and note-field labelling, not a database constraint. Record this as a known limitation rather than implying the schema prevents it.
-2. **Read access must be audited, not just write access.** Who opened a note and when is the evidence that the secretary denial and the release rule actually held.
+2. **Read access must be audited, not just write access.** Who opened a note and when is the evidence that the default admin denial and the release rule actually held.
 
 ## What this fixes for later phases
 
-Phase 3 role-aware routes read this schema, now including the secretary role and the note release
+Phase 3 role-aware routes read this schema, now including the three application roles and the note release
 state. Phase 4 booking calls this phase's slot-lock function by its actual signature. Phase 5 derives
 video participant entitlement from the appointment record defined here. Phase 6 retention and
 data-subject processes operate on these tables. The as-built entry for this phase should therefore
@@ -155,10 +190,10 @@ governs technical boundaries until deliberately updated:
 
 | Document | What it still says | What it blocks |
 | --- | --- | --- |
-| [Database and RBAC](../../architecture/database-and-rbac.md) | `patient`, `psychiatrist`, and `admin` are "the sole application roles". No secretary in the capability matrix. No session-notes table in the core model. `cancel-appointment` described as enforcing the 24-hour patient rule only, with no 48-hour psychiatrist boundary and no coordinator-executed path. | The four-role model, the notes table, and the cancellation function — that is, most of this phase. |
-| [Access control and audit policy](../../architecture/access-control-and-audit-policy.md) | A support role is "not created until a separate policy approves a minimum-data support model". | The secretary role. Register Q10 is that approval; the document has not caught up. |
+| [Database and RBAC](../../architecture/database-and-rbac.md) | The three application roles are now current. The session-notes table and full lifecycle function remain to be built. | The notes table, cancellation function, and complete RLS matrix. |
+| [Access control and audit policy](../../architecture/access-control-and-audit-policy.md) | No separate support role is created. Operational support is an admin responsibility unless a future decision creates a distinct role. | No role expansion; the document now matches the three-role model. |
 
-**Do not build the fourth role or the notes table ahead of these updates.** The reconciliation is a
+**Do not build a separate support role.** The reconciliation is a
 knowledge-base task, not a code task, and needs no owner input beyond the Q6 and Q10 answers already
 recorded — it is scheduled as P0-4 in the [Phase 0 plan](phase-0-governance.md). Everything else in
 this phase can proceed in parallel.
@@ -172,9 +207,36 @@ RLS is enabled on every public table, direct client grants are limited, and the 
 clean. This as-built state is documented in [Database and RBAC](../../architecture/database-and-rbac.md)
 and [Supabase integration](../supabase.md).
 
-The phase remains open: its complete booking/cancellation transaction functions, consent model,
-session-note model, full role/action RLS coverage, and automated allow/deny tests are not yet built.
-No fourth/secretary role has been created.
+Historical note: at this point the phase was still open because consent was deferred and the new
+migration and automated allow/deny tests still required database application and execution. No
+separate support role was created.
+
+## Implementation update — 10 September 2026
+
+The first Phase 2 feature slice is applied through a forward-only migration sequence beginning with
+`20260910102250_phase2_data_rbac_foundation.sql`, followed by two small qualification fixes found by
+the live test. A subsequent forward migration removes the unnecessary clinician approval state after
+the provisioning decision was clarified. The current schema uses backend-created psychiatrist rows
+and `is_active` for patient discovery/bookability, alongside provider-neutral no-show/reschedule facts,
+protected versioned session notes, audited note creation, release, and reads. The synthetic provisioner
+continues to create active demo psychiatrists.
+
+Consent persistence and capture remain deferred until post-development, and Google Meet remains a
+Phase 18 concern. The migration sequence is applied to the linked non-production Supabase project,
+and `npm run test:db:phase2` passes against it. The local environment still has no Docker/Postgres
+runtime, so local Supabase lint/catalog checks remain unavailable.
+
+### Official closure — 10 September 2026
+
+Phase 2 is officially closed as an as-built foundation. Its gate evidence includes the complete
+[complete three-role RLS matrix](#complete-three-role-rls-allowdeny-matrix), direct CRUD denial checks, protected-function checks,
+latest-note-only patient access, admin audit-metadata visibility, and append-only audit mutation tests,
+all passing against the linked synthetic non-production database.
+
+Consent persistence and capture is the deferred Phase 2 work item. It is recorded with the other
+post-development deferrals in [deferredpostdevelopment.md](deferredpostdevelopment.md). Phase 2 does
+not include a patient note-history/list surface: patients may read only the latest released note, while
+superseded versions remain protected and are evidenced through admin-visible audit metadata.
 
 ## Two design decisions that carry the phase
 
@@ -187,11 +249,11 @@ The requirement that note **reads** are audited, not only writes, is not satisfi
 security alone. A `select` writes nothing, and Postgres has no read trigger. The design that follows
 from the requirement is therefore:
 
-- **No application role holds `select` on the notes table.** Not the patient, not the author, not the admin, and — structurally rather than by omission — not the secretary.
+- **No application role holds `select` on the notes table.** Patient, psychiatrist, and admin reads all go through audited functions with explicit checks.
 - The only read path is a `security definer` function that checks the caller's entitlement, writes the audit event, and returns the note in one transaction. No audit row, no note.
 
 This inverts the usual shape and is worth the inversion. The [data classification](../../governance/data-classification-and-data-dictionary.md#readers)
-document states that the secretary exclusion "is a deny that must be explicitly tested, not merely
+document states that the default admin exclusion "is a deny that must be explicitly tested, not merely
 omitted from a grant" — and a table nobody may select from turns that deny into the default rather
 than into a policy someone might later write around. It also makes the audit record structurally
 inseparable from the access, which is what [privacy governance](../../governance/privacy-governance.md#clinical-content)
@@ -223,17 +285,19 @@ same change, per [engineering conventions](../engineering-conventions.md#data-an
 
 ### P2-1 — Roles and profiles
 
-- The role type gains `secretary`, becoming the four-role model the charter requires — **after** the architecture documents are reconciled.
+- The role type remains limited to `patient`, `psychiatrist`, and `admin`. No support-role enum value, account, or navigation surface is added.
 - `profiles` links one-to-one to `auth.users` and holds `role`. No update policy grants any role the ability to write `profiles.role`, for anyone including itself. Role changes happen only inside a `security definer` function that records an audit event, per [database and RBAC](../../architecture/database-and-rbac.md#security-design).
 - A patient row is created by a trigger on user creation with the role fixed at `patient` in the function body — not taken from sign-up input, user metadata, or anything else the client supplies. This is how Q1 self-registration and the prohibition on role inference coexist.
-- Psychiatrist and secretary rows are created only by the provisioning function. There is no self-service path to either, per Q1 and Q10.
+- Psychiatrist and admin rows are created only by protected provisioning flows. There is no self-service path to either.
 
-### P2-2 — Clinicians, verification, and approval
+### P2-2 — Clinicians, verification, and backend provisioning
 
-`psychiatrists` carries two distinct server-held facts, and conflating them would be a mistake:
+`psychiatrists` carries the operational server-held fact that matters to the product:
 
-- **Approval state** — the Q3 gate. A psychiatrist may not appear bookable and may not read any patient data until approved. Approval transitions are function-mediated and audited, and the approver is a recorded identity rather than an assumed role, since who approves is [still open](../../product/pilot-decision-register.md#outstanding-for-the-next-owner-meeting).
-- **Active flag** — the operational toggle from [database and RBAC](../../architecture/database-and-rbac.md#core-model), used for availability and offboarding. An approved clinician can be inactive; an unapproved one is never bookable regardless.
+- **Active flag** — the operational toggle from [database and RBAC](../../architecture/database-and-rbac.md#core-model), used for patient discovery, availability, bookability, and offboarding. Backend/admin provisioning creates the row as active; deactivation removes it from patient-facing availability without changing the person's role.
+
+There is no pending or approval transition. The backend provisioning path is the trust boundary and is
+restricted to developers/service operations and authorized admins.
 
 Verification evidence itself is not stored here. [Data classification](../../governance/data-classification-and-data-dictionary.md#classification)
 places private verification records outside the public psychiatrist profile, and nothing in the
@@ -248,8 +312,16 @@ approved data boundary admits a credential document.
 - **The cancelling party is a stored column**, populated at cancellation, never inferred from who called the endpoint. Slot reopening depends on it, and the [integrity rules](../../product/appointment-lifecycle.md#integrity-rules) require it as a stored fact.
 - **The absent party is a nullable column beside a single `no_show` status.** This is the extension-safe option the charter names: if the clinical lead later rules that a psychiatrist no-show is distinguishable, the ruling changes a value rather than the status model. Populated only when the status is `no_show`.
 - A self-reference links a reschedule's two appointment records, written in the same transaction that creates them so a partial link cannot exist.
+- **Transition ownership:** Phase 2 stores `no_show_party` and `rescheduled_from_id`; Phase 13 owns the
+  authorized outcome, psychiatrist-cancellation, no-show, and reschedule functions after its named
+  clinical decisions are ratified. Phase 2 does not expose incomplete transition endpoints.
 - Indexes on `(psychiatrist_id, starts_at)` and `(patient_id, starts_at)` and on open-slot lookup, per [database and RBAC](../../architecture/database-and-rbac.md#indexes-and-integrity).
 - Appointments are never hard-deleted.
+- **Provider boundary:** Phase 2 does not create Google Meet rooms, store Google credentials, or make
+  meeting creation a prerequisite for a valid appointment. The existing synthetic room reference is
+  compatibility data for the demo. Phase 18 owns the production Google Meet reference, admission,
+  outage handling, and any provider-specific fields. A booked appointment may exist before meeting
+  access is available; the Join action remains unavailable until Phase 18 supplies it.
 
 ### P2-4 — The slot-lock transaction
 
@@ -274,12 +346,18 @@ Subject to the prerequisite above.
 
 - One note per appointment, authored by the assigned psychiatrist, holding the note body, a release state, and a released timestamp — the field set in the [data dictionary](../../governance/data-classification-and-data-dictionary.md#classification).
 - **No `select` grant to any application role.** Authorship, release, and every read go through functions, per the design decision above.
-- The patient read function returns a note only when released. The author's read function returns their own note at any state. There is no secretary path at all, and no admin path by default — [data classification](../../governance/data-classification-and-data-dictionary.md#readers) marks admin access to notes as *not by default*, which means a function that does not exist rather than a permission that is switched off.
-- A released note is never overwritten or withdrawn. A correction creates an immutable, versioned amendment that retains the original, records the author and timestamp, and is visible to the patient as note history. This is an audit and transparency requirement, not a claim that free-text clinical content is otherwise constrained.
+- The patient read function returns only the latest released note for the patient's own appointment. The author's read function returns their own note at any state, including protected prior versions. Admin has no note-read path — [data classification](../../governance/data-classification-and-data-dictionary.md#readers) marks admin access to notes as *not by default*, while admins may review audit metadata about note access.
+- A released note is never overwritten or withdrawn. A correction creates an immutable, versioned amendment that retains the original and records the author and timestamp. Patients may read only the latest released version; superseded note bodies remain protected. Admin-visible audit metadata proves the access history without exposing clinical content.
 - **No retention column, no disposal behaviour, no deletion path.** [Data classification](../../governance/data-classification-and-data-dictionary.md#open-dependency) is unambiguous: no retention period may be invented and no deletion path implemented until register Q11 is recorded. The schema is created; the lifecycle is not.
 - The field label and any surrounding guidance say what the note is for. They do not claim to constrain it. "No diagnoses" is unenforceable in a free-text column and the [data dictionary](../../governance/data-classification-and-data-dictionary.md#free-text-is-a-limitation-not-a-control) requires this to be recorded as a known limitation rather than described as a schema control. The as-built entry should say so in those terms.
 
-### P2-6 — Consent
+### P2-6 — Consent — deferred until post-development
+
+Do not add the consent tables, consent capture UI, or withdrawal flow during the current feature-build
+sequence. Keep the approved three-consent design and implement it after the broader product features
+are complete, with final wording and version identifiers supplied by the owners/DPO/clinical reviewers.
+
+When resumed, the following remains the required design:
 
 Three versioned records — privacy acknowledgement, informed consent, optional communications — per
 the Q7 structure, each independently withdrawable.
@@ -298,22 +376,53 @@ the Q7 structure, each independently withdrawable.
 ### P2-8 — Policies, grants, and the matrix
 
 - RLS enabled on every exposed table; default `anon` and `authenticated` grants revoked; separate `select`, `insert`, `update`, and `delete` policies, each carrying an ownership or assignment predicate, per [database and RBAC](../../architecture/database-and-rbac.md#security-design).
-- The allow-and-deny matrix is written down as a document, four roles across every table and action, and it is the artefact the gate is assessed against. It derives from the [reader matrix](../../governance/data-classification-and-data-dictionary.md#readers) in the data dictionary, which governs where the two differ.
+- The complete three-role allow-and-deny matrix is included below. It derives from the [reader matrix](../../governance/data-classification-and-data-dictionary.md#readers) in the data dictionary, which governs where the two differ.
 - Supabase Auth's `authenticated` role means signed in and nothing more. It is never treated as authorisation, per the same section.
+
+### Complete three-role RLS allow/deny matrix
+
+The application roles are `patient`, `psychiatrist`, and `admin`. Anonymous requests have no protected
+table or function access. Direct table access is intentionally narrower than the product capability:
+booking, cancellation, note writes/releases/reads, and provisioning use protected server functions.
+
+| Table/action | Patient | Psychiatrist | Admin |
+| --- | --- | --- | --- |
+| `profiles` SELECT | Own row | Own row | Own row |
+| `profiles` INSERT | Deny direct | Deny direct | Deny direct |
+| `profiles` UPDATE | Own `full_name`/`phone`; role denied | Own `full_name`/`phone`; role denied | Own `full_name`/`phone`; role denied |
+| `profiles` DELETE | Deny direct | Deny direct | Deny direct |
+| `psychiatrists` SELECT | Active rows only | Own row | All rows |
+| `psychiatrists` INSERT/UPDATE/DELETE | Deny direct | Deny direct | Deny direct; backend provisioning only |
+| `availability_slots` SELECT | Open slots for active psychiatrists | Own psychiatrist's slots | All slots |
+| `availability_slots` INSERT/UPDATE/DELETE | Deny direct | Deny direct | Deny direct; approved administration only |
+| `appointments` SELECT | Own appointments | Assigned appointments | Deny by default |
+| `appointments` INSERT/UPDATE/DELETE | Deny direct; booking/cancellation functions only | Deny direct | Deny direct; exceptional operations require a later approved function |
+| `session_notes` SELECT | Deny direct; latest released own note only through audited read function | Deny direct; assigned notes through audited read function | Deny note content |
+| `session_notes` INSERT/UPDATE/DELETE | Deny direct; protected note functions only | Deny direct; protected note functions only | Deny direct |
+| `audit_events` SELECT | No rows | No rows | Audit metadata only |
+| `audit_events` INSERT/UPDATE/DELETE | Deny direct; privileged functions write events | Deny direct; privileged functions write events | Deny direct; privileged functions write events |
+
+The `service_role` is an infrastructure trust boundary, not an application role. It can perform
+synthetic-fixture maintenance and execute the protected functions. Production operational code must
+keep that key server-side.
+
+Patients never receive superseded note bodies. Corrections remain separate protected rows for
+clinical and audit history. Admins can review the audit metadata proving successful and denied note
+reads, but cannot read the note content itself.
 
 ## Gate evidence
 
 The gate is a verified RLS allow and deny matrix, an idempotent slot-lock transaction, and audit
-evidence — now across four roles and including the notes table.
+evidence — now across three roles and including the notes table.
 
 | Clause | Evidence |
 | --- | --- |
-| Allow and deny matrix | A test per table, per action, per role, in both directions. Named for the behaviour they protect, as [engineering conventions](../engineering-conventions.md#testing-and-verification) requires — `patient_cannot_read_another_patients_appointment`, `secretary_cannot_read_any_session_note`, `no_role_can_write_its_own_profile_role`. |
-| Secretary exclusion | Two tests, not one: the direct table select is denied, and the read function refuses a secretary caller. The exclusion must fail closed at both layers. |
+| Allow and deny matrix | `npm run test:db:phase2` exercises every table/action row for all three roles, including cross-user and cross-clinician denies; the expected result is recorded in the complete matrix above. |
+| Admin clinical-note exclusion | The direct table select is denied and no admin note-read function is exposed. The exclusion must fail closed at both layers. |
 | Release rule | The patient read function returns nothing for an unreleased note and the note once released. The author's function returns it at both states. |
 | Read auditing | For every successful and every refused note read, a matching audit row exists — and it contains no note content. |
 | Idempotent slot lock | Concurrent bookings against one slot leave exactly one appointment. A repeated call with the same idempotency key returns the original appointment rather than creating a second. |
-| Audit evidence | Append-only enforcement verified by attempting an update and a delete as each role, and having both refused. |
+| Audit evidence | The same database test attempts audit insert, update, and delete as patient, psychiatrist, and admin; all are refused. |
 
 ## Policy gaps this plan did not fill
 
@@ -322,8 +431,8 @@ evidence — now across four roles and including the notes table.
 | Retention and deletion, including notes as clinical records (Q11) | Company owners with DPO advice | Note and consent schemas are created. No retention column, no disposal behaviour, no deletion path. Audit accumulation recorded as a pending decision rather than a settled one. |
 | Whether a subject access request overrides the release step | DPO or legal adviser | The release step is built as a product rule governing the application surface, and is not recorded anywhere as a privacy control. No export path is built. |
 | Whether a psychiatrist no-show is distinguishable from a patient one | Clinical lead | A single `no_show` status with a nullable absent-party column. A ruling changes a value, not the schema. |
-| Released-note correction | Decided | No retraction or overwrite. Corrections are immutable versioned amendments with patient-visible history. |
-| Secretary scope — per-psychiatrist or clinic-wide, whether they may act on a client's behalf, whether they may see that a note exists | Company owners | Policies are written for the narrowest reading: appointments and contact details, clinic-wide, no note visibility of any kind including existence. Widening later is a policy change; narrowing later would mean access already granted. |
+| Released-note correction | Decided | No retraction or overwrite. Corrections are immutable versioned amendments; patients can read only the latest released version, while superseded versions remain protected and are evidenced through admin-visible audit metadata. |
+| Separate support role scope — per-psychiatrist or clinic-wide, whether they may act on a client's behalf, whether they may see that a note exists | Company owners | Policies are written for the narrowest reading: appointments and contact details, clinic-wide, no note visibility of any kind including existence. Widening later is a policy change; narrowing later would mean access already granted. |
 | Consent wording | Company owners, with DPO and clinical review | Version references are stored; no version is seeded. |
 
 ## What the as-built entry must record
@@ -335,9 +444,9 @@ scope, and every place where the implementation departed from this plan.
 
 ## Inputs I did not have
 
-1. **Whether the two architecture documents have been reconciled.** The fourth role and the notes table are blocked until they are. Check the documents, not this plan.
+1. **Whether the two architecture documents have been reconciled.** The notes table and lifecycle functions are blocked until the documents and schema contract agree. Check the documents, not this plan.
 2. **Whether the demo milestone has run**, which determines whether this phase authors the base schema or extends one that exists. Query the live project.
 3. **The Phase 1 as-built migration process** — authoring convention, review, application order, and rollback stance. This plan assumes it exists; it is written against the process that actually does.
 4. **Whether Q11 has been answered.** If it has, retention becomes part of this phase rather than a hole in it, and the note lifecycle can be built at the same time as the note schema.
 5. **Whether Q5 has been ratified.** The status model here implements transitions that await ratification.
-6. **Whether the owners have settled the secretary's scope**, which determines whether the narrowest-reading policies above need widening before Phase 3 provisions the role.
+6. **Whether owners later want a separate support role.** It is explicitly out of the current Phase 2 scope; adding one later requires a new policy decision, enum migration, UI, and RLS review.

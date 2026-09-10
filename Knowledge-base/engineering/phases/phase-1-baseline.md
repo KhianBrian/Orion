@@ -1,6 +1,6 @@
 # Phase 1 — Secure Platform Baseline
 
-**Tier 2 status:** Planned 27 August 2026, for non-production scope only. The implementation plan is below the charter.
+**Tier 2 status:** Foundation slice implemented; production-readiness gate deferred — 10 September 2026. The implementation plan is below the charter.
 
 ## Purpose
 
@@ -128,7 +128,22 @@ This phase remains open. CI, secret scanning, a written access register, environ
 the single demo project, a staging deployment, monitoring, and a restore exercise have not been
 completed. No production project or production data path exists.
 
+## Execution update — 10 September 2026
+
+The first implementation slice is now in the repository: environment examples are validated without
+exposing values, dependency versions have been remediated, and the
+[access-register](../../operations/access-register.md) and [restore-exercise](../../operations/restore-exercise-runbook.md)
+templates are available for later completion. By owner direction, the access review, hosted CI/CD,
+staging deployment, monitoring confirmation, and restore exercise are deferred until feature work is
+complete. This sequencing amendment allows synthetic/non-production feature implementation to proceed;
+it does not close Phase 1 or authorise production use. All deferred evidence remains mandatory before
+Phase 20 closes.
+
 ## Work breakdown
+
+The deferred items from this phase are consolidated in
+[deferredpostdevelopment.md](deferredpostdevelopment.md); this does not close Phase 1's production-
+readiness gate.
 
 ### P1-1 — Version control and repository composition
 

@@ -21,7 +21,7 @@ close the application-wide privacy, clinical, legal, business, or operational de
 ## Non-Goals
 
 - No real-user session policy, production cookie architecture, realtime subscriptions, service worker,
-  persistent appointment cache, secretary role, or production data.
+  persistent appointment cache, separate support role, or production data.
 - No change to server-authoritative meeting or cancellation eligibility.
 
 ## Decisions Needed

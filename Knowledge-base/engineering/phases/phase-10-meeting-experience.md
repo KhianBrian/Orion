@@ -1,5 +1,12 @@
 # Phase 10 — Focused Meeting Experience
 
+**Status:** Superseded — 10 September 2026
+
+This plan was specific to polishing the synthetic JaaS demo meeting. The D5 demo is complete and the
+project has moved to Google Meet for real-launch preparation, so this phase must not be implemented or
+repurposed as the Google Meet design. Reusable meeting-shell requirements may be carried into Phase 18
+after its provider, clinical, privacy, and operations gates are satisfied.
+
 ## Outcome
 
 The synthetic call uses a focused, responsive meeting shell in which no Orion header or footer covers

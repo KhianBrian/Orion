@@ -19,7 +19,7 @@ confirmation and denial use accessible centered dialogs.
 
 ## Non-Goals
 
-- No patient email/phone, reason for care, secretary workflow, psychiatrist cancellation, rescheduling,
+- No patient email/phone, reason for care, admin-support workflow, psychiatrist cancellation, rescheduling,
   no-show, session notes, or production data.
 - No weakening of profile RLS and no client-side authority over cancellation eligibility.
 
@@ -117,4 +117,4 @@ rollback until the new allow/deny suite passes, then the UI switches in one rele
 
 ## Open Questions
 
-- Contact details and secretary access belong to later controlled-pilot phases and are not inferred here.
+- Contact details and admin operational access belong to later controlled-pilot phases and are not inferred here.

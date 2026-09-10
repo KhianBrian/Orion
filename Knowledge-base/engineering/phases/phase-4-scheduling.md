@@ -14,8 +14,8 @@ not current implementation authority.
 ## R1 impact and work ownership — 10 September 2026
 
 The appointment lifecycle is now clearer: 45-minute sessions, patient cancellation, psychiatrist
-cancellation, linked rescheduling, psychiatrist-recorded no-shows, session notes, and secretary
-appointment access. Some edge values still need owner or clinical approval, so Phase 4 is plannable
+cancellation, linked rescheduling, psychiatrist-recorded no-shows, and session notes. Some edge values
+still need owner or clinical approval, so Phase 4 is plannable
 but not complete.
 
 Phase 4 remains responsible for the baseline appointment lifecycle, cancellation/rescheduling/no-show
@@ -27,7 +27,7 @@ second booking path or duplicate those state transitions.
 ## Purpose
 
 Replace the duplicate mock booking pages with a single server-authoritative workflow covering booking,
-cancellation, the clinician's appointment view, the secretary's booking view, error and conflict
+cancellation, the clinician's appointment view, the admin operational view, error and conflict
 states, the session notes surface, and the approved rebooking and no-show policy.
 
 The emphasis is *one* workflow. A second booking path is a correctness hazard, not a convenience.
@@ -46,10 +46,9 @@ checks all pass.
 
 | Decision | Effect on this phase |
 | --- | --- |
-| **Q5 — appointment transitions** | The state machine is now defined. The [appointment lifecycle](../../product/appointment-lifecycle.md) *Approved transitions* section is authoritative: 45-minute sessions; patient cancellation beyond 24 hours; psychiatrist self-service cancellation beyond 48 hours with later cancellation executed by a secretary or admin on their behalf with a recorded reason; rescheduling as patient-initiated linked cancel-and-rebook within the 24-hour boundary; no-show set by the psychiatrist after a grace period, never automatically; patient-cancelled slots reopen, psychiatrist-cancelled slots do not. |
+| **Q5 — appointment transitions** | The state machine is now defined. The [appointment lifecycle](../../product/appointment-lifecycle.md) *Approved transitions* section is authoritative: 45-minute sessions; patient cancellation beyond 24 hours; psychiatrist self-service cancellation beyond 48 hours with later cancellation executed by admin on their behalf with a recorded reason; rescheduling as patient-initiated linked cancel-and-rebook within the 24-hour boundary; no-show set by the psychiatrist after a grace period, never automatically; patient-cancelled slots reopen, psychiatrist-cancelled slots do not. |
 | **Q6 — session notes** | The psychiatrist writes a note after each session and releases it; the patient reads it once released. This is a new surface in this phase, tied to the appointment record. |
 | **Q4 — adults only, no emergency care** | Booking refuses ineligible clients and shows the approved crisis and referral route where Orion is not appropriate. |
-| **Q10 — secretary role** | The secretary sees and manages appointments and contact details. Never notes — not even a preview. |
 
 ## Still blocked
 
@@ -61,7 +60,6 @@ plannable, with these four items carried as named gaps.
 | Late grace period before a no-show may be set | Clinical lead | The threshold is unset. Build the mechanism with the value configurable; 15 minutes is the recommendation put to them. |
 | Early join window and session-end treatment | Clinical lead | Join behaviour cannot be finalised. |
 | No-show consequences — forfeiture, fee treatment, whether it counts against a patient | Company owners with clinical lead | This phase records the state only. Do not build any consequence. |
-| Whether the secretary, the admin, or either executes a late cancellation, and whether a secretary may book or cancel on a client's behalf generally | Company owners | The late-cancellation path is required by the 48-hour rule, so one of the two must hold it. Plan the read path first and treat write-on-behalf as a separate flagged increment. |
 
 **Ratification, not a blocker but a sequencing risk.** Q5 was decided by the developer and awaits owner
 ratification. A change on ratification would alter the status model and the booking path, so ratify
@@ -76,8 +74,8 @@ before this phase is built rather than after.
 - Patient-initiated rescheduling as a linked cancel-and-rebook in one transaction, within the 24-hour boundary.
 - A psychiatrist-set no-show with a configurable grace period, never an automatic transition.
 - A clinician appointment view scoped by RLS rather than by client filtering.
-- A secretary appointment view scoped to appointments and contact details only.
-- A session notes surface: psychiatrist authoring and release, patient read-after-release, secretary excluded.
+- An admin operational appointment view scoped to the minimum fields required for support.
+- A session notes surface: psychiatrist authoring and release, patient read-after-release, admin excluded by default.
 - Explicit error and conflict states — including the case where a slot is taken between display and submission.
 - Correct timezone handling for display, storage, and boundary calculation.
 - **Removal:** the duplicate mock booking route consolidated away.
@@ -86,7 +84,7 @@ before this phase is built rather than after.
 ## Authoritative documents
 
 - [Appointment lifecycle](../../product/appointment-lifecycle.md) — the primary authority for this phase.
-- [Product scope](../../product/product-scope.md) — reconciled to include session notes and the secretary role; Q5/Q11 policy decisions still apply.
+- [Product scope](../../product/product-scope.md) — reconciled to include session notes and the three-role model; Q5/Q11 policy decisions still apply.
 - [Database and RBAC](../../architecture/database-and-rbac.md) — the functions and policies this workflow calls.
 - [Clinical safety and telepsychiatry policy](../../product/clinical-safety-and-telepsychiatry-policy.md) — eligibility and crisis routing at the point of booking.
 - [QA and Playwright](../qa-and-playwright.md) — click-path and route verification.

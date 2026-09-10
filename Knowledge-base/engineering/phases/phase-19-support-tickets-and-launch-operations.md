@@ -52,7 +52,7 @@ authorise support access.
 - Broad admin browsing of patients, guardians, payments, appointments, meetings, or notes.
 - Letting a ticket message or operator edit directly determine booking, payment, consent, meeting, or
   outcome state.
-- Giving the secretary ticket access by assumption. Default is deny until owners approve a precise
+- Giving any separate support role ticket access by assumption. Default is deny until owners approve a precise
   scope and the full allow/deny matrix passes.
 - Implementing retention or data-rights actions while Q11/DPO rules remain unresolved.
 
@@ -63,7 +63,7 @@ authorise support access.
 | Company owners/operations | Queue owner, responder roles, lifecycle, assignment, reply/reopen rules, support hours/SLA wording, escalation, abuse handling, stop authority, and support-email activation. |
 | Finance/payment operations | Reconciliation actors, reason/evidence requirements, refund/chargeback/late-success/duplicate-charge procedures, dual control if required, and customer communication. |
 | Workspace/video operations | Outage and admission-incident owner, provider escalation, evidence, recovery, and communication. |
-| DPO/legal/security | Ticket and operational evidence readers, lawful basis, notices, retention/disposal, exports/rights, legal holds, log redaction, rate limits, incident handling, and secretary boundary. |
+| DPO/legal/security | Ticket and operational evidence readers, lawful basis, notices, retention/disposal, exports/rights, legal holds, log redaction, rate limits, incident handling, and admin boundary. |
 
 ## Provisional Tier 2 implementation plan
 
@@ -75,7 +75,7 @@ authorise support access.
   fields, and provider-operation boundaries.
 - Compare the approved support/retention/incident decisions with the Phase 15 logical ticket model;
   amend the plan before coding if they differ.
-- Confirm the selected operator role. Do not translate “admin” or “secretary” into permissions without
+- Confirm the selected operator role. Do not translate “admin” into permissions without
   an explicit recorded decision.
 
 ### P19-1 — Protected ticket lifecycle
@@ -92,7 +92,7 @@ authorise support access.
 
 ### P19-2 — Authorization, rate limiting, and content boundary
 
-- Add allow/deny coverage for owner patient, other patient, psychiatrist, secretary, admin/operator,
+- Add allow/deny coverage for owner patient, other patient, psychiatrist, admin/operator,
   guardian context, anonymous caller, and infrastructure role.
 - Enforce server-side size, category, frequency, and state-transition rules using approved generic
   error codes.
@@ -167,7 +167,7 @@ Phase 19 completes only when:
 
 - patients can access only their own administrative tickets and approved operators can access only
   the minimum audited queue;
-- psychiatrist, secretary by default, guardian context, other patients, and anonymous callers are
+- psychiatrist by default, guardian context, other patients, and anonymous callers are
   denied at table, function, API, route, and navigation layers;
 - ticket content cannot change or grant access to appointment, eligibility, payment, meeting, note,
   or clinical state;
@@ -187,6 +187,6 @@ Phase 19 as-built audit.
 ## Inputs not yet available
 
 - Phase 15–18 dated as-built evidence.
-- Approved support operator/secretary scope, lifecycle, support hours, escalation, and stop authority.
+- Approved admin support scope, lifecycle, support hours, escalation, and stop authority.
 - Final payment and Google Meet exception procedures.
 - Field-level ticket/operations/audit retention, rights, disposal, backup, and legal-hold decisions.

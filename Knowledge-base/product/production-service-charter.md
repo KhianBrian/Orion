@@ -13,8 +13,9 @@ It is not authorised to add diagnoses, prescriptions, recordings, transcripts, f
 payments, marketing analytics, free-text reasons for care, or any clinical record other than the
 session note, without a separate approved decision.
 
-Session notes were added to this boundary on 27 August 2026 by register question 6. They are readable
-by the patient only after the psychiatrist releases them, and are never readable by the secretary.
+Session notes were added to this boundary on 27 August 2026 by register question 6. The patient may
+read only the latest version after the psychiatrist releases it; superseded note bodies remain
+protected. Admins may review audit metadata, but cannot read clinical-note content.
 
 ## Launch gate
 
@@ -33,7 +34,7 @@ No real client, psychiatrist, or appointment may be accepted until all are true:
 ## Pilot constraints
 
 - The first launch remains a **controlled pilot**. Patient registration is public with no active-patient cap; the approved geography and operating-review cadence sit with register question 1 and are still to be set.
-- Psychiatrist and secretary accounts are invite/provision-only. A psychiatrist passes an approval period before becoming bookable.
+- Psychiatrist accounts are invite/provision-only. A psychiatrist passes an approval period before becoming bookable.
 - Named support hours and an agreed operating-review cadence apply; monitoring identifies when scaling work is needed.
 - Use only the data in the [data dictionary](../governance/data-classification-and-data-dictionary.md) and only for the approved purpose.
 - Stop bookings/video issuance immediately when a safety, privacy, or access-control incident is suspected.
@@ -51,7 +52,7 @@ question 8. JaaS is not approved for real sessions until the launch gate's provi
 Public Jitsi remains excluded from the launch gate and is never a fallback for a real client call. The
 synthetic-demo label must be unmissable and must not be disableable from the client.
 
-Two items remain open: whether the demo account set expands to six to include a secretary, and whether
+The demo account set remains limited to the existing synthetic accounts, and whether
 session notes appear in the demo at all.
 
 ## Decisions engineering cannot make

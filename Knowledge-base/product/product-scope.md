@@ -18,7 +18,6 @@ psychiatrist manually releases it. A psychiatrist sees only their own upcoming s
 
 - **Patient:** ages 30–60 as the design target; needs large, plain-language, low-choice screens. A patient aged 18 or over self-registers. A minor requires a parent/guardian-consent pathway and cannot book until its clinical and legal/DPO-approved acceptance conditions are met.
 - **Psychiatrist:** needs a simple upcoming-session list, a clear join action, and a note surface for authoring and releasing.
-- **Secretary:** handles bookings and client questions. Sees appointments and contact details only, and never session notes.
 - **Admin:** a controlled role for verified psychiatrist provisioning and approved availability.
 
 ## Pilot acceptance flow
@@ -29,7 +28,7 @@ psychiatrist manually releases it. A psychiatrist sees only their own upcoming s
 4. The paid appointment persists after refresh and the patient joins its Google Meet session from My appointments.
 5. Cancellation fails inside 24 hours and succeeds outside it; refund treatment is applied only once approved policy exists.
 6. The psychiatrist signs in and sees only their assigned sessions.
-7. The patient may join 15 minutes before the appointment; the call ends after 45 minutes; the psychiatrist has a further 15 minutes to write a note and manually releases it when ready. The secretary cannot read it.
+7. The patient may join 15 minutes before the appointment; the call ends after 45 minutes; the psychiatrist has a further 15 minutes to write a note and manually releases it when ready. Admin cannot read it by default.
 
 ## Hard rules
 
@@ -40,7 +39,7 @@ psychiatrist manually releases it. A psychiatrist sees only their own upcoming s
 - One availability slot may have at most one active appointment.
 - A payment-pending appointment is not a confirmed appointment and never grants meeting admission. Only a server-verified payment may confirm it.
 - Each confirmed appointment receives a distinct Google Meet meeting space; the production provider is still subject to vendor and configuration approval.
-- A session note is readable by the patient only after the psychiatrist releases it, and is never readable by the secretary.
+- A session note is readable by the patient only after the psychiatrist releases it, and is not readable by admin by default.
 - A patient may enter the call window 15 minutes early; the scheduled consultation remains exactly 45 minutes; note release is never automatic.
 - Registration is public with no active-patient cap; the pilot remains controlled through monitoring and launch governance.
 
@@ -52,7 +51,6 @@ Full appointment transitions are in the [appointment lifecycle](appointment-life
 - Adult sign-up and a gated minor/guardian-consent submission pathway; neither permits real use until approved legal and clinical conditions are met.
 - Payment-authorised patient booking, PayMaya checkout/return status, My appointments, My account, and reading released session notes.
 - Psychiatrist upcoming sessions, My account, and authoring and releasing session notes.
-- Secretary appointment and contact management, excluding all note access.
 - In-app support tickets for patients and a least-privilege administrative queue; no support email or notification channel yet.
 - Minimal admin provisioning, payment/ticket operational visibility, and seed availability.
 - Supabase-backed data and Google Meet as the proposed private browser-video direction, pending approval.

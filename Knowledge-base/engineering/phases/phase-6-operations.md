@@ -25,7 +25,7 @@ Q1/Q2/Q8/Q9/Q10/Q11 decisions remain launch blockers.
 
 ## Purpose
 
-Make Orion operable and then release it under control: minimal admin tooling, clinician and secretary
+Make Orion operable and then release it under control: minimal admin tooling and clinician
 offboarding, support and incident runbooks, monitoring, security, accessibility and performance review,
 and rehearsed restore, video-outage, privacy, and clinical-escalation exercises.
 
@@ -37,7 +37,7 @@ controlled-pilot release.
 ## Consumes
 
 - **Phase 5 as-built:** the approved provider, its failure modes, and the video kill switch — which together define the outage runbook. Blocked while Q8 is deferred.
-- **Phase 4 as-built:** the booking kill switch and the appointment states support staff will encounter.
+- **Phase 4 as-built:** the booking kill switch and the appointment states admin operations will encounter.
 - **Phase 2 as-built:** the tables that retention and data-subject request processes operate on, now including session notes.
 - **Phase 1 as-built:** monitoring, backups, and the restore procedure being exercised.
 
@@ -45,7 +45,6 @@ controlled-pilot release.
 
 | Decision | Effect on this phase |
 | --- | --- |
-| **Q10 — secretary role** | The secretary is the first-line support tier for bookings and client questions. This partially answers who provides support, and the offboarding process must now cover three provisioned roles. |
 | **Q12 — approval and demo first** | Company owners give final go/no-go, and the synthetic demo is showcased to them before any real-user decision. |
 | **Q6 — session notes** | Retention, data-subject requests, and any admin visibility must now account for clinical content. Admin tooling should not expose notes by default. |
 
@@ -53,7 +52,7 @@ controlled-pilot release.
 
 | Register question | What cannot be finalised |
 | --- | --- |
-| **Q10** — stop authority, support hours, incident communication, clinical escalation contact | The runbooks. A secretary handling bookings does not answer who may halt bookings or video, or who is called in a clinical escalation. |
+| **Q10** — stop authority, support hours, incident communication, clinical escalation contact | The runbooks. Admin handling operations does not answer who may halt bookings or video, or who is called in a clinical escalation. |
 | **Q11** — retention and deletion | The retention schedule and the data-subject request process. Session notes as clinical records may carry a prescribed minimum retention, and the meaning of deletion against append-only history is unresolved. |
 | **Q1** — geography and operating review | Operational load, review cadence, and release scoping. No active-patient cap is planned; the approved geography and operating-review cadence remain to be decided. |
 | **Q8 and Q9** — provider and vendor terms | The video-outage runbook and the vendor section of the incident procedure. |
@@ -71,8 +70,8 @@ rehearsed response. This is not a determination engineering may make.
 ## Deliverables
 
 - Minimal admin tooling sufficient to operate the pilot, no broader, with session notes not exposed by default.
-- Offboarding for psychiatrist, secretary, and admin accounts that revokes access without destroying appointment, consent, note, or audit history.
-- Support and incident runbooks naming contacts, hours, and stop authority, with the secretary as first-line support.
+- Offboarding for psychiatrist and admin accounts that revokes access without destroying appointment, consent, note, or audit history.
+- Support and incident runbooks naming contacts, hours, and stop authority, with admin as the operational support owner.
 - Operational monitoring and alerting that remains privacy-safe and never captures note content.
 - Completed security, accessibility, and performance reviews with findings triaged.
 - Rehearsed exercises: environment restore, video outage, a privacy or data-subject request, and a clinical escalation.

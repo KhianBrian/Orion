@@ -67,7 +67,7 @@ owner go/no-go. Successful implementation alone is insufficient.
 The R1.1 plan verified the following before this synthesis:
 
 - Six forward migrations are applied through `20260905090000_safe_appointment_projection`.
-- The live synthetic schema has three roles and five public tables; it has no secretary role, patient
+- The live synthetic schema has three roles and five public tables; it has no separate support role, patient
   eligibility, consent, session-note, payment, or support-ticket object.
 - The current `book-appointment` route immediately creates `booked`; there is no `payment_pending` or
   reserved slot.
@@ -88,8 +88,8 @@ explicit prerequisite increment under its owning authority and give it separate 
 
 | Existing track | Verified unfinished dependency | R1 consumer and boundary |
 | --- | --- | --- |
-| Phase 2 — Data/RBAC | Four-role schema, general consent records, session notes, audited note reads, and full RLS matrix are not built. | R1.2 may add current-authority eligibility/guardian schema; R1.4 consumes the note contract. Neither silently closes Phase 2. |
-| Phase 3 — Identity | The synthetic three-role Auth/CASL slice exists, but public registration, secretary provisioning, approval, recovery, and approved consent capture are not built. | R1.2 re-grounds and delivers the current eligibility identity path; Phase 3 history remains separately assessed. |
+| Phase 2 — Data/RBAC | The three-role schema, general consent records, session notes, audited note reads, and full RLS matrix are not built. | R1.2 may add current-authority eligibility/guardian schema; R1.4 consumes the note contract. Neither silently closes Phase 2. |
+| Phase 3 — Identity | The synthetic three-role Auth/CASL slice exists, but public registration, approval, recovery, and approved consent capture are not built. | R1.2 re-grounds and delivers the current eligibility identity path; Phase 3 history remains separately assessed. |
 | Phase 4 — Scheduling | Synthetic booking/cancellation exists, but full cancellation/reschedule/no-show/notes workflow is not built. | R1.3 replaces the future real booking behavior with payment authorisation while retaining approved cancellation and concurrency rules. |
 | Phase 5 — Video | JaaS exists only for the synthetic demo; production provider work is blocked. | R1.4 creates a separate approved Google Meet boundary and does not promote or overwrite D5 evidence. |
 | Phase 6 — Operations | Production support, retention, incidents, access review, recovery, and release exercises are not implemented. | R1.5 extends and consumes this work; it does not claim Phase 6 closure without Phase 6 evidence. |
@@ -196,9 +196,8 @@ required decision for that path is absent.
 
 ### Database changes to plan and implement
 
-- Add the approved fourth `secretary` application-role enum value only as identity foundation; the
-  enum alone grants no permission or account. Treat this as the current-authority replacement for the
-  unfinished Phase 2/3 role prerequisite and record that boundary explicitly.
+- Do not add a separate support-role enum value or account. Operational support remains an admin
+  capability and any later role expansion requires a new owner decision and RLS review.
 - Add one `patient_eligibility` current-state row per patient with immutable patient relationship and
   protected status transitions.
 - Add `guardian_consent_cases` and append-only `guardian_consent_events` only after the chosen guardian
@@ -252,7 +251,7 @@ required decision for that path is absent.
 ### Verification gate
 
 - Every eligibility/guardian table and function has allow and deny coverage for patient,
-  psychiatrist, secretary, admin, unauthenticated, server, and conditional guardian contexts.
+  psychiatrist, admin, unauthenticated, server, and conditional guardian contexts.
 - A patient cannot self-assign any role, reviewer, guardian relationship, or eligible status through
   signup metadata, recovery, URL, client state, direct table write, or function arguments.
 - Every absent/pending/rejected/superseded/unaccepted minor state denies reservation and admission.
@@ -301,7 +300,7 @@ checkout. No expiry policy means no real payment booking activation.
   database integrity plus protected functions.
 - Add unique checkout/request/provider-event identities and idempotent transition constraints.
 - Add no raw provider payload or card/wallet/credential column.
-- Add safe patient/coarse psychiatrist/admin payment-status projections and keep secretary denied
+- Add safe patient/coarse psychiatrist/admin payment-status projections and keep unapproved support denied
   until the owner records a scope.
 - Add typed payment audit events and reason/status codes without ticket, clinical, credential, or raw
   provider content.
@@ -409,7 +408,7 @@ specification.
   UI actually exist. If absent, schedule that baseline prerequisite with its own migration, RLS/test
   gate, and as-built audit; do not hide it inside a Google Meet completion claim.
 - Preserve the Phase 2 session-note contract: function-only audited reads, psychiatrist authorship,
-  patient after manual release, explicit secretary/default-admin denial, and immutable amendments.
+  patient after manual release, explicit admin support/default-admin denial, and immutable amendments.
 - Add no automatic completion, no-show, note lock, note release, or note publication job.
 
 ### React changes to plan and implement
@@ -437,7 +436,7 @@ specification.
 
 ### Verification gate
 
-- Patient and assigned psychiatrist allow; unrelated patient/psychiatrist, secretary, admin,
+- Patient and assigned psychiatrist allow; unrelated patient/psychiatrist, admin support, admin,
   guardian, unauthenticated, unapproved clinician, and ineligible patient deny.
 - `payment_pending`, cancelled, failed, completed/no-show where policy excludes, and non-booked states
   deny admission.
@@ -472,7 +471,7 @@ evidence. Email remains absent until separately activated after implementation a
 
 | Authority | Required decision |
 | --- | --- |
-| Company owners/support operations | Ticket categories, free text, responder roles, secretary scope, assignment, reply, close/reopen/escalation, support hours, response promises, abuse/spam handling, and future support-email owner. |
+| Company owners/support operations | Ticket categories, free text, responder roles, admin support scope, assignment, reply, close/reopen/escalation, support hours, response promises, abuse/spam handling, and future support-email owner. |
 | Operations/security | Admin queue ownership, payment reconciliation roles, stop/kill-switch authority, alerts, incident communication, access review, recovery, and on-call process. |
 | Clinical lead | Approved non-emergency boundary and clinical escalation/referral wording; tickets must never become triage or treatment. |
 | DPO/legal | Ticket/payment/provider lawful basis, notices, readers, audit review, retention clocks/periods, disposal, export/deletion/correction, legal hold, backup purge, and incident obligations. |
@@ -484,7 +483,7 @@ evidence. Email remains absent until separately activated after implementation a
   categories/content/lifecycle field dictionary.
 - Enable RLS and revoke default grants in the same forward migration. Patient owns one ticket;
   authorised admin functions serve the queue. Psychiatrist and unauthenticated access deny.
-- Keep secretary denied unless a recorded decision defines its exact read/write scope.
+- Keep any separate support access denied; no separate support role is in the current product.
 - Route all ticket reads through audited functions because read access itself must be evidenced.
 - Derive patient/author identity from Auth; no caller can submit another patient ID or role.
 - Add approved rate limiting, length/category checks, no upload path, and safe generic errors.
@@ -503,7 +502,7 @@ evidence. Email remains absent until separately activated after implementation a
 - Provide no upload, email, diagnosis, notes, treatment-advice, or emergency-request affordance.
 - Add minimal admin queue/detail/action surfaces through audited server functions. Do not broaden
   profile, appointment, payment, or note browsing.
-- Add secretary UI only if its separate permission decision is approved and tested.
+- Do not add a separate support UI; admin operations use the least-privilege queue surface.
 - Add operational dashboards using counts/statuses only; no ticket body, guardian evidence, note,
   payment credential, provider payload, or meeting identifier in telemetry.
 - Finalize runbooks for payment exceptions, provider outage, guardian/privacy request, ticket abuse,
@@ -525,7 +524,7 @@ evidence. Email remains absent until separately activated after implementation a
 
 ### Verification and release gate
 
-- Own-patient ticket and approved-admin queue allow; other patient, psychiatrist, secretary by
+- Own-patient ticket and approved-admin queue allow; other patient and psychiatrist by
   default, guardian, and unauthenticated deny at table and function layers.
 - Ticket reads/status/mutations produce safe audit facts without message/category content.
 - Direct insert/update/delete, upload, cross-patient ownership, unapproved lifecycle transitions, and

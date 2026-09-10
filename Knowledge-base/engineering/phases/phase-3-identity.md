@@ -10,7 +10,7 @@ approved consent-document dependency. Until R1.2 exists, this phase does not aut
 ## R1 impact and work ownership — 10 September 2026
 
 The current target now includes public adult registration, a non-bookable minor pending state, a
-guardian-consent review path, invitation-only psychiatrist/secretary provisioning, and versioned
+guardian-consent review path, invitation-only psychiatrist provisioning, and versioned
 consents. The existing Phase 3 plan must not be read as permission to build a minor path before
 those R1.2 decisions and approved wording exist.
 
@@ -25,7 +25,7 @@ must share one profile/role/provisioning boundary; Phase 16 must not create a se
 ## Purpose
 
 Replace the prototype's mocked identity with real authentication: Supabase Auth, patient
-self-registration, invitation-only clinician and secretary provisioning, an approval period before a
+self-registration, invitation-only clinician provisioning, an approval period before a
 psychiatrist becomes bookable, secure recovery, and role-aware routes. Multi-factor authentication is
 handled as a separate Phase 12 security hardening phase. Remove every prototype identity mechanism in
 the same transition.
@@ -37,7 +37,7 @@ gate — the phase is not closed while a mock path still functions.
 
 ## Consumes
 
-- **Phase 2 as-built:** the profile, clinician-approval, and secretary tables, the four-role model, and the RLS predicates that route guards must align with.
+- **Phase 2 as-built:** the profile and clinician-approval tables, the three-role model, and the RLS predicates that route guards must align with.
 - **Phase 1 as-built:** secret management for auth configuration and any server-side provisioning.
 
 ## Owner decisions now available
@@ -47,8 +47,7 @@ gate — the phase is not closed while a mock path still functions.
 | **Q1 — patients self-register, no cap** | Public registration and login at initial launch with no active-patient cap. Sign-up must establish adults-only eligibility itself, since there is no invitation vetting to rely on. The approved geography and operating-review cadence remain to be set. |
 | **Q1 and Q3 — clinicians do not self-register** | Psychiatrist accounts are created by invitation or provisioning only, then pass an approval period before becoming bookable or seeing any patient data. |
 | **Q4 — adults only, no emergency care** | Sign-up screens for adult eligibility, refuses ineligible applicants, and routes them to the approved crisis and referral information. |
-| **Q10 — secretary role** | Secretary accounts are provisioned, never self-registered. |
-| **Q7 — three consents** | Sign-up captures three separate versioned acknowledgements, each independently withdrawable. |
+| **Q7 — three consents** | Sign-up will eventually capture three separate versioned acknowledgements, each independently withdrawable. Consent capture is deferred until the broader feature set is developed. |
 
 ## Still open, but not blocking
 
@@ -61,10 +60,10 @@ assume the approver is the admin role; leave it assignable.
 
 - Supabase Auth as the sole authentication mechanism.
 - Patient self-registration with adults-only eligibility established at sign-up and a refusal path that shows approved crisis and referral information.
-- Clinician and secretary accounts created by invitation or provisioning only, never by self-sign-up.
+- Clinician accounts created by invitation or provisioning only, never by self-sign-up.
 - A psychiatrist approval workflow gating bookability and all patient data access, with an assignable approver.
 - Secure account recovery that cannot be used to escalate role, bypass approval, or bypass verification.
-- Role-aware routing for all four roles, derived from server-held role facts.
+- Role-aware routing for all three roles, derived from server-held role facts.
 - Multi-factor authentication is handled in Phase 12; this phase integrates with its completed identity and recovery controls.
 - **Removals, each verified absent:** fake email-derived roles, mock tokens, Redux-persisted sensitive state, duplicate API clients, and local mock profile data.
 
@@ -128,9 +127,9 @@ token, and the screen carries a visible hint inviting the user to try it. There 
 verification, and no password check of any kind — the password field's value is never read.
 
 Two details matter beyond the obvious. The role vocabulary is `Admin`/`Doctor`/`Patient`/`User`, which
-matches neither the knowledge base's `patient`/`psychiatrist`/`admin` nor the four-role model Phase 2
+matches neither the knowledge base's `patient`/`psychiatrist`/`admin` nor the three-role model Phase 2
 introduces — "Doctor" is not "psychiatrist", and "User" is not a role at all. And there is no
-`secretary` anywhere in the prototype.
+separate support-role implementation anywhere in the prototype.
 
 ### Persisted state
 
@@ -186,7 +185,7 @@ The demo establishes server-held roles, one Supabase client, and route guards. T
 everything about identity that the demo does not need because its accounts arrive by seed:
 
 registration, invitation and provisioning, the psychiatrist approval workflow, account recovery,
-consent capture, the fourth role, and uncapped public registration. MFA enforcement is explicitly
+consent capture, and uncapped public registration. MFA enforcement is explicitly
 handed off to Phase 12.
 
 ## Work breakdown
@@ -229,10 +228,10 @@ applicable R1 eligibility status, email verification before booking, rate limiti
 the approved geography. The team records activity and plans scaling when demand warrants it; the
 operating-review cadence remains an owner decision under Q1.
 
-### P3-4 — Provisioning for psychiatrists and secretaries
+### P3-4 — Provisioning for psychiatrists
 
-- Created by invitation or provisioning only, never by self-sign-up, per Q1, Q3, and Q10. The provisioning function is the Phase 2 one; this phase supplies the invitation flow and the admin surface.
-- **No self-service path may exist to either role.** This is not the same as not offering one on a screen — it means the registration path cannot produce anything but a patient, whatever it is sent.
+- Created by invitation or provisioning only, never by self-sign-up, per Q1 and Q3. The provisioning function is the Phase 2 one; this phase supplies the invitation flow and the admin surface.
+- **No self-service path may exist to the psychiatrist role.** This is not the same as not offering one on a screen — it means the registration path cannot produce anything but a patient, whatever it is sent.
 - Provisioned roles are prepared for MFA enrollment; enforcement is delivered by [Phase 12](phase-12-mfa-and-privileged-access.md).
 
 ### P3-5 — The psychiatrist approval workflow
@@ -254,13 +253,16 @@ cannot be used to change a role, to bypass the psychiatrist approval state, or t
 The role is read from the profile after recovery like at any other sign-in — never re-derived, never
 carried in the recovery link. Recovery events are audited.
 
-### P3-8 — Role-aware routing for four roles
+### P3-8 — Role-aware routing for three roles
 
 - One role-to-routes map and one shared guard, replacing the duplicated per-page navigation and the unused `Sidebar.jsx` — the pattern [engineering conventions](../engineering-conventions.md#orion-examples) names as the default, with per-page role checks as the thing not to build.
 - The role comes from the server-held profile, per [access control and audit policy](../../architecture/access-control-and-audit-policy.md#roles).
 - Guards align with the Phase 2 RLS predicates but do not restate them, and are never relied upon as the control. Every guarded route has a corresponding RLS deny test; the guard is what makes the application usable, the policy is what makes it safe.
 
-### P3-9 — Consent capture
+### P3-9 — Consent capture — deferred until post-development
+
+Do not add consent capture during the current feature-build sequence. Resume this work after the
+broader product features are developed and the final approved wording and document versions exist.
 
 Sign-up captures three separate versioned acknowledgements — privacy acknowledgement, informed
 consent, optional communications — each independently withdrawable, per Q7 and the Phase 2 consent
@@ -284,8 +286,8 @@ The gate is that legacy authentication never coexists with real accounts.
 | Legacy paths absent | The six API files, `Sidebar.jsx`, the email-role logic, and the persisted auth slice are deleted, and `redux-persist` — and Redux, if unused — are uninstalled. Verified by search, not by inspection of a screen. |
 | Nothing sensitive persisted | `localStorage` and `sessionStorage` inspected after sign-in, sign-out, and recovery. No token, role, or profile data present. |
 | Role never client-derived | A test that a manipulated client cannot obtain a role it was not granted — the authority is the profile row, and the deny is at the data boundary. |
-| Four-role routing | Playwright allow and deny per role, per [QA and Playwright](../qa-and-playwright.md#required-coverage), desktop and mobile for patient-facing flows. |
-| Provisioning is closed | The registration path cannot produce a psychiatrist, a secretary, or an admin under any input. |
+| Three-role routing | Playwright allow and deny per role, per [QA and Playwright](../qa-and-playwright.md#required-coverage), desktop and mobile for patient-facing flows. |
+| Provisioning is closed | The registration path cannot produce a psychiatrist or an admin under any input. |
 | Approval gates access | An unapproved psychiatrist reads no patient data and does not appear bookable. |
 | Recovery cannot escalate | Recovery does not alter role, approval state, or verification state. |
 
@@ -299,7 +301,6 @@ The gate is that legacy authentication never coexists with real accounts.
 | Psychiatrist approver and verification criteria (Q3) | Company owners with clinical lead | Approver assignable, criteria stored as data. |
 | MFA role scope and enforcement | Phase 12 | Phase 3 exposes the identity/recovery boundary; Phase 12 enforces the owner-selected roles. |
 | Consent wording (Q7) | Company owners, with DPO and clinical review | Mechanism built, no version seeded, sign-up cannot complete without approved wording. |
-| Secretary scope — clinic-wide or per psychiatrist, acting on a client's behalf | Company owners | Provisioning is built for the narrowest reading Phase 2 implements. |
 
 ## Inputs I did not have
 
