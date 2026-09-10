@@ -1,6 +1,20 @@
 # Phase 5 — Approved Private Video
 
-**Tier 2 status:** Blocked. The real-launch provider decision (Q8) was deferred by the owners. The demo's video surface is covered by the [demo milestone](demo-milestone.md), not by this phase.
+**Tier 2 status:** Blocked. Google Meet is the proposed real-launch direction under R1, but its
+Workspace configuration and Q8/Q9 approval are not complete. The demo's JaaS video surface remains
+covered by the [demo milestone](demo-milestone.md), not by this phase.
+
+## R1 impact and work ownership — 10 September 2026
+
+The video decision is now split clearly. JaaS is implemented only for the synthetic demo. Google
+Meet is the proposed real-launch direction, but it is not approved yet and cannot be treated as a
+completed Phase 5 implementation.
+
+Phase 5 keeps the provider-abstraction, token, admission, kill-switch, outage, and privacy
+requirements for an approved private provider. [Phase 18](phase-18-google-meet-and-session-timing.md)
+owns the real-launch Google Meet implementation and consumes the exact eligibility, payment, and
+appointment contracts from Phases 16–17. Phase 5 remains blocked until the provider and vendor/data-
+transfer decisions are approved; the synthetic D5 audit remains historical evidence.
 
 ## Purpose
 
@@ -21,19 +35,18 @@ behaviour, and a manual two-party call check all pass. Public Jitsi is excluded.
 
 ## Owner decisions now available
 
-**Demo only.** Daily is preferred for the demo, with public Jitsi permitted as a demo fallback in a
-clearly labelled internal fake-data mode using the five synthetic accounts. That work belongs to the
-demo milestone.
+**Demo only.** JaaS is the selected five-account synthetic-demo provider. That work belongs to the
+demo milestone and is never promoted to real sessions.
 
-**Real launch: deferred.** The owners deferred the production provider decision on 27 August 2026. Any
-Daily integration built for the demo is a proof of the integration boundary, not an approved production
-choice, and must not be promoted to real sessions without a recorded Q8 decision.
+**Real launch: Google Meet proposed, not approved.** R1.4 must validate the Workspace organisation and
+edition, host and participant admission model, 15-minute early entry, scheduled session end, outage
+handling, and vendor review before a production integration is written.
 
 ## Still blocked
 
 | Register question | What cannot proceed |
 | --- | --- |
-| **Q8** — real-launch provider | The production integration. A provider abstraction may be designed and the demo integration may be built, but no production integration may be built against an unapproved provider. |
+| **Q8** — Google Meet provider and Workspace configuration | The production integration. No production integration may be built until the provider configuration and admission model are approved and technically validated. |
 | **Q9** — vendor and data-transfer terms | Production vendor use. Deferred by the owners, and now more consequential because Orion will hold session notes as health information. |
 
 ## Demo work does not close this gate

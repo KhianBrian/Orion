@@ -2,6 +2,10 @@
 
 **Last verified:** 4 September 2026
 
+**R1 update:** 8 September owner direction is tracked separately in
+[Launch Readiness R1](launch-readiness/README.md). It changes future real-launch planning only and
+does not alter the completed synthetic-demo evidence below.
+
 This is Orion's practical, phase-by-phase implementation tracker. It says what is actually built,
 what happens next, and what is blocked. It does not replace the phase charters or Tier 2 plans;
 those documents remain the detailed requirements and authority for each change.
@@ -34,29 +38,47 @@ only the stated slice is complete, not that the whole phase is closed.
 | D7 — Verification | Completed ✅ | Unit timing, booking/concurrency, cancellation, RLS, authenticated desktop/mobile, and public-route checks passed. Human normal-cancellation and within-24-hour denial checks also passed. | Run the owner walkthrough after final frontend acceptance; it is a showcase, not a D7 completion dependency. |
 
 Detailed requirements: [demo milestone](phases/demo-milestone.md). Database connection and migration
-history: [Supabase integration](supabase.md). Historical evidence: [30 August demo-foundation audit](../audit-trail/2026-08-30-supabase-demo-foundation-audit.md) and [30 August synthetic-account provisioning audit](../audit-trail/2026-08-30-synthetic-demo-account-provisioning-audit.md).
+history: [Supabase integration](supabase.md). Historical evidence: [28 August demo-foundation audit](../audit-trail/2026-08-28-supabase-demo-foundation-audit.md) and [29 August synthetic-account provisioning audit](../audit-trail/2026-08-29-synthetic-demo-account-provisioning-audit.md).
 
 ## Delivery phases
 
 | Phase | Status | Completed slice | Next step / blocker |
 | --- | --- | --- | --- |
-| [Phase 0 — Governance](phases/phase-0-governance.md) | In progress | Owner decisions are recorded, but governance is not closed. | Obtain the remaining owner, clinical-lead, and DPO/legal decisions; record each in the decision register. |
-| [Phase 1 — Baseline](phases/phase-1-baseline.md) | Partially completed ✅ | Repository, local-secret pattern, one synthetic non-production Supabase project, and migrations exist. | Add CI, secret scanning, access register, staging/production separation, monitoring, and restore exercise. |
-| [Phase 2 — Data/RBAC](phases/phase-2-data-rbac.md) | Foundation completed ✅ | Core three-role schema and baseline read/update RLS are applied. | Add consent, secretary/session-note schema, privileged transaction functions, full RLS matrix/tests, and Q11 retention handling when decided. |
-| [Phase 3 — Identity](phases/phase-3-identity.md) | Production phase not started | The demo has a Supabase Auth/CASL slice, but the full four-role identity workflow is not complete. | Re-ground against the applied database, then complete provisioning, approval, recovery, consent, and legacy-path removal. MFA enforcement is Phase 12. |
-| [Phase 4 — Scheduling](phases/phase-4-scheduling.md) | Production phase not started | The demo has a synthetic booking/cancellation slice; the full workflow and Tier 2 plan remain incomplete. | Finish the Tier 2 plan from as-built state, ratify Q5, resolve lifecycle values, then build the complete workflow. |
-| [Phase 5 — Video](phases/phase-5-video.md) | Blocked | The separate D5 demo work package provides synthetic JaaS admission; no production integration exists. | Owner decision Q8: choose/approve the real-launch video provider, followed by Q9 vendor/data-transfer approval. |
-| [Phase 6 — Operations](phases/phase-6-operations.md) | Blocked | No production operations implementation exists. | Resolve Q1, Q10, and Q11, then build the runbooks, access review, monitoring, and recovery controls. |
+| [Phase 0 — Governance](phases/phase-0-governance.md) | In progress | Owner decisions and the R1 direction are recorded, but governance is not closed. | Resolve the remaining owner, clinical-lead, DPO/legal, vendor, support, and retention decisions; R1.0 records the amendment. |
+| [Phase 1 — Baseline](phases/phase-1-baseline.md) | Partially completed ✅ | Repository, local-secret pattern, one synthetic non-production Supabase project, and migrations exist. | Add CI, secret scanning, access register, staging/production separation, monitoring, and restore exercise; Phases 15–20 consume these controls. |
+| [Phase 2 — Data/RBAC](phases/phase-2-data-rbac.md) | Foundation completed ✅ — phase still open | Core three-role schema and baseline read/update RLS are applied; session notes, full roles, consent, and complete RLS/functions remain unfinished. | Keep Phase 2 responsible for its baseline data/RBAC work; Phase 15 owns the new R1 eligibility, payment, ticket, pending/reserved, and shared-audit extensions without duplicate migrations. |
+| [Phase 3 — Identity](phases/phase-3-identity.md) | Production phase not started | The demo has a Supabase Auth/CASL slice, but the full identity workflow is not complete. | Re-ground against the applied database, then complete Auth, provisioning, approval, recovery, consent, and legacy-path removal; Phase 16 owns R1 eligibility/guardian behavior. MFA enforcement is Phase 12. |
+| [Phase 4 — Scheduling](phases/phase-4-scheduling.md) | Production phase not started | The demo has a synthetic booking/cancellation slice; the complete workflow and Tier 2 plan remain incomplete. | Re-ground and ratify Q5; keep baseline lifecycle/notes work here, while Phase 17 owns payment-authorised booking and Phase 18 owns real timing/admission. |
+| [Phase 5 — Video](phases/phase-5-video.md) | Blocked | The separate D5 work package provides synthetic JaaS admission; no production integration exists. | Approve and validate Google Meet plus Q9 vendor/data-transfer terms; Phase 18 owns the real-launch provider implementation. |
+| [Phase 6 — Operations](phases/phase-6-operations.md) | Blocked | No production operations implementation exists. | Keep baseline access, monitoring, restore, incident, and release controls here; Phase 19 owns new support/exception operations and Phase 20 owns integrated release verification. |
 | [Phase 7 — Frontend state foundation](phases/phase-7-frontend-state-foundation.md) | Completed ✅ | Synthetic refresh-safe sessions, in-memory server-state cache/invalidation, protected-cache clearing, persistent authenticated-shell boundary, and meeting-window refresh are verified. | Keep all data synthetic; production session architecture remains a Phase 3/security decision. |
 | [Phase 8 — UI system and application shell](phases/phase-8-ui-system-and-app-shell.md) | Implemented — review pending | Responsive public/authenticated shells, accessible UI primitives, a scoped navigation inventory, and a rebuilt login surface are implemented. Public desktop/mobile checks pass; direct authenticated dialog/shell verification remains credential-gated. | Review with the synthetic demo credentials, then keep legal/support destinations absent until owner-approved pages exist. |
 | [Phase 9–11 — Frontend continuation](phases/README.md#continuation-phases) | Planned | Appointment presentation, meeting experience, and frontend acceptance remain unexecuted. | Implement and verify the remaining planned frontend work using synthetic data. |
 | [Phase 12 — MFA and privileged access](phases/phase-12-mfa-and-privileged-access.md) | Planned — owner decision required | No MFA is required for the synthetic demo. | Record the role scope and approver in the decision register, then implement and verify MFA before real-user launch. |
 
+## Launch Readiness R1
+
+| Work item | Status | Next step / blocker |
+| --- | --- | --- |
+| [R1.0 — Governance and change control](launch-readiness/r1.0-governance-and-change-control.md) | Completed ✅ | Product, lifecycle, privacy, data, video, RBAC, operations, and phase authorities are reconciled against the 8 September amendment; R1.1 has consumed this authority. |
+| [R1.1 — Data, consent, and audit extension](launch-readiness/r1.1-data-consent-and-audit-extension.md) | Planning and numbered phase synthesis completed ✅ — no implementation | Use its contract and the [R1 implementation phase map](phases/r1-launch-readiness-implementation-map.md); retain every named policy/provider blocker. |
+| [Phase 15 / R1.1 — Data, consent, and audit foundation](phases/phase-15-data-consent-and-audit-foundation.md) | Planned — not implemented | First obtain Phase 14 as-built evidence or record an explicit sequencing amendment, then re-query live state and resolve its named data/role/retention decisions. |
+| [Phase 16 / R1.2 — Identity and minor eligibility](phases/phase-16-identity-and-minor-eligibility.md) | Planned — implementation blocked | Consume Phase 15 as-built. Guardian account/assurance/access/reviewer, clinical eligibility/refusal, DPO/legal, abuse control, retention, and approved wording remain required. |
+| [Phase 17 / R1.3 — PayMaya payment-authorised booking](phases/phase-17-paymaya-payment-authorised-booking.md) | Planned — implementation blocked | Consume Phase 16 as-built; obtain official PayMaya material and approve amount/currency, expiry, failure, refund, chargeback, receipt, late-success, and reconciliation policy. |
+| [Phase 18 / R1.4 — Google Meet and timing](phases/phase-18-google-meet-and-session-timing.md) | Planned — implementation blocked | Consume Phase 17 as-built; validate Workspace/API/admission/end-session/outage behavior and obtain vendor/privacy plus clinical timing approval. |
+| [Phase 19 / R1.5 — Support and launch operations](phases/phase-19-support-tickets-and-launch-operations.md) | Planned — implementation blocked | Consume Phase 15–18 as-built, then finalize ticket roles/lifecycle, secretary scope, retention/data rights, support hours, exception handling, kill switches, and runbooks. |
+| [Phase 20 / R1.5 — Integrated verification and controlled release](phases/phase-20-integrated-launch-verification-and-controlled-release.md) | Planned — blocked on all prior gates | Assemble the immutable candidate and evidence only after Phase 15–19 audits, production-baseline controls, named approvals, and release ownership exist. |
+
 ## Immediate next action
 
-Proceed with the planned frontend continuation phases. After each relevant change, run the repeatable
-synthetic human checks; after frontend acceptance, schedule the owner walkthrough. Then resolve the
-Phase 12 MFA role decision and implement privileged-access enforcement before any real-user launch.
+Keep synthetic frontend continuation work independent. For the numbered real-launch sequence, finish
+and verify Phase 14 or record an explicit sequencing amendment, then start Phase 15 from its cited
+authority, the predecessor audit, and fresh deployed-state checks. Do not use the old Phase 3–6
+next-step wording as authority for minors, payments, Google Meet, support tickets, or the 15/45/15
+note timeline. After relevant frontend changes, run the repeatable synthetic human checks; after
+frontend acceptance, schedule the owner walkthrough.
+Then resolve the Phase 12 MFA role decision and implement privileged-access enforcement before any
+real-user launch.
 Hosted Auth
 leaked-password protection is deferred because this project remains on Supabase Free; revisit it
 before broader account use or a paid-plan transition. Do not add a secretary role, real identities,

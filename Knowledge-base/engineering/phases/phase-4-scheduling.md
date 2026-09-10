@@ -2,6 +2,28 @@
 
 **Tier 2 status:** Not yet written. This file currently contains the charter and its recorded state-machine gaps, but no Tier 2 implementation-plan body. Re-ground and write that plan from the actual Phase 2 and Phase 3 as-built state before coding.
 
+## R1 supersession boundary
+
+The 8 September direction changes the future scheduling contract: payment-pending appointments carry
+the PayMaya tracking relationship but are not bookable consultations; only verified payment confirms
+them. It also records a 15-minute early-join window, a 45-minute call, and a 15-minute psychiatrist
+note-writing window. R1.3 owns the payment-authorised booking plan and R1.1/R1.4 own the data and
+provider timing contracts. This charter's older adults-only and unset-timing text is baseline history,
+not current implementation authority.
+
+## R1 impact and work ownership — 10 September 2026
+
+The appointment lifecycle is now clearer: 45-minute sessions, patient cancellation, psychiatrist
+cancellation, linked rescheduling, psychiatrist-recorded no-shows, session notes, and secretary
+appointment access. Some edge values still need owner or clinical approval, so Phase 4 is plannable
+but not complete.
+
+Phase 4 remains responsible for the baseline appointment lifecycle, cancellation/rescheduling/no-show
+mechanisms, notes surface, conflict handling, and one booking workflow. [Phase 17](phase-17-paymaya-payment-authorised-booking.md)
+owns the R1 payment-pending/reservation/verified-payment booking change, while [Phase 18](phase-18-google-meet-and-session-timing.md)
+owns the database-authoritative 15/45/15 timing and real meeting admission. Phase 4 must not create a
+second booking path or duplicate those state transitions.
+
 ## Purpose
 
 Replace the duplicate mock booking pages with a single server-authoritative workflow covering booking,

@@ -23,6 +23,18 @@ release rule actually held.
 | Consent | notice/version hash, actor, timestamp, choice | prove approved acknowledgement | editable client-only state |
 | Audit | event code, actor/target IDs, outcome, timestamp, correlation ID | security/operations review | free text, tokens, room names, clinical content |
 
+## R1 data extensions awaiting approval
+
+The 8 September direction introduces three new data groups. They are not yet schema authority: their
+exact fields, readers, retention, disposal, and legal/privacy approval must be recorded before R1.1
+creates them.
+
+| Data group | Minimum intended purpose | Non-negotiable boundary |
+| --- | --- | --- |
+| Guardian-consent record | evidence that the approved minor pathway was completed | Do not collect guardian identity/relationship evidence or grant guardian account/note access until clinical and DPO/legal approval defines it. |
+| Payment attempt and payment event | reconcile a PayMaya payment with one appointment, patient, and psychiatrist | Store provider references and safe status/amount metadata only; never card, wallet, or credential data. The server derives all Orion IDs. |
+| Support ticket and reply | let a patient ask for administrative help and let authorised staff respond | No uploads, clinical notes, diagnosis, or care discussion. Ticket content is still personal data and must not enter logs, analytics, URLs, or test artefacts. |
+
 ## Readers
 
 | Data group | Patient | Psychiatrist | Secretary | Admin |
@@ -60,10 +72,11 @@ synthetic note bodies.
 
 ## Open dependency
 
-The rule above requires a retention period for every field. **Session notes have none yet.** Retention
-and the meaning of deletion sit with register question 11, still open, and clinical records may carry a
-prescribed minimum retention period rather than a chosen one. Until that decision is recorded:
+The rule above requires a retention period for every field. **Session notes, guardian-consent records,
+payment records, and support tickets have none yet.** Retention and the meaning of deletion sit with
+register question 11, still open, and clinical records may carry a prescribed minimum retention period
+rather than a chosen one. Until that decision is recorded:
 
-- No retention period may be invented for notes.
-- No deletion path for notes may be implemented.
-- Phase 2 may create the note schema, but not its retention or disposal behaviour.
+- No retention period may be invented for these groups.
+- No deletion path for them may be implemented.
+- R1.1 may plan their schema, but not retention or disposal behaviour.

@@ -25,6 +25,11 @@ what the previous plan intended to build.
 
 Writing every implementation plan up front does not work here. The coupling between phases is real:
 
+Phases 15–20 include **provisional Tier 2 outlines** so the complete launch flow, decisions, expected
+changes, and test gates can be reviewed now. They do not override this rule: the first task in each
+phase re-grounds and revises the outline from the predecessor's dated as-built audit and current
+deployed state before any implementation begins.
+
 | Phase | What it fixes for later phases |
 | --- | --- |
 | 0 | Register answers define Phase 2's schema and consent tables, Phase 4's cancellation state machine, Phase 5's provider, and Phase 6's retention and escalation runbooks. |
@@ -33,6 +38,13 @@ Writing every implementation plan up front does not work here. The coupling betw
 | 3 | How caller identity reaches the server determines Phase 4 authorisation and Phase 5 participant-token derivation. |
 | 4 | The as-built appointment record is the input to Phase 5's decision about who may join which room, and when. |
 | 5 | The approved provider determines Phase 6's outage exercise, kill-switch design, and vendor incident procedure. |
+| 14 | The exact availability/slot schema, conflict rules, and patient time-selection behavior determine Phase 15's active-state compatibility work. |
+| 15 | The as-built eligibility, consent, payment, ticket, RLS/function, and audit contracts determine every Phase 16–19 integration. |
+| 16 | The exact server-held bookability/admission predicate determines Phase 17 reservation and Phase 18 admission behavior. |
+| 17 | The exact `booked` transition and payment failure/event states determine Phase 18 admission and Phase 19 exception operations. |
+| 18 | The exact Google Meet admission, failure, timing, and kill-switch states determine Phase 19 provider operations. |
+| 19 | The exact operations/runbook/retention controls and unresolved risks determine Phase 20's integrated release evidence. |
+| 20 | The immutable candidate, evidence, approvals, and owner decision determine what—if anything—is activated for real users. |
 
 ## Feedback loop
 
@@ -43,6 +55,20 @@ this, each plan inherits the last plan's assumptions instead of reality.
 
 Any intentional shortcut taken to close a gate goes in the audit trail's deferred simplifications
 ledger with a stated close condition.
+
+## Baseline versus Launch Readiness R1
+
+The Phase 0–6 charters, D0–D7 synthetic-demo slices, and Phase 7–14 continuation work are the
+**baseline record**. Their dated plans and audit evidence are retained as history; they are not
+rewritten to make a later owner decision look as though it was known or completed earlier.
+
+The 8 September owner direction begins a separately named **Launch Readiness R1** change-control
+workstream. R1 keeps `R1.x` identifiers for the governing amendment and requirements, while the
+executable delivery continuation is numbered **Phase 15 onward**. It starts with
+[R1.0 — Governance and change control](../launch-readiness/r1.0-governance-and-change-control.md), then
+maps R1.1–R1.5 into Phases 15–20. It may revise an old assumption only by recording the superseding
+authority in the decision register. An R1 or Phase 15–20 completion never closes a Phase 0–6 gate by
+implication, and historical completion never authorises R1 real-user scope.
 
 ## Prompt contract for planning
 
@@ -74,11 +100,35 @@ preferences; each one prevents a specific failure this project cannot absorb.
 | [Demo milestone — JaaS video work package](demo-milestone-jaas-video.md) | Detailed D5 implementation and verification under the synthetic demo; not production Phase 5. | Companion work package |
 | [Phase 0 — Governance and service design](phase-0-governance.md) | Owner appointments, policy decisions, pilot criteria. | In progress — 6 answered in some form; 4 partial; 2 deferred |
 | [Phase 1 — Secure platform baseline](phase-1-baseline.md) | Environments, secrets, CI/CD, migrations, backups, monitoring. | Ready to plan — non-production scope only |
-| [Phase 2 — Data, RBAC, consent, and audit](phase-2-data-rbac.md) | Schema, RLS, private functions, session notes, lifecycle and concurrency. | **Plannable** — only Q11 retention stays provisional |
-| [Phase 3 — Replace prototype identity](phase-3-identity.md) | Supabase Auth, provisioning, and role-aware routes. | Plannable once Phase 2 as-built exists — no longer decision-blocked |
-| [Phase 4 — One safe scheduling workflow](phase-4-scheduling.md) | Server-authoritative booking, cancellation, notes surface, conflict states. | **Plannable** — state machine settled; four values carried as named gaps |
-| [Phase 5 — Approved private video](phase-5-video.md) | Provider integration, short-lived tokens, kill switches. | Blocked — Q8 real-launch provider deferred by the owners |
-| [Phase 6 — Operations and controlled release](phase-6-operations.md) | Admin tooling, runbooks, reviews, release approval. | Blocked — Q1, Q10, Q11 open or partial |
+| [Phase 2 — Data, RBAC, consent, and audit](phase-2-data-rbac.md) | Baseline schema, RLS, private functions, session notes, lifecycle and concurrency. | **Plannable** — R1 extensions are delegated to Phase 15; Q11 retention remains provisional |
+| [Phase 3 — Replace prototype identity](phase-3-identity.md) | Supabase Auth, provisioning, and role-aware routes. | Plannable once Phase 2 as-built exists; Phase 16 owns R1 eligibility/guardian behavior |
+| [Phase 4 — One safe scheduling workflow](phase-4-scheduling.md) | Baseline server-authoritative booking, cancellation, notes, and conflict states. | **Plannable** — Phase 17 owns payment booking and Phase 18 owns real timing/admission |
+| [Phase 5 — Approved private video](phase-5-video.md) | Approved-provider abstraction, admission controls, kill switches. | Blocked — synthetic JaaS is separate; Phase 18 owns real Google Meet after Q8/Q9 approval |
+| [Phase 6 — Operations and controlled release](phase-6-operations.md) | Baseline admin tooling, runbooks, reviews, and release approval. | Blocked — Phase 19/20 extend support and release work; Q1, Q10, Q11 and provider decisions remain open |
+
+## Launch Readiness R1
+
+| Work item | Covers | Status |
+| --- | --- | --- |
+| [R1.0 — Governance and change control](../launch-readiness/r1.0-governance-and-change-control.md) | Reconciles the 8 September owner direction, preserves the baseline record, and produces the controlled backlog for minors, PayMaya, Google Meet, support tickets, notes timing, and deferred public/legal content. | Completed ✅ — detailed R1 planning may begin |
+| [R1.1 — Data, consent, and audit extension](../launch-readiness/r1.1-data-consent-and-audit-extension.md) | Defines the provider-neutral eligibility, guardian-consent, payment-attempt/event, support-ticket, timing, RLS, audit, migration, and verification contract from the current as-built state. | Planning completed ✅ — implementation not started; policy/provider gates retained |
+
+### R1 implementation sequence
+
+The [R1 implementation phase map](r1-launch-readiness-implementation-map.md) is the detailed planning
+synthesis. The R1 identifiers retain requirements/change-control traceability; the numbered phase
+files below are the canonical plan locations and continue directly after Phase 14. Their current
+Tier 2 content is provisional: each becomes executable only after its first re-grounding task checks
+the predecessor's dated as-built audit, current deployed state, and approved decisions.
+
+| R1 requirement | Numbered implementation phase | Next implementation gate |
+| --- | --- | --- |
+| R1.1 — Shared data/consent/audit contract | [Phase 15 — Data, consent, and audit foundation](phase-15-data-consent-and-audit-foundation.md) | Phase 14 as-built evidence or an explicit sequencing amendment; then approved field/role/retention decisions and a fresh live-state audit. |
+| R1.2 — Identity and eligibility | [Phase 16 — Identity and minor eligibility](phase-16-identity-and-minor-eligibility.md) | Phase 15 as-built contract plus guardian, clinical, DPO/legal, abuse-control, and approved-wording decisions. |
+| R1.3 — Payment-authorised booking | [Phase 17 — PayMaya payment-authorised booking](phase-17-paymaya-payment-authorised-booking.md) | Phase 16 as-built predicate, official PayMaya material, and commercial/privacy/expiry/refund/reconciliation decisions. |
+| R1.4 — Google Meet and timing | [Phase 18 — Google Meet and session timing](phase-18-google-meet-and-session-timing.md) | Phase 17 as-built booked/payment state, Workspace/vendor validation, and clinical timing decisions. |
+| R1.5 — Support and launch operations | [Phase 19 — Support tickets and launch operations](phase-19-support-tickets-and-launch-operations.md) | Phase 15–18 as-built contracts plus support, role, retention, DPO/legal, finance/provider, and operations decisions. |
+| R1.5 — Integrated acceptance/release | [Phase 20 — Integrated launch verification and controlled release](phase-20-integrated-launch-verification-and-controlled-release.md) | All prior gates/evidence, production-baseline controls, named approvals, and company-owner go/no-go. |
 
 ## Continuation phases
 
@@ -98,13 +148,21 @@ pilot Phase 0–6 gates are closed:
 | [Phase 12 — Multi-factor authentication and privileged access](phase-12-mfa-and-privileged-access.md) | Second-factor enforcement, recovery/offboarding protection, and privileged-access verification. | Planned — owner role decision required |
 | [Phase 13 — Appointment outcomes and rescheduling](phase-13-appointment-outcomes-and-rescheduling.md) | Clinician-recorded outcomes, no-show handling, server-authoritative rescheduling, and status-aware history. | Planned — clinical and owner decisions required |
 | [Phase 14 — Doctor-managed availability and patient time selection](phase-14-doctor-managed-availability.md) | Clinician-owned weekday availability, 15-minute patient time choices, a two-week horizon, and server-authoritative conflict protection. | Planned — implementation must re-ground against the scheduling schema and RLS |
+| [Phase 15 — Data, consent, and audit foundation](phase-15-data-consent-and-audit-foundation.md) | Provider-neutral protected objects, active-state compatibility, RLS/functions, typed audit, and tests required by R1. | Planned — begins only from Phase 14 as-built evidence or an explicit sequencing amendment plus approved data decisions |
+| [Phase 16 — Identity and minor eligibility](phase-16-identity-and-minor-eligibility.md) | Adult eligibility, approved guardian consent/review, one booking/admission predicate, and safe status UI. | Planned — blocked on Phase 15 as-built and guardian/clinical/DPO/legal decisions |
+| [Phase 17 — PayMaya payment-authorised booking](phase-17-paymaya-payment-authorised-booking.md) | Reserved slots, `payment_pending`, provider attempts/events, verified webhook confirmation, and pending-payment UI. | Planned — blocked on Phase 16 as-built, official PayMaya material, and commercial/privacy policy |
+| [Phase 18 — Google Meet and session timing](phase-18-google-meet-and-session-timing.md) | Database-authoritative booked/eligible admission, approved Google Meet integration, scheduled end, and independent note timing. | Planned — blocked on Phase 17 as-built, Workspace/vendor validation, and clinical decisions |
+| [Phase 19 — Support tickets and launch operations](phase-19-support-tickets-and-launch-operations.md) | Patient-owned administrative support, audited operations, exception handling, retention controls, kill switches, and runbooks. | Planned — blocked on Phase 15–18 as-built and support/operations/privacy decisions |
+| [Phase 20 — Integrated launch verification and controlled release](phase-20-integrated-launch-verification-and-controlled-release.md) | Full synthetic acceptance, security/privacy/clinical/accessibility/performance evidence, restore/rollback exercises, approvals, and controlled activation. | Planned — blocked on all prior gates and company-owner go/no-go |
 
 Each step requires its own dated as-built audit before the next step is treated as complete. These
-steps remain synthetic-data-only and authorise no real accounts, appointments, or consultations.
+steps remain synthetic-data-only until the applicable gates close and authorise no real accounts,
+payments, appointments, consultations, or personal data merely by existing as plans.
 
-## Current position
+## Historical current position — 27 August baseline
 
-Updated 27 August 2026, following the first owner review.
+Updated 27 August 2026, following the first owner review. This snapshot is retained for the baseline
+record; [Launch Readiness R1](../launch-readiness/README.md) governs the 8 September changes.
 
 Six of the twelve register questions are answered in some form, four are partially answered, and two are deferred. The
 [pilot decision register](../../product/pilot-decision-register.md) records each decision along with

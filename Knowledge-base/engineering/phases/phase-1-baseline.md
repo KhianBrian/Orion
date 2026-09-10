@@ -8,6 +8,19 @@ Establish the environments, secret handling, delivery pipeline, migration proces
 backup and restore capability, and synthetic test-data policy that every later phase depends on
 mechanically. Nothing in Phases 2–6 can be built safely, reviewed, or rolled back without this.
 
+## R1 impact and work ownership — 10 September 2026
+
+R1 does not move the secure-platform baseline into the new numbered phases. Phase 1 remains the owner
+of environment separation, access register, secret handling, CI/CD, forward-only migrations,
+privacy-safe monitoring, backups, restore, and synthetic-data controls. Phases 15–20 consume these
+controls and must record the exact Phase 1 as-built evidence they used.
+
+The new launch features make the production boundary more important, not less: Q2 (legal entity and
+DPO) and Q9 (vendor/data-transfer approval) still block production accounts and real data. Phase 15
+may prepare additive migrations in the isolated synthetic environment; Phase 20 verifies the
+production-equivalent controls, restore, rollback, and release evidence. No R1 plan closes Phase 1 or
+authorises production provisioning by implication.
+
 ## Gate
 
 The delivery plan sets verification rather than a policy gate: a secret scan, a least-privilege access

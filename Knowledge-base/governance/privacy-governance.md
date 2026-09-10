@@ -24,6 +24,15 @@ Orion will hold health information.
 - Use purpose-limited, privacy-safe logs and prohibit sensitive values in observability, support tickets, and test artifacts.
 - Review every vendor for confidentiality, access, subprocessors, security, breach cooperation, deletion/return, audit support, and approved transfer terms.
 
+## R1 data boundaries
+
+Guardian-consent records, PayMaya payment records, Google Meet provider data, and support tickets are
+new processing activities. Before real use, the DPO/legal owner must approve their lawful basis,
+notice wording, data flows, readers, retention/deletion treatment, and vendor terms. A support ticket
+may contain personal data but must never be used to collect clinical notes, diagnosis, or care history.
+Neither a browser payment return nor a support ticket gives staff authority to alter a booking, payment,
+or clinical record.
+
 ## Clinical content
 
 Session notes are written by the psychiatrist after each session and become readable by the patient
