@@ -37,6 +37,9 @@ documentation, source files, or Git.
 | `20260831093502` | [`restrict_booking_rpc_to_edge_function.sql`](../../supabase/migrations/20260831093502_restrict_booking_rpc_to_edge_function.sql) | Restricts the privileged booking transaction to the Edge Function service role after the security advisor identified the direct authenticated-RPC surface. |
 | `20260831123836` | [`patient_appointment_cancellation.sql`](../../supabase/migrations/20260831123836_patient_appointment_cancellation.sql) | Adds the service-role-only patient cancellation transaction, cancellation idempotency, slot reopening, and cancellation audit event. |
 | `20260905090000` | [`safe_appointment_projection.sql`](../../supabase/migrations/20260905090000_safe_appointment_projection.sql) | Adds the authenticated, relationship-scoped `get_my_appointments()` projection with only appointment ID, times, status, and permitted counterpart display name. |
+| `20260910142221` | [`phase3_identity_auth_boundaries.sql`](../../supabase/migrations/20260910142221_phase3_identity_auth_boundaries.sql) | Fixes Auth-created profiles to the `patient` role and adds the service-role-only, admin-actor psychiatrist provisioning transaction. |
+| `20260910145812` | [`phase3_provisioning_service_role_fix.sql`](../../supabase/migrations/20260910145812_phase3_provisioning_service_role_fix.sql) | Removes a hosted PostgREST request-GUC check that rejected legitimate service-role calls while retaining service-role-only grants and the admin-actor check. |
+| `20260910145906` | [`phase3_provisioning_conflict_fix.sql`](../../supabase/migrations/20260910145906_phase3_provisioning_conflict_fix.sql) | Qualifies the psychiatrist upsert conflict target through its unique constraint so the returned `profile_id` name cannot cause ambiguity. |
 
 The local filenames intentionally match the remote migration history. Never edit either migration after
 application; create a new forward migration for every correction.
@@ -79,3 +82,30 @@ deployed through the JWT-protected `cancel-appointment` Edge Function and verifi
 database and browser tests. Video admission and production configuration remain future work. Hosted Auth leaked-password protection is still
 disabled because this project remains on Supabase Free; revisit it before broader password-account
 use or a paid-plan transition.
+
+## Phase 3 identity boundary — 10 September 2026
+
+The Phase 3 migration keeps patient self-registration fixed to the `patient` role and adds the
+server-only `provision_psychiatrist` database function. The deployed `provision-psychiatrist` Edge
+Function verifies the caller is an admin, invites the target Auth user, sends the invitation back to
+the allowlisted app confirmation route, creates or updates the psychiatrist record as immediately
+trusted and active, and removes the invited Auth user if database provisioning fails. The invited
+psychiatrist sets a password after accepting the invitation. There is no psychiatrist approval or
+pending state; `is_active` remains the visibility and bookability switch.
+
+The React client provides registration, confirmation, recovery, and the protected admin provisioning
+surface. Booking also checks `email_confirmed_at` inside the JWT-protected Edge Function, so a project
+configuration mistake cannot allow an unconfirmed patient to book.
+
+Supabase's hosted email provider is suitable for controlled testing only: its documented limit is two
+emails per hour per project across confirmation, recovery, resend, and invitation messages. Keep live
+smoke testing quota-aware, use mocked/browser tests for repeated cases, and configure allowlisted
+redirect URLs. Use custom SMTP before broader real-user testing.
+
+For local email testing, `supabase/config.toml` enables signup and confirmation, allowlists the local
+app routes, points Auth mail to Mailpit, and raises only the local email bucket. Patient signup is
+code-first: the local confirmation template displays `{{ .Token }}`, and the app verifies it with
+Supabase OTP verification on the original Orion tab. The link callback remains supported as a
+fallback, while psychiatrist invitations remain link-based because they also begin the password-setup
+flow. Start the local stack with `supabase start`, then inspect captured messages at
+`http://localhost:54324`; the local stack is not public and does not change the hosted project's quota.

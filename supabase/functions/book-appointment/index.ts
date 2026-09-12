@@ -39,6 +39,7 @@ Deno.serve(async (request) => {
 
   const { data: userData, error: userError } = await callerClient.auth.getUser();
   if (userError || !userData.user) return response({ error: "booking_not_permitted" }, 401);
+  if (!userData.user.email_confirmed_at) return response({ error: "email_not_confirmed" }, 403);
 
   const serviceClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",

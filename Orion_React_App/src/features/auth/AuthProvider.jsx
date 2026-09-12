@@ -119,9 +119,52 @@ export function AuthProvider({ children }) {
 
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error || !data.user) {
+        if (error?.code === "email_not_confirmed") {
+          return { error: "Please confirm your email address before signing in." };
+        }
         return { error: "The email or password is incorrect." };
       }
 
+      const profile = await loadAuthenticatedUser(data.user);
+      return profile ? { profile } : { error: "We could not load your Orion account. Please contact the administrator." };
+    },
+    async signUp(email, password, fullName) {
+      if (!supabase) return { error: "Sign-up is not configured for this environment." };
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName.trim() },
+          emailRedirectTo: `${window.location.origin}/auth/confirm`,
+        },
+      });
+      if (error) return { error: "We could not create your account. Please check your details and try again." };
+
+      if (data.user && data.session) await loadAuthenticatedUser(data.user);
+      return { requiresEmailConfirmation: !data.session };
+    },
+    async resendConfirmation(email) {
+      if (!supabase) return { error: "Email confirmation is not configured for this environment." };
+      const { error } = await supabase.auth.resend({ type: "signup", email });
+      return error ? { error: "We could not resend the confirmation email. Please try again later." } : {};
+    },
+    async requestPasswordReset(email) {
+      if (!supabase) return { error: "Password recovery is not configured for this environment." };
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      return error ? { error: "We could not send a password reset email. Please try again later." } : {};
+    },
+    async updatePassword(password) {
+      if (!supabase) return { error: "Password recovery is not configured for this environment." };
+      const { error } = await supabase.auth.updateUser({ password });
+      return error ? { error: "We could not update your password. Please request a new reset email." } : {};
+    },
+    async verifyEmail(email, token) {
+      if (!supabase) return { error: "Email confirmation is not configured for this environment." };
+      const { data, error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
+      if (error || !data.user) return { error: "That confirmation code is invalid or has expired." };
       const profile = await loadAuthenticatedUser(data.user);
       return profile ? { profile } : { error: "We could not load your Orion account. Please contact the administrator." };
     },

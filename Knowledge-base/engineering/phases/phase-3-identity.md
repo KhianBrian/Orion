@@ -7,37 +7,72 @@ by the 8 September register amendment. R1.2, not a silent edit to this dated Tie
 the adult and minor/guardian-consent registration paths, the non-bookable pending state, and the
 approved consent-document dependency. Until R1.2 exists, this phase does not authorise a minor flow.
 
+## Owner correction — 10 September 2026
+
+Psychiatrists do not require approval or a pending state. Admins provision psychiatrist accounts
+through the protected backend path, and developers may use the server-side provisioning tooling. A
+newly provisioned psychiatrist is trusted immediately; the existing `is_active` field remains the
+operational switch for visibility and bookability. The application must not expose psychiatrist
+self-registration, and only admins may provision accounts through the application.
+
 ## R1 impact and work ownership — 10 September 2026
 
-The current target now includes public adult registration, a non-bookable minor pending state, a
-guardian-consent review path, invitation-only psychiatrist provisioning, and versioned
-consents. The existing Phase 3 plan must not be read as permission to build a minor path before
-those R1.2 decisions and approved wording exist.
+The current target includes public adult registration, a non-bookable minor pending state, a
+guardian-consent review path, admin-only psychiatrist provisioning, and versioned consents. The
+existing Phase 3 plan must not be read as permission to build a minor path before those R1.2
+decisions and approved wording exist.
 
 Phase 3 remains responsible for the core identity replacement: Supabase Auth, secure recovery,
-server-held roles, clinician provisioning/approval, removal of mock identity paths, and role-aware
+server-held roles, admin-only clinician provisioning, removal of mock identity paths, and role-aware
 routes. [Phase 16](phase-16-identity-and-minor-eligibility.md) owns the R1 eligibility and
 guardian-consent behavior, including the server-held booking/admission predicate. The two phases
 must share one profile/role/provisioning boundary; Phase 16 must not create a second identity system.
 
-**Tier 2 status:** Planned 27 August 2026. The implementation plan is below the charter and is written against the prototype as it stands; it must be re-grounded against the Phase 2 as-built schema before work starts.
+**Tier 2 status:** Completed — 12 September 2026. The core identity replacement, deployed boundary,
+automated verification, and local Mailpit email flow are complete. Hosted SMTP customization and the
+full email-consuming hosted Auth suite are intentionally deferred to
+[deferredpostdevelopment.md](deferredpostdevelopment.md).
+
+The historical approval workflow described in P3-4 and P3-5 below is superseded by the owner
+correction above. Do not add approval columns, approval functions, approval UI, or approval tests.
 
 ## Purpose
 
 Replace the prototype's mocked identity with real authentication: Supabase Auth, patient
-self-registration, invitation-only clinician provisioning, an approval period before a
-psychiatrist becomes bookable, secure recovery, and role-aware routes. Multi-factor authentication is
+self-registration, admin-only clinician provisioning, trusted psychiatrist records, secure recovery,
+and role-aware routes. Multi-factor authentication is
 handled as a separate Phase 12 security hardening phase. Remove every prototype identity mechanism in
 the same transition.
 
 ## Gate
 
-Legacy authentication never coexists with real accounts. This is a removal gate as much as a build
-gate — the phase is not closed while a mock path still functions.
+Legacy authentication never coexists with real accounts. This removal gate is satisfied: the active
+application uses Supabase Auth and no mock identity path remains. Deferred hosted email infrastructure
+does not reopen this completed implementation gate.
+
+## Verification completed and post-development deferral
+
+The first pass is a code and automated review of the complete identity flow: registration, email
+confirmation, sign-in, recovery, route guards, admin-only psychiatrist provisioning, booking's
+server-side confirmation check, RLS boundaries, and browser-storage inspection. It must catch missing
+handlers, incorrect redirects, unsafe role changes, and misleading error messages without sending
+email or creating disposable accounts.
+
+The controlled live smoke pass uses only synthetic accounts in the non-production project. Supabase's
+hosted email provider allows two emails per hour across confirmation, recovery, resend, and invitation
+messages, so the test operator records the email budget before starting and stops when the budget is
+spent. One window can test a patient confirmation and an admin psychiatrist invitation; recovery,
+resend, and alternate-link tests must be scheduled in later windows. Repeated cases belong in mocked
+or local browser tests. Do not use real patient or clinician data.
+
+The real-user and hosted email-infrastructure work stays separate from this completed phase and is
+recorded in [deferredpostdevelopment.md](deferredpostdevelopment.md). It requires custom SMTP,
+confirmed hosted templates and redirects, approved operating controls, synthetic test identities, and
+owner acceptance of the resulting post-development audit record.
 
 ## Consumes
 
-- **Phase 2 as-built:** the profile and clinician-approval tables, the three-role model, and the RLS predicates that route guards must align with.
+- **Phase 2 as-built:** the profile and clinician-provisioning tables, the three-role model, and the RLS predicates that route guards must align with.
 - **Phase 1 as-built:** secret management for auth configuration and any server-side provisioning.
 
 ## Owner decisions now available
@@ -45,24 +80,22 @@ gate — the phase is not closed while a mock path still functions.
 | Decision | Effect on this phase |
 | --- | --- |
 | **Q1 — patients self-register, no cap** | Public registration and login at initial launch with no active-patient cap. Sign-up must establish adults-only eligibility itself, since there is no invitation vetting to rely on. The approved geography and operating-review cadence remain to be set. |
-| **Q1 and Q3 — clinicians do not self-register** | Psychiatrist accounts are created by invitation or provisioning only, then pass an approval period before becoming bookable or seeing any patient data. |
+| **Q1 and Q3 — clinicians do not self-register** | Psychiatrist accounts are created by admin invitation or backend provisioning only and are trusted immediately. `is_active` controls visibility and bookability. |
 | **Q4 — adults only, no emergency care** | Sign-up screens for adult eligibility, refuses ineligible applicants, and routes them to the approved crisis and referral information. |
 | **Q7 — three consents** | Sign-up will eventually capture three separate versioned acknowledgements, each independently withdrawable. Consent capture is deferred until the broader feature set is developed. |
 
 ## Still open, but not blocking
 
-**Q3** — who performs psychiatrist approval, and against what verification criteria. The approval
-*mechanism* is confirmed, so the state model and the workflow can be built. Only the identity of the
-approver and the criteria checklist remain, and both can be configured rather than hard-coded. Do not
-assume the approver is the admin role; leave it assignable.
+The psychiatrist approval question is closed by the owner correction: there is no approval workflow.
+Only the backend/admin provisioning boundary and the existing operational `is_active` behavior apply.
 
 ## Deliverables
 
 - Supabase Auth as the sole authentication mechanism.
-- Patient self-registration with adults-only eligibility established at sign-up and a refusal path that shows approved crisis and referral information.
-- Clinician accounts created by invitation or provisioning only, never by self-sign-up.
-- A psychiatrist approval workflow gating bookability and all patient data access, with an assignable approver.
-- Secure account recovery that cannot be used to escalate role, bypass approval, or bypass verification.
+- Patient self-registration with the R1.2 eligibility boundary integrated when that phase is ready.
+- Clinician accounts created by admin invitation or server-side provisioning only, never by self-sign-up.
+- Trusted psychiatrist records created immediately by the protected admin/backend provisioning path; `is_active` controls visibility and bookability.
+- Secure account recovery that cannot be used to escalate role or bypass email verification.
 - Role-aware routing for all three roles, derived from server-held role facts.
 - Multi-factor authentication is handled in Phase 12; this phase integrates with its completed identity and recovery controls.
 - **Removals, each verified absent:** fake email-derived roles, mock tokens, Redux-persisted sensitive state, duplicate API clients, and local mock profile data.
@@ -97,7 +130,7 @@ Verify the current state of each rather than trusting the ledger's description; 
 
 How caller identity reaches the server determines Phase 4's authorisation model and Phase 5's
 derivation of video participant tokens. The as-built entry should record exactly how a server function
-establishes who is calling, and how the clinician approval state is checked.
+establishes who is calling, how admin provisioning is checked, and how `is_active` is enforced.
 
 ## Constraints carried from policy
 
@@ -184,8 +217,8 @@ prototype on 27 August 2026 and the demo was scheduled to change it.
 The demo establishes server-held roles, one Supabase client, and route guards. This phase adds
 everything about identity that the demo does not need because its accounts arrive by seed:
 
-registration, invitation and provisioning, the psychiatrist approval workflow, account recovery,
-consent capture, and uncapped public registration. MFA enforcement is explicitly
+registration, admin-only invitation and provisioning, account recovery, consent capture, and uncapped public
+registration. MFA enforcement is explicitly
 handed off to Phase 12.
 
 ## Work breakdown
@@ -204,11 +237,12 @@ consistent; it is not an authorisation boundary. RLS and Edge Functions still de
 and privileged state change, and tests must demonstrate that a manipulated browser ability cannot
 obtain unauthorised data.
 
-**Removals completed in this phase, each verified absent afterwards:** the email-derived role logic
-and its on-screen hint; the dummy token minting; `redux-persist` and the persisted auth slice;
-Redux itself once nothing else uses it; all six API-layer files; and `Sidebar.jsx`. The gate is that
-legacy authentication never coexists with real accounts, so "removed" means the file is gone and the
-dependency is uninstalled, not that the path is unreachable.
+The active email-derived role logic, dummy token minting, and persisted auth slice are removed from
+the login flow. The broader deletion of the six unused API-layer files, `Sidebar.jsx`, and any other
+prototype-only files is deferred to [deferredpostdevelopment.md](deferredpostdevelopment.md) until
+the wider feature set is further developed and each deletion can be rechecked against imports and
+routes. The final removal gate still requires that legacy authentication never coexists with real
+accounts.
 
 ### P3-2 — Patient self-registration
 
@@ -230,13 +264,16 @@ operating-review cadence remains an owner decision under Q1.
 
 ### P3-4 — Provisioning for psychiatrists
 
-- Created by invitation or provisioning only, never by self-sign-up, per Q1 and Q3. The provisioning function is the Phase 2 one; this phase supplies the invitation flow and the admin surface.
+- Created by admin invitation or backend provisioning only, never by self-sign-up, per Q1 and Q3. The provisioning function is a new protected Phase 3 boundary; it must not reuse the synthetic demo-only path. The invited psychiatrist accepts the link and sets a password before using the account.
 - **No self-service path may exist to the psychiatrist role.** This is not the same as not offering one on a screen — it means the registration path cannot produce anything but a patient, whatever it is sent.
-- Provisioned roles are prepared for MFA enrollment; enforcement is delivered by [Phase 12](phase-12-mfa-and-privileged-access.md).
+- Provisioned roles are trusted immediately and prepared for MFA enrollment; enforcement is delivered by [Phase 12](phase-12-mfa-and-privileged-access.md).
 
-### P3-5 — The psychiatrist approval workflow
+### P3-5 — The psychiatrist approval workflow (superseded)
 
-- Approval gates bookability **and all patient data access**. An unapproved psychiatrist is not a psychiatrist with fewer permissions; they read nothing.
+This historical subsection is retained for traceability only. No approval workflow, pending state,
+assignable approver, or verification checklist is part of the current Phase 3 implementation.
+
+- Approval gates bookability **and all patient data access**. This requirement is superseded by the owner correction: admin provisioning establishes trust immediately, while `is_active` controls visibility and bookability.
 - The approver is an assignable identity, not a hard-coded role. The charter is explicit: do not assume the approver is the admin. Q3 leaves both the approver and the verification criteria open, and both are configuration.
 - The criteria checklist is data, so that recording *what was verified* does not require a deploy when the criteria change. Verification evidence itself is not stored in Orion — the [data dictionary](../../governance/data-classification-and-data-dictionary.md#classification) keeps private verification records out of the psychiatrist profile.
 - Approval and revocation are audited transitions, per [access control and audit policy](../../architecture/access-control-and-audit-policy.md#audit-events).
@@ -249,7 +286,7 @@ the identity and recovery interfaces ready for MFA, but does not implement or cl
 ### P3-7 — Account recovery
 
 Recovery must not become the escalation path that the rest of this phase closes. Specifically, it
-cannot be used to change a role, to bypass the psychiatrist approval state, or to bypass verification.
+cannot be used to change a role or bypass email verification.
 The role is read from the profile after recovery like at any other sign-in — never re-derived, never
 carried in the recovery link. Recovery events are audited.
 
@@ -288,8 +325,8 @@ The gate is that legacy authentication never coexists with real accounts.
 | Role never client-derived | A test that a manipulated client cannot obtain a role it was not granted — the authority is the profile row, and the deny is at the data boundary. |
 | Three-role routing | Playwright allow and deny per role, per [QA and Playwright](../qa-and-playwright.md#required-coverage), desktop and mobile for patient-facing flows. |
 | Provisioning is closed | The registration path cannot produce a psychiatrist or an admin under any input. |
-| Approval gates access | An unapproved psychiatrist reads no patient data and does not appear bookable. |
-| Recovery cannot escalate | Recovery does not alter role, approval state, or verification state. |
+| Provisioning establishes trust | Only the protected admin/backend path can create a psychiatrist role; the new record is trusted immediately, and `is_active` controls visibility and bookability. |
+| Recovery cannot escalate | Recovery does not alter role or email-verification state. |
 
 ## Policy gaps this plan did not fill
 
@@ -298,13 +335,13 @@ The gate is that legacy authentication never coexists with real accounts.
 | Approved geography and operating-review cadence (Q1) | Company owners | No capacity gate is built. Registration remains public, with monitoring and scaling work triggered by real activity. |
 | Minor/guardian pathway, including age and identity/relationship assurance | Clinical lead, company owners, and DPO/legal owner | R1.2 owns the flow. No minor may become bookable until its approval conditions are recorded. |
 | Approved crisis and referral content | Clinical lead | The refusal surface is built; it renders nothing until approved content exists. |
-| Psychiatrist approver and verification criteria (Q3) | Company owners with clinical lead | Approver assignable, criteria stored as data. |
+| Psychiatrist provisioning authority (Q3) | Company owners with clinical lead | Admin-only app provisioning and server-side developer tooling are defined; no approval queue or pending state is required. |
 | MFA role scope and enforcement | Phase 12 | Phase 3 exposes the identity/recovery boundary; Phase 12 enforces the owner-selected roles. |
 | Consent wording (Q7) | Company owners, with DPO and clinical review | Mechanism built, no version seeded, sign-up cannot complete without approved wording. |
 
 ## Inputs I did not have
 
-1. **The Phase 2 as-built schema.** This plan is written against Phase 2's proposal — the profile trigger, the approval state, the consent tables, the role type. Re-ground every reference against what was actually built; the charter is right that this phase's code is written directly against it.
+1. **The Phase 2 as-built schema.** This plan is written against Phase 2's proposal — the profile trigger, the clinician records, the consent tables, and the role type. Re-ground every reference against what was actually built; the charter is right that this phase's code is written directly against it.
 2. **Whether the demo milestone has run**, which determines how much of the removal inventory still exists.
 3. **Whether the prototype has changed since 27 August 2026.** The inventory above is a point-in-time reading.
 4. **The approved geography and operating-review cadence under Q1.** These define the real-user launch boundary, not registration capacity.

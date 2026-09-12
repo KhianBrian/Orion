@@ -16,6 +16,7 @@
     "test:db:cancellation": "node scripts/test-cancellation-db.mjs",
     "test:db:rls": "node scripts/test-rls-db.mjs",
     "test:db:phase2": "node scripts/test-phase2-db.mjs",
+    "test:auth:no-email": "node --env-file=.env scripts/test-phase3-auth-no-email.mjs",
     "seed:human-checks": "node --env-file=.env scripts/seed-human-checks.mjs",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report"
@@ -31,6 +32,7 @@
     "react-toastify": "^11.0.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^9.39.1",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/vite": "^4.1.18",

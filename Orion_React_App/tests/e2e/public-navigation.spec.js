@@ -35,6 +35,11 @@ test.describe("public navigation", () => {
     await expect(page).toHaveURL(/\/login$/);
   });
 
+  test("a visitor is redirected before reaching the admin route", async ({ page }) => {
+    await page.goto("/dashboard");
+    await expect(page).toHaveURL(/\/login$/);
+  });
+
   test("the signed-out navigation contains only approved public destinations", async ({ page }) => {
     for (const [path, heading] of [["/contact", "We are here to help"], ["/services", "Guidance for your next step"], ["/blog", "Experiences and reflections"]]) {
       await page.goto(path);
@@ -54,5 +59,25 @@ test.describe("public navigation", () => {
     await expect(password).toHaveAttribute("type", "text");
     await expect(password).toHaveValue("test-password");
     await expect(page.getByRole("button", { name: "Hide password" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  test("registration and recovery pages are reachable without submitting email requests", async ({ page }) => {
+    await page.goto("/register");
+    await expect(page.getByRole("heading", { name: "Create your Orion account" })).toBeVisible();
+    await expect(page.getByLabel("Full name")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+
+    await page.goto("/forgot-password");
+    await expect(page.getByRole("heading", { name: "Reset your password" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Send reset email" })).toBeVisible();
+  });
+
+  test("email confirmation and password reset routes are public but do not grant access by themselves", async ({ page }) => {
+    await page.goto("/confirm-email");
+    await expect(page.getByRole("heading", { name: "Confirm your email" })).toBeVisible();
+
+    await page.goto("/reset-password");
+    await expect(page.getByRole("heading", { name: "Choose a new password" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Update password" })).toBeDisabled();
   });
 });
