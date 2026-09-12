@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createClient } from "@supabase/supabase-js";
+import { nextWeekdayStart } from "./scheduling-test-helpers.mjs";
 
 try {
   process.loadEnvFile(".env");
@@ -57,8 +58,7 @@ const [expectedPatientProfile, expectedPsychiatrist] = await Promise.all([
 
 const slotId = crypto.randomUUID();
 let appointmentId;
-const start = new Date(Date.now() + 35 * 24 * 60 * 60 * 1000);
-start.setUTCMinutes(0, 0, 0);
+const start = nextWeekdayStart({ daysAhead: 7 });
 
 try {
   await required(service.from("availability_slots").insert({

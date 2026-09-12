@@ -44,11 +44,13 @@ async function createIsolatedSlot(psychiatristEmail, projectName, hoursAhead = 7
     "load active synthetic psychiatrist",
   );
 
-  const start = new Date(Date.now() + hoursAhead * 60 * 60 * 1000);
-  start.setUTCMinutes(0, 0, 0);
-  start.setUTCHours(projectName === "chromium" ? 1 : 3);
+  const candidate = new Date(Date.now() + Math.min(hoursAhead, 10 * 24) * 60 * 60 * 1000);
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Manila", year: "numeric", month: "numeric", day: "numeric" }).formatToParts(candidate).filter((part) => part.type !== "literal").map((part) => [part.type, Number(part.value)]));
+  const localDate = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
+  while ([0, 6].includes(localDate.getUTCDay())) localDate.setUTCDate(localDate.getUTCDate() + 1);
+  const localHour = projectName === "chromium" ? 9 : 11;
   for (let attempt = 0; attempt < 12; attempt += 1) {
-    const startsAt = new Date(start.getTime() + attempt * 2 * 60 * 60 * 1000);
+    const startsAt = new Date(Date.UTC(localDate.getUTCFullYear(), localDate.getUTCMonth(), localDate.getUTCDate(), localHour, attempt * 15) - (8 * 60 * 60 * 1000));
     const id = crypto.randomUUID();
     const { error } = await service.from("availability_slots").insert({
       id,
@@ -79,6 +81,19 @@ async function signIn(page, email, password) {
   await page.getByRole("textbox", { name: "Password" }).fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(/\/app$/);
+}
+
+async function chooseAvailableTime(page, displayName) {
+  await page.getByRole("button", { name: displayName, exact: true }).click();
+  const dates = page.locator(".date-card");
+  const slots = page.getByLabel("Open appointment slots").locator("article");
+  for (let index = 0; index < await dates.count(); index += 1) {
+    await dates.nth(index).click();
+    if (await slots.filter({ hasText: displayName }).count()) {
+      return slots.filter({ hasText: displayName }).last();
+    }
+  }
+  throw new Error(`No available time found for ${displayName} in the two-week booking horizon`);
 }
 
 test.describe("database-backed scheduling", () => {
@@ -154,9 +169,9 @@ test.describe("database-backed scheduling", () => {
 
     await expect(page.getByRole("heading", { name: "Book an appointment" })).toBeVisible();
     await assertNoSeriousViolations(page);
-    const psychiatristSlot = page.getByLabel("Open appointment slots").locator("article").filter({ hasText: users.psychiatrist.displayName }).last();
-    await expect(psychiatristSlot.getByRole("button", { name: "Choose this slot" })).toBeVisible();
-    await psychiatristSlot.getByRole("button", { name: "Choose this slot" }).click();
+    const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName);
+    await expect(psychiatristSlot.getByRole("button", { name: "Choose this time" })).toBeVisible();
+    await psychiatristSlot.getByRole("button", { name: "Choose this time" }).click();
     await page.getByRole("button", { name: "Confirm booking" }).click();
     await expect(page.getByRole("heading", { name: "You’re all set." })).toBeVisible();
 
@@ -175,8 +190,8 @@ test.describe("database-backed scheduling", () => {
       slotId = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name);
       await signIn(page, users.patient.email, users.patient.password);
       await page.getByRole("main").getByRole("link", { name: "Book an appointment" }).click();
-      const psychiatristSlot = page.getByLabel("Open appointment slots").locator("article").filter({ hasText: users.psychiatrist.displayName }).last();
-      await psychiatristSlot.getByRole("button", { name: "Choose this slot" }).click();
+      const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName);
+      await psychiatristSlot.getByRole("button", { name: "Choose this time" }).click();
       await page.getByRole("button", { name: "Confirm booking" }).click();
       await expect(page.getByRole("heading", { name: "You’re all set." })).toBeVisible();
 
@@ -216,8 +231,8 @@ test.describe("database-backed scheduling", () => {
       slotId = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name);
       await signIn(page, users.patient.email, users.patient.password);
       await page.getByRole("main").getByRole("link", { name: "Book an appointment" }).click();
-      const psychiatristSlot = page.getByLabel("Open appointment slots").locator("article").filter({ hasText: users.psychiatrist.displayName }).last();
-      await psychiatristSlot.getByRole("button", { name: "Choose this slot" }).click();
+      const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName);
+      await psychiatristSlot.getByRole("button", { name: "Choose this time" }).click();
       await page.getByRole("button", { name: "Confirm booking" }).click();
       await expect(page.getByRole("heading", { name: "You’re all set." })).toBeVisible();
 
@@ -250,8 +265,8 @@ test.describe("database-backed scheduling", () => {
       slotId = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name, 12);
       await signIn(page, users.patient.email, users.patient.password);
       await page.getByRole("main").getByRole("link", { name: "Book an appointment" }).click();
-      const psychiatristSlot = page.getByLabel("Open appointment slots").locator("article").filter({ hasText: users.psychiatrist.displayName }).last();
-      await psychiatristSlot.getByRole("button", { name: "Choose this slot" }).click();
+      const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName);
+      await psychiatristSlot.getByRole("button", { name: "Choose this time" }).click();
       await page.getByRole("button", { name: "Confirm booking" }).click();
       await expect(page.getByRole("heading", { name: "You’re all set." })).toBeVisible();
 

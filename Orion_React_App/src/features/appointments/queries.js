@@ -1,9 +1,10 @@
 import { supabase } from "../../lib/supabase";
 
 export const appointmentQueryKey = (accountId) => ["appointments", accountId];
-export const openAvailabilityQueryKey = ["availability", "open"];
 export const rescheduleRequestQueryKey = (accountId) => ["reschedule-requests", accountId];
 export const sessionNotesQueryKey = (accountId) => ["session-notes", accountId];
+export const psychiatristsQueryKey = ["psychiatrists", "active"];
+export const patientAvailabilityQueryKey = (psychiatristId, localDate) => ["availability", psychiatristId, localDate];
 
 export async function fetchAppointments() {
   const { data, error } = await supabase.rpc("get_my_appointments_detailed");
@@ -30,14 +31,15 @@ export async function fetchSessionNoteIndex() {
   return data?.notes || [];
 }
 
-export async function fetchOpenAvailability() {
-  const { data, error } = await supabase
-    .from("availability_slots")
-    .select("id, starts_at, ends_at, psychiatrist:psychiatrists!availability_slots_psychiatrist_id_fkey(display_name)")
-    .eq("status", "open")
-    .gt("starts_at", new Date().toISOString())
-    .order("starts_at", { ascending: true });
+export async function fetchActivePsychiatrists() {
+  const { data, error } = await supabase.from("psychiatrists").select("id, display_name").eq("is_active", true).order("display_name");
+  if (error) throw error;
+  return data || [];
+}
 
+export async function fetchPatientAvailability({ queryKey }) {
+  const [, psychiatristId, localDate] = queryKey;
+  const { data, error } = await supabase.rpc("get_patient_availability", { target_psychiatrist_id: psychiatristId, target_date: localDate });
   if (error) throw error;
   return data || [];
 }

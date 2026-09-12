@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createClient } from "@supabase/supabase-js";
+import { nextWeekdayStart } from "./scheduling-test-helpers.mjs";
 
 try {
   process.loadEnvFile(".env");
@@ -45,9 +46,9 @@ assert.ok(patients.length >= 2, "two synthetic patients are required for ownersh
 
 const now = Date.now();
 const fixtures = [
-  { slotId: ids.successSlot, appointmentId: ids.successAppointment, startsAt: new Date(now + 72 * 60 * 60 * 1000), patientId: patients[0].id },
+  { slotId: ids.successSlot, appointmentId: ids.successAppointment, startsAt: nextWeekdayStart({ daysAhead: 3 }), patientId: patients[0].id },
   { slotId: ids.insideSlot, appointmentId: ids.insideAppointment, startsAt: new Date(now + 12 * 60 * 60 * 1000), patientId: patients[0].id },
-  { slotId: ids.concurrentSlot, appointmentId: ids.concurrentAppointment, startsAt: new Date(now + 96 * 60 * 60 * 1000), patientId: patients[0].id },
+  { slotId: ids.concurrentSlot, appointmentId: ids.concurrentAppointment, startsAt: nextWeekdayStart({ daysAhead: 4, hour: 11 }), patientId: patients[0].id },
 ];
 
 try {

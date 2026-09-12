@@ -13,6 +13,8 @@ import AccountHome from "../pages/AccountHome";
 import Appointments from "../pages/Appointments";
 import PatientAppointment from "../pages/PatientAppointment";
 import AdminAppointments from "../pages/AdminAppointments";
+import PsychiatristSchedule from "../pages/PsychiatristSchedule";
+import AdminSchedules from "../pages/AdminSchedules";
 import { RequireAbility, RequireAuth } from "../features/auth/RouteGuards";
 import { AuthenticatedShell } from "../features/auth/AuthenticatedShell";
 import { ROUTES, SUBJECTS } from "../constants/routes";
@@ -25,12 +27,14 @@ const ProvisionPsychiatrist = lazy(() => import("../features/admin/ProvisionPsyc
 const protectedFeatureRoutes = [
   { path: ROUTES.ADMINISTRATION.slice(1), subject: SUBJECTS.ADMINISTRATION, element: <ProvisionPsychiatrist /> },
   { path: ROUTES.ADMIN_APPOINTMENTS.slice(1), subject: SUBJECTS.ADMIN_APPOINTMENTS, element: <AdminAppointments /> },
+  { path: ROUTES.ADMIN_SCHEDULES.slice(1), subject: SUBJECTS.ADMIN_SCHEDULES, element: <AdminSchedules /> },
 ];
 
 const authenticatedAppRoutes = [
   { path: ROUTES.APP.slice(1), element: <AccountHome /> },
   { element: <RequireAbility action="visit" subject={SUBJECTS.BOOKING} />, children: [{ path: ROUTES.BOOKING.slice(1), element: <PatientAppointment /> }] },
   { element: <RequireAbility action="visit" subject={SUBJECTS.APPOINTMENTS} />, children: [{ path: ROUTES.APPOINTMENTS.slice(1), element: <Appointments /> }] },
+  { element: <RequireAbility action="visit" subject={SUBJECTS.SCHEDULE} />, children: [{ path: ROUTES.SCHEDULE.slice(1), element: <PsychiatristSchedule /> }] },
   ...protectedFeatureRoutes.map(({ path, subject, element }) => ({ element: <RequireAbility action="visit" subject={subject} />, children: [{ path, element }] })),
 ];
 
