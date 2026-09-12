@@ -17,6 +17,7 @@ const About = () => {
               src="/images/maammarwen.jpeg"
               alt="Marwen A. Casteñada - Founder"
               className="founder-image"
+              loading="lazy"
             />
           </div>
 

@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { assertNoSeriousViolations } from "./helpers/accessibility.js";
 
 const enabled = process.env.RUN_SCHEDULING_E2E === "1";
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -33,7 +34,7 @@ async function required(query, label) {
   return data;
 }
 
-async function createIsolatedSlot(psychiatristEmail, projectName) {
+async function createIsolatedSlot(psychiatristEmail, projectName, hoursAhead = 75 * 24) {
   const { data: users, error: usersError } = await service.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (usersError) throw new Error(`load synthetic users: ${usersError.message}`);
   const psychiatristUser = users.users.find((user) => user.email === psychiatristEmail);
@@ -43,7 +44,7 @@ async function createIsolatedSlot(psychiatristEmail, projectName) {
     "load active synthetic psychiatrist",
   );
 
-  const start = new Date(Date.now() + 75 * 24 * 60 * 60 * 1000);
+  const start = new Date(Date.now() + hoursAhead * 60 * 60 * 1000);
   start.setUTCMinutes(0, 0, 0);
   start.setUTCHours(projectName === "chromium" ? 1 : 3);
   for (let attempt = 0; attempt < 12; attempt += 1) {
@@ -132,6 +133,17 @@ test.describe("database-backed scheduling", () => {
     await page.getByRole("link", { name: "Account", exact: true }).click();
     await expect(page).toHaveURL(/\/app$/);
     await expect(page.getByTestId("authenticated-shell")).toBeVisible();
+    await assertNoSeriousViolations(page);
+  });
+
+  test("the meeting route uses a focused layout without the authenticated shell", async ({ page }, testInfo) => {
+    const users = syntheticUsers[testInfo.project.name];
+    await signIn(page, users.patient.email, users.patient.password);
+    await page.goto("/appointments/00000000-0000-4000-8000-000000000000/meeting");
+    await expect(page.getByText("For scheduled appointments only.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Leave call" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Meeting unavailable" })).toBeVisible();
+    await expect(page.getByTestId("authenticated-shell")).toHaveCount(0);
   });
 
   test("a patient books a slot and the assigned psychiatrist can view appointments", async ({ page }, testInfo) => {
@@ -141,6 +153,7 @@ test.describe("database-backed scheduling", () => {
     await page.getByRole("main").getByRole("link", { name: "Book an appointment" }).click();
 
     await expect(page.getByRole("heading", { name: "Book an appointment" })).toBeVisible();
+    await assertNoSeriousViolations(page);
     const psychiatristSlot = page.getByLabel("Open appointment slots").locator("article").filter({ hasText: users.psychiatrist.displayName }).last();
     await expect(psychiatristSlot.getByRole("button", { name: "Choose this slot" })).toBeVisible();
     await psychiatristSlot.getByRole("button", { name: "Choose this slot" }).click();
@@ -151,24 +164,106 @@ test.describe("database-backed scheduling", () => {
     await page.getByRole("main").getByRole("link", { name: "My appointments" }).click();
     await expect(page.getByRole("heading", { name: "Assigned appointments" })).toBeVisible();
     await expect(page.getByLabel("Appointments").getByRole("heading", { level: 3 }).first()).not.toHaveText("Assigned patient appointment");
+    await assertNoSeriousViolations(page);
   });
 
   test("a patient can cancel a booked appointment", async ({ page }, testInfo) => {
     test.setTimeout(60_000);
     const users = syntheticUsers[testInfo.project.name];
-    await signIn(page, users.patient.email, users.patient.password);
-    await page.getByRole("main").getByRole("link", { name: "My appointments" }).click();
-    await expect(page.getByRole("heading", { name: "My appointments" })).toBeVisible();
+    let slotId;
+    try {
+      slotId = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name);
+      await signIn(page, users.patient.email, users.patient.password);
+      await page.getByRole("main").getByRole("link", { name: "Book an appointment" }).click();
+      const psychiatristSlot = page.getByLabel("Open appointment slots").locator("article").filter({ hasText: users.psychiatrist.displayName }).last();
+      await psychiatristSlot.getByRole("button", { name: "Choose this slot" }).click();
+      await page.getByRole("button", { name: "Confirm booking" }).click();
+      await expect(page.getByRole("heading", { name: "You’re all set." })).toBeVisible();
 
-    const bookedAppointment = page.getByRole("tabpanel", { name: "Upcoming appointments" }).locator("article").filter({ hasText: users.psychiatrist.displayName }).last();
-    await expect(bookedAppointment.getByRole("button", { name: "Cancel appointment" })).toBeVisible();
-    await bookedAppointment.getByRole("button", { name: "Cancel appointment" }).click();
-    await expect(page.getByRole("heading", { name: "Cancel this appointment?" })).toBeVisible();
-    await page.getByRole("dialog").getByRole("button", { name: "Cancel appointment" }).click();
-    await expect(page.getByText("Your appointment has been cancelled.")).toBeVisible();
-    await page.getByRole("tab", { name: /History/ }).click();
-    const appointmentHistory = page.getByRole("tabpanel", { name: "Appointment history" });
-    await expect(appointmentHistory.getByText(/cancelled/i).first()).toBeVisible();
-    await expect(appointmentHistory.getByRole("button", { name: "Cancel appointment" })).toHaveCount(0);
+      const appointment = await required(service.from("appointments").select("id").eq("slot_id", slotId).single(), "load booked appointment for cancellation dialog regression");
+      await page.getByRole("main").getByRole("link", { name: "My appointments", exact: true }).click();
+      await expect(page.getByRole("heading", { name: "My appointments" })).toBeVisible();
+      await assertNoSeriousViolations(page);
+
+      const bookedAppointment = page.getByTestId(`appointment-card-${appointment.id}`);
+      const cancelTrigger = bookedAppointment.getByRole("button", { name: "Cancel appointment" });
+      await expect(cancelTrigger).toBeVisible();
+
+      await cancelTrigger.click();
+      await expect(page.getByRole("heading", { name: "Cancel this appointment?" })).toBeVisible();
+      await assertNoSeriousViolations(page);
+      await page.keyboard.press("Escape");
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+      await expect(cancelTrigger).toBeFocused();
+
+      await cancelTrigger.click();
+      await expect(page.getByRole("heading", { name: "Cancel this appointment?" })).toBeVisible();
+      await page.getByRole("dialog").getByRole("button", { name: "Cancel appointment" }).click();
+      await expect(page.getByText("Your appointment has been cancelled.")).toBeVisible();
+      await page.getByRole("tab", { name: /History/ }).click();
+      await expect(bookedAppointment.getByText("Cancelled", { exact: true })).toBeVisible();
+      await expect(bookedAppointment.getByRole("button", { name: "Cancel appointment" })).toHaveCount(0);
+    } finally {
+      await removeIsolatedSlot(slotId);
+    }
+  });
+
+  test("a past appointment that was never cancelled shows in history with no cancel action", async ({ page }, testInfo) => {
+    test.setTimeout(60_000);
+    const users = syntheticUsers[testInfo.project.name];
+    let slotId;
+    try {
+      slotId = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name);
+      await signIn(page, users.patient.email, users.patient.password);
+      await page.getByRole("main").getByRole("link", { name: "Book an appointment" }).click();
+      const psychiatristSlot = page.getByLabel("Open appointment slots").locator("article").filter({ hasText: users.psychiatrist.displayName }).last();
+      await psychiatristSlot.getByRole("button", { name: "Choose this slot" }).click();
+      await page.getByRole("button", { name: "Confirm booking" }).click();
+      await expect(page.getByRole("heading", { name: "You’re all set." })).toBeVisible();
+
+      const appointment = await required(service.from("appointments").select("id").eq("slot_id", slotId).single(), "load booked appointment for history regression");
+      const pastStart = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+      await required(
+        service.from("appointments").update({ starts_at: pastStart.toISOString(), ends_at: new Date(pastStart.getTime() + 45 * 60 * 1000).toISOString() }).eq("id", appointment.id),
+        "move booked appointment into the past",
+      );
+
+      await page.reload();
+      await page.getByRole("main").getByRole("link", { name: "My appointments", exact: true }).click();
+      await page.getByRole("tab", { name: /History/ }).click();
+      const appointmentHistory = page.getByRole("tabpanel", { name: /History/ });
+      const pastAppointment = appointmentHistory.locator("article").filter({ hasText: users.psychiatrist.displayName }).last();
+      await expect(pastAppointment).toBeVisible();
+      await expect(pastAppointment.getByRole("button", { name: "Cancel appointment" })).toHaveCount(0);
+      await page.getByRole("tab", { name: /Upcoming/ }).click();
+      await expect(page.getByTestId(`appointment-card-${appointment.id}`)).toHaveCount(0);
+    } finally {
+      await removeIsolatedSlot(slotId);
+    }
+  });
+
+  test("a cancellation inside 24 hours is denied in the dialog", async ({ page }, testInfo) => {
+    test.setTimeout(60_000);
+    const users = syntheticUsers[testInfo.project.name];
+    let slotId;
+    try {
+      slotId = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name, 12);
+      await signIn(page, users.patient.email, users.patient.password);
+      await page.getByRole("main").getByRole("link", { name: "Book an appointment" }).click();
+      const psychiatristSlot = page.getByLabel("Open appointment slots").locator("article").filter({ hasText: users.psychiatrist.displayName }).last();
+      await psychiatristSlot.getByRole("button", { name: "Choose this slot" }).click();
+      await page.getByRole("button", { name: "Confirm booking" }).click();
+      await expect(page.getByRole("heading", { name: "You’re all set." })).toBeVisible();
+
+      const bookedAppointment = await required(service.from("appointments").select("id").eq("slot_id", slotId).single(), "load booked appointment for cancellation-window regression");
+      await page.getByRole("main").getByRole("link", { name: "My appointments", exact: true }).click();
+      const appointment = page.getByTestId(`appointment-card-${bookedAppointment.id}`);
+      await appointment.getByRole("button", { name: "Cancel appointment" }).click();
+      await page.getByRole("dialog").getByRole("button", { name: "Cancel appointment" }).click();
+      await expect(page.getByRole("heading", { name: "Cancellation unavailable" })).toBeVisible();
+      await expect(page.getByRole("alert")).toContainText("more than 24 hours");
+    } finally {
+      await removeIsolatedSlot(slotId);
+    }
   });
 });

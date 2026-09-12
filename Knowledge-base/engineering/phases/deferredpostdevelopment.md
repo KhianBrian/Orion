@@ -40,6 +40,16 @@ before the owner explicitly changes their disposition.
   observed results, and cleanup evidence in a Phase 3 post-development audit. Do not use real patient
   or clinician data for this verification.
 
+## Phase 11 — owner walkthrough and human video verification
+
+- Perform the five-account manual walkthrough after the automated browser checks are green: patient
+  booking, refresh on the current route, cancellation more than 24 hours ahead, cancellation denial
+  within 24 hours, and psychiatrist appointment visibility.
+- Verify the real two-party synthetic video call in separate browser contexts, including camera and
+  microphone preflight, join availability, leave/re-entry, and the denied-admission path.
+- Record only synthetic test evidence and document the accounts, browser contexts, observed results,
+  and cleanup outcome in the Phase 11 audit. Do not use real patient or clinician data.
+
 ## Phase 0 — governance decisions and approvals
 
 - Identify the legal operating entity and formally appoint the DPO/privacy owner.

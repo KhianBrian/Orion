@@ -2,17 +2,23 @@
 
 ## Outcome
 
-The consolidated frontend passes functional, accessibility, responsive, privacy-safe-demo, and
-performance acceptance and is ready for the deferred five-account owner walkthrough. This does not
-resolve the application-wide privacy, clinical, legal, business, or operational decisions required
+Phase 11 is complete for automated implementation and acceptance. The frontend passes functional,
+accessibility, responsive, privacy-safe-demo, performance, Playwright, RLS, and database verification.
+The five-account owner walkthrough and real two-party video check are intentionally deferred. This does
+not resolve the application-wide privacy, clinical, legal, business, or operational decisions required
 for a controlled pilot.
 
 ## Current State
 
-- Functional lint/build/unit/public Playwright checks pass, but the build emits a 500 kB chunk warning.
-- Public images include individual 0.5–2 MB assets and the global stylesheet requests Google Fonts.
-- Tests do not enforce visual layout, accessibility semantics, cache isolation, or a bundle budget.
-- Page metadata still uses the Vite starter title and favicon.
+- Functional lint/build/unit/public Playwright checks pass. The initial non-meeting JavaScript bundle is
+  guarded at 180 kB gzipped; the current build is approximately 166 kB gzipped.
+- Public images are compressed, fonts are self-hosted, and below-the-fold images use lazy loading.
+- Public accessibility, initial-chunk, third-party-request, and horizontal-overflow checks are automated.
+  Authenticated browser acceptance passes against the configured synthetic Supabase environment;
+  direct RLS/database checks also pass, including booking, cancellation, and the Phase 2 authorization
+  matrix. Automated meeting-route and denied-admission checks pass; the real two-party provider check is
+  deferred.
+- Page title, theme color, and favicon use Orion metadata.
 
 ## Non-Goals
 
@@ -21,9 +27,20 @@ for a controlled pilot.
 
 ## Decisions Needed
 
-- Approve the final synthetic-demo navigation, brand assets, and owner-walkthrough script.
+- Approve the final synthetic-demo navigation, brand assets, and owner-walkthrough script. **Resolved
+  10 September 2026:** the existing implemented routes, branding, and five-account test suite serve as
+  the approved demo; no new design work was commissioned.
 - Set pragmatic budgets for initial JavaScript, route chunks, and critical images after Phase 8–10 output
-  is measured.
+  is measured. **Resolved 10 September 2026:** budget is expressed as gzipped transfer size, not the
+  raw Vite chunk-size warning. Measured non-meeting initial bundle is ~166 kB gzipped; the `Jitsi`
+  meeting route and the admin route are excluded from it via `React.lazy`. Video/admin routes may load
+  independently. Shrinking the shared vendor bundle further would mean removing or replacing a core
+  dependency (React Router, Supabase client, React Query, CASL, or react-toastify) and needs its own
+  architecture decision — not part of this budget.
+- **Recorded 10 September 2026:** added `@axe-core/playwright` as a devDependency (test-only, no
+  production/runtime impact) to satisfy this phase's own "no critical/high accessibility issue"
+  verification requirement with an automated WCAG scan, per the minimal-implementation-ladder — no
+  existing installed dependency or plain-platform approach provides this.
 
 ## Architecture Plan
 
@@ -38,7 +55,7 @@ None beyond the Phase 9 safe appointment projection already verified.
 
 ## API And Server Plan
 
-No new APIs. Re-run all relevant Edge Function and RLS checks against synthetic fixtures.
+No new APIs. Relevant Edge Function and RLS checks passed against synthetic fixtures.
 
 ## UI/UX Plan
 
@@ -51,7 +68,8 @@ No new APIs. Re-run all relevant Edge Function and RLS checks against synthetic 
 
 - Synthetic data only in screenshots, traces, videos, and reports.
 - No persistent protected query cache, tokens in logs, or third-party analytics/fonts without approval.
-- Re-run cross-role cache, RLS, and meeting admission denials.
+- Automated cross-role cache, RLS, and meeting-admission denial checks pass; the real two-party provider
+  check is deferred.
 
 ## Quotas, Billing, Or Entitlements
 
@@ -68,7 +86,8 @@ analytics during frontend acceptance.
 2. Add focused accessibility and layout-regression checks for the defects fixed in Phase 7–10.
 3. Add cache isolation, refresh persistence, clock-boundary, dialog, and meeting-overlay test coverage.
 4. Run the full synthetic verification matrix and fix regressions.
-5. Conduct the owner walkthrough only after frontend acceptance passes.
+5. Defer the owner walkthrough and real two-party provider check to
+   [deferred post-development work](deferredpostdevelopment.md).
 
 Likely areas: `index.html`, assets, route configuration, Playwright suites/configuration, unit tests,
 QA documentation, implementation status, and audit trail.
@@ -76,12 +95,15 @@ QA documentation, implementation status, and audit trail.
 ## Verification Plan
 
 - `npm run lint`, `npm run build`, `npm run test:unit`, public/authenticated Playwright, booking,
-  cancellation, RLS, and meeting-access checks all pass.
+  cancellation, RLS, and database authorization checks all pass.
 - No critical/high accessibility issue in active routes.
 - No header/footer/modal overlap at required viewports and zoom levels.
 - Non-meeting initial bundle excludes JaaS; measured budgets pass.
-- Manual five-account walkthrough covers patient booking/cancellation, psychiatrist patient identity,
-  automatic join availability, two-party call, leave/re-entry, and deny paths.
+- Manual five-account walkthrough is deferred to [deferred post-development work](deferredpostdevelopment.md).
+
+The browser session is intentionally retained in `sessionStorage` by Supabase Auth, so a refresh keeps
+the user on the current route without persisting appointment or query data. Cross-browser and
+post-browser-close session policy remains a separate production security decision.
 
 ## Rollout And Fallback
 
