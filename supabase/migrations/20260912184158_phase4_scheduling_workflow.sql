@@ -489,7 +489,7 @@ create or replace function public.review_appointment_reschedule(
 returns table (reschedule_request_id uuid, request_status public.reschedule_request_status, replacement_appointment_id uuid)
 language plpgsql security definer set search_path = pg_catalog, public
 as $$
-declare request_row public.reschedule_requests%rowtype; original public.appointments%rowtype; replacement public.appointments%rowtype;
+declare request_row public.reschedule_requests%rowtype; original public.appointments%rowtype; requested public.availability_slots%rowtype; replacement public.appointments%rowtype;
 begin
   perform private.assert_service_role();
   if not exists (select 1 from public.profiles where id = actor_profile_id and role = 'psychiatrist') then
@@ -513,6 +513,7 @@ begin
     return query select request_row.id, request_row.status, request_row.replacement_appointment_id; return;
   end if;
   perform 1 from public.availability_slots where id in (original.slot_id, request_row.requested_slot_id) order by id for update;
+  select * into requested from public.availability_slots where id = request_row.requested_slot_id;
   if not exists (
     select 1 from public.availability_slots as slot join public.psychiatrists as psychiatrist on psychiatrist.id = slot.psychiatrist_id
     where slot.id = request_row.requested_slot_id and slot.status = 'open' and slot.starts_at > now() and psychiatrist.is_active
