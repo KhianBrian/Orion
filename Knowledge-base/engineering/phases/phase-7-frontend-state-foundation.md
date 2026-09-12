@@ -10,7 +10,8 @@ close the application-wide privacy, clinical, legal, business, or operational de
 
 ## Current State
 
-- The Supabase client sets `persistSession: false`, so a full page refresh loses the in-memory session.
+- The Supabase client retains the authenticated session in `sessionStorage`, so a full page refresh
+  restores the current route without persisting appointment or query data.
 - Appointment and availability screens fetch independently on mount and manually refetch after writes.
 - The meeting-window helper is evaluated only when React happens to render, so the join action can stay
   stale while the page remains open.
@@ -26,9 +27,10 @@ close the application-wide privacy, clinical, legal, business, or operational de
 
 ## Decisions Needed
 
-1. **Synthetic refresh persistence:** use Supabase-managed `sessionStorage` for the demo as the smallest
-   reversible solution. It survives refresh but ends when the browser tab/session closes. Record that
-   this is a demo decision, not the final production session architecture.
+1. **Browser refresh persistence:** use Supabase-managed `sessionStorage` as the smallest solution that
+   keeps the current route usable after refresh without adding a protected application-data cache.
+   It survives refresh but ends when the browser tab/session closes. Cross-browser and post-browser-close
+   session policy remain separate security decisions.
 2. **Server-state library:** record an architecture decision before adding `@tanstack/react-query`.
    It is recommended over a custom context cache because Orion now has multiple reads, mutations,
    invalidation rules, retry states, and user-bound cache-clearing requirements. This follows the

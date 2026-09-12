@@ -11,7 +11,7 @@ const manilaDateTime = new Intl.DateTimeFormat("en-PH", {
 export function AppointmentCard({ appointment, isPatient, isUpcoming, now, onCancel }) {
   const canJoin = appointment.status === "booked" && isInDemoMeetingWindow(appointment.starts_at, appointment.ends_at, now);
 
-  return <article className="appointment-card">
+  return <article className="appointment-card" data-testid={`appointment-card-${appointment.id}`}>
     <div className="appointment-card__heading">
       <h3>{appointment.counterpart_display_name || (isPatient ? "Assigned psychiatrist" : "Assigned patient")}</h3>
       <AppointmentStatusBadge status={appointment.status} />

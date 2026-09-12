@@ -8,7 +8,7 @@
 .home-section-heading { text-align: center; margin-bottom: 2rem; }
 .home-section-heading h2 { color: var(--color-navy); font-size: 2.25rem; margin-bottom: 0.5rem; }
 .home-section-heading p { color: var(--color-muted); font-size: 1.125rem; }
-.eyebrow { color: var(--color-cyan) !important; font-size: 0.9rem !important; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
+.eyebrow { color: #147868 !important; font-size: 0.9rem !important; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
 .testimonial-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
 .testimonial-card { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.5rem; box-shadow: var(--shadow-sm); }
 .testimonial-card p { color: var(--color-black); font-size: 1.125rem; margin-bottom: 1rem; }

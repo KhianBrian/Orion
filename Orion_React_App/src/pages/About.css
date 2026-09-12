@@ -19,7 +19,7 @@
 
 .about-tagline {
   font-size: 1.5rem;
-  color: var(--color-bronze);
+  color: #8f5629;
   font-style: italic;
 }
 
@@ -63,7 +63,7 @@
   font-family: var(--font-primary);
   font-size: 1.2rem;
   font-weight: 300;
-  color: var(--color-bronze);
+  color: #8f5629;
   line-height: 1.8;
   text-align: justify;
 }

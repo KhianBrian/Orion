@@ -25,6 +25,13 @@ const protectedFeatureRoutes = [
   { path: ROUTES.ADMINISTRATION.slice(1), subject: SUBJECTS.ADMINISTRATION, element: <ProvisionPsychiatrist /> },
 ];
 
+const authenticatedAppRoutes = [
+  { path: ROUTES.APP.slice(1), element: <AccountHome /> },
+  { element: <RequireAbility action="visit" subject={SUBJECTS.BOOKING} />, children: [{ path: ROUTES.BOOKING.slice(1), element: <PatientAppointment /> }] },
+  { element: <RequireAbility action="visit" subject={SUBJECTS.APPOINTMENTS} />, children: [{ path: ROUTES.APPOINTMENTS.slice(1), element: <Appointments /> }] },
+  ...protectedFeatureRoutes.map(({ path, subject, element }) => ({ element: <RequireAbility action="visit" subject={subject} />, children: [{ path, element }] })),
+];
+
 export const routeConfig = [
   {
     path: "/",
@@ -71,12 +78,10 @@ export const routeConfig = [
       { path: "blog", element: <MarketingPage type="blog" /> },
     ],
   },
-  { element: <RequireAuth />, children: [{ element: <AuthenticatedShell />, children: [
-    { path: ROUTES.APP.slice(1), element: <AccountHome /> },
-    { element: <RequireAbility action="visit" subject={SUBJECTS.BOOKING} />, children: [{ path: ROUTES.BOOKING.slice(1), element: <PatientAppointment /> }] },
-    { element: <RequireAbility action="visit" subject={SUBJECTS.APPOINTMENTS} />, children: [{ path: ROUTES.APPOINTMENTS.slice(1), element: <Appointments /> }, { path: ROUTES.DEMO_MEETING.slice(1), element: <DemoMeeting /> }] },
-    ...protectedFeatureRoutes.map(({ path, subject, element }) => ({ element: <RequireAbility action="visit" subject={subject} />, children: [{ path, element }] })),
-  ] }], },
+  { element: <RequireAuth />, children: [
+    { element: <AuthenticatedShell />, children: authenticatedAppRoutes },
+    { element: <RequireAbility action="visit" subject={SUBJECTS.APPOINTMENTS} />, children: [{ path: ROUTES.DEMO_MEETING.slice(1), element: <DemoMeeting /> }] },
+  ] },
   {
     path: "*",
     element: <NotFound />,

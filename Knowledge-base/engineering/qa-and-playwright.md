@@ -39,7 +39,9 @@ could affect appointment state, error/toast copy, or pagination.
 `playwright.config.js` loads the ignored `Orion_React_App/.env` automatically. The authenticated
 suite remains opt-in through `RUN_SCHEDULING_E2E=1`; when explicitly enabled, missing demo passwords
 fail the run instead of silently skipping it. Copy variable names from `.env.test.example` and keep
-all values local. `test:db:cancellation` requires Docker Desktop for local Supabase or an approved
+all values local. Supabase Auth retains the signed-in browser session in `sessionStorage`, so an
+ordinary refresh remains on the current route without persisting appointment or query data.
+`test:db:cancellation` requires Docker Desktop for local Supabase or an approved
 synthetic remote project, plus a local-only `SUPABASE_SERVICE_ROLE_KEY`; it creates and removes
 temporary synthetic fixtures while checking ownership, the 24-hour denial, idempotency,
 concurrency, slot reopening, and audit behavior.
@@ -84,6 +86,12 @@ Every sensitive feature requires an end-to-end allow and deny path:
 | Cancellation | Patient cancels more than 24 hours ahead | Cancellation inside 24 hours is blocked |
 | Meeting access | Assigned patient/psychiatrist joins in window | Unrelated user and out-of-window request are blocked |
 | Admin | Admin provisions approved data | Non-admin cannot invoke admin action |
+
+Phase 11 also protects the frontend boundary with public-route accessibility checks, a gzipped initial
+bundle budget, no third-party font requests, no initial meeting/admin chunks on non-meeting routes,
+and horizontal-overflow checks at the configured desktop and Pixel 5 viewports. Authenticated route,
+meeting, cache-isolation, cancellation-denial, and RLS checks still require the configured synthetic
+Supabase environment.
 
 ## Test data and authentication
 

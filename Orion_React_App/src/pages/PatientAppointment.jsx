@@ -53,11 +53,14 @@ export default function PatientAppointment() {
       });
       if (mutationError) throw mutationError;
     } catch (mutationError) {
-      if (await errorCode(mutationError) === "slot_unavailable") {
+      const code = await errorCode(mutationError);
+      if (code === "slot_unavailable") {
         setMessage({ kind: "conflict", text: "This slot is no longer available. Please choose another time." });
         setSelectedSlot(null);
         setRequestId(null);
         await client.invalidateQueries({ queryKey: openAvailabilityQueryKey });
+      } else if (code === "email_not_confirmed") {
+        setMessage({ kind: "error", text: "Please confirm your email address before booking an appointment." });
       } else {
         setMessage({ kind: "error", text: "We could not complete the booking. Please try again." });
       }
