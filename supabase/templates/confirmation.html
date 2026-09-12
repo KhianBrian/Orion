@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <body style="margin:0;background:#eef4f7;color:#14212b;font-family:Arial,Helvetica,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef4f7;padding:32px 16px;">
+      <tr><td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 12px 35px rgba(11,32,50,.16);">
+          <tr>
+            <td style="background:#0b2032;padding:28px 32px;border-bottom:5px solid #b26b35;">
+              <div style="color:#ffffff;font-size:30px;font-weight:700;letter-spacing:-1px;">orion</div>
+              <div style="color:#b9d4df;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Interface Philippines</div>
+            </td>
+          </tr>
+          <tr><td style="padding:38px 36px 34px;">
+            <div style="color:#b26b35;font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;">Account security</div>
+            <h1 style="color:#12304a;font-size:28px;line-height:1.2;margin:10px 0 14px;">Confirm your Orion account</h1>
+            <p style="color:#52616d;font-size:16px;line-height:1.6;margin:0 0 24px;">Enter this confirmation code in the Orion tab to finish creating your account:</p>
+            <div style="background:#f4f8fb;border:1px solid #d7e0e6;border-radius:12px;padding:20px;text-align:center;">
+              <div style="color:#12304a;font-size:34px;font-weight:700;letter-spacing:8px;">{{ .Token }}</div>
+              <div style="color:#52616d;font-size:12px;margin-top:8px;">One-time code · expires in one hour</div>
+            </div>
+            <p style="color:#52616d;font-size:14px;line-height:1.6;margin:24px 0 0;">Prefer using a link? <a href="{{ .ConfirmationURL }}" style="color:#12304a;font-weight:700;">Confirm your email here</a>.</p>
+            <p style="color:#7a8790;font-size:13px;line-height:1.6;margin:24px 0 0;">If you did not create an Orion account, you can safely ignore this email.</p>
+          </td></tr>
+          <tr><td style="background:#f4f8fb;color:#7a8790;font-size:12px;padding:18px 36px;text-align:center;">Orion Interface Philippines</td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </body>
+</html>

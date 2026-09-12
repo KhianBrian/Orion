@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../features/auth/authContext";
 import "./Login.css";
@@ -44,7 +44,7 @@ const Login = () => {
           </header>
           <div className="login-card-content">
             <h1 className="login-title">Sign in to Orion</h1>
-            <p className="login-intro">Access appointment booking and meeting tools using your approved account.</p>
+            <p className="login-intro">Access appointment booking and meeting tools with your Orion account.</p>
 
             <form className="login-form" onSubmit={handleLogin}>
               <label htmlFor="email">Email address</label>
@@ -62,6 +62,8 @@ const Login = () => {
               <div className="password-field"><input id="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} className="login-input" /><button className="password-toggle" type="button" aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} onClick={() => setShowPassword((visible) => !visible)}>{showPassword ? "Hide" : "Show"}</button></div>
               <Button type="submit" busy={isSubmitting} disabled={status === "loading"}>{isSubmitting ? "Signing in…" : "Sign in"}</Button>
             </form>
+            <p className="auth-secondary-link"><Link to="/forgot-password">Forgot your password?</Link></p>
+            <p className="auth-secondary-link">New to Orion? <Link to="/register">Create an account</Link></p>
             {error && <StatusMessage tone="error">{error}</StatusMessage>}
           </div>
         </div>

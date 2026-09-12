@@ -15,6 +15,31 @@ before the owner explicitly changes their disposition.
   note version, while superseded note bodies remain protected. Admins may review audit metadata but not
   clinical-note content.
 
+## Phase 3 — prototype cleanup
+
+- Defer deletion or replacement of the remaining unused prototype pages, sidebar components, legacy
+  API/service files, Redux scaffolding, and related styles until the broader feature set is further
+  developed and their future need is clear.
+- When this work resumes, re-check imports and routes first, then remove only the files explicitly
+  approved by the owner. Any retained settings/profile surface must be rebuilt against the real
+  server-held profile and must not write mock data to browser storage.
+
+## Phase 3 — hosted email infrastructure and real-Auth testing
+
+- Configure a production-ready custom SMTP provider for the hosted Supabase project before broader
+  real-user testing. The hosted default email provider does not allow custom templates and is limited
+  to controlled testing volume.
+- After SMTP is configured, customize and verify the hosted confirmation, recovery, and invitation
+  templates using Orion branding and the approved code/link behavior. Keep redirect URLs restricted to
+  approved application origins.
+- Repeat the complete Auth verification against the real hosted Supabase project after post-development
+  infrastructure is ready: patient registration, confirmation code, confirmation link, sign-in,
+  recovery, resend behavior, route guards, admin-only psychiatrist provisioning, role boundaries,
+  booking enforcement for unconfirmed users, and browser-storage inspection.
+- Use synthetic accounts and record the email provider, redirect configuration, test identities,
+  observed results, and cleanup evidence in a Phase 3 post-development audit. Do not use real patient
+  or clinician data for this verification.
+
 ## Phase 0 — governance decisions and approvals
 
 - Identify the legal operating entity and formally appoint the DPO/privacy owner.
