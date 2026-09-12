@@ -33,4 +33,19 @@
 .schedule-message { margin: 1rem 0; }
 .schedule-message.success { border-color: #1f7a4d; color: #145c38; }
 .schedule-message.conflict, .schedule-message.error { border-color: #ad3b3b; color: #862c2c; }
+.cancellation-form-fields, .outcome-choice { display: grid; gap: .5rem; margin-top: 1rem; }
+.cancellation-form-fields label, .outcome-choice legend { color: var(--color-navy); font-weight: 700; }
+.cancellation-form-fields select, .cancellation-form-fields textarea, .session-note-body, .session-note-dialog textarea { border: 1px solid var(--color-border); border-radius: var(--radius-sm); font: inherit; padding: .7rem; width: 100%; }
+.outcome-choice { border: 1px solid var(--color-border); padding: .75rem; }
+.outcome-choice label { display: flex; gap: .5rem; align-items: center; }
+.appointment-card__linkage { color: var(--color-muted); font-size: .9rem; }
+.reschedule-requests { display: grid; gap: .75rem; margin-bottom: 2rem; }
+.reschedule-requests h2 { color: var(--color-navy); }
+.reschedule-request { align-items: center; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; gap: 1rem; justify-content: space-between; padding: 1rem; }
+.reschedule-request p { margin: .15rem 0; }
+.request-status { color: var(--color-bronze); font-weight: 700; text-transform: capitalize; }
+.session-note-body { background: var(--color-gray-light); white-space: pre-wrap; }
+.admin-appointment-list { display: grid; gap: 1rem; }
+.booking-control { align-items: center; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; gap: 1rem; justify-content: space-between; margin-bottom: 2rem; padding: 1rem 1.25rem; }
+.booking-control p { margin: 0; }
 @media (max-width: 600px) { .scheduling-page { padding: 1.5rem 1rem; } .scheduling-header { display: block; } .scheduling-header .action-button, .scheduling-header .secondary-action-button { display: inline-block; margin-top: 1rem; } .booking-success { align-items: start; grid-template-columns: auto 1fr; }.booking-success .ui-button { grid-column: 1 / -1; width: 100%; } }

@@ -5,7 +5,7 @@ function isUpcoming(appointment, now) {
   return appointment.status === "booked" && new Date(appointment.ends_at).getTime() >= new Date(now).getTime();
 }
 
-export function AppointmentList({ appointments, isPatient, now, onCancel }) {
+export function AppointmentList({ appointments, isPatient, now, onCancel, onReschedule, onClinicianCancel, onOutcome, onNote, noteIds = new Set() }) {
   const [activeTab, setActiveTab] = useState("upcoming");
   const upcoming = appointments.filter((appointment) => isUpcoming(appointment, now));
   const history = appointments.filter((appointment) => !isUpcoming(appointment, now));
@@ -22,8 +22,8 @@ export function AppointmentList({ appointments, isPatient, now, onCancel }) {
     </div>
     <section role="tabpanel" id={`${activeTab}-appointments-panel`} aria-labelledby={`${activeTab}-appointments-tab`} aria-label={activeTab === "upcoming" ? "Upcoming appointments" : "Appointment history"}>
       <h2>{activeTab === "upcoming" ? "Upcoming appointments" : "Appointment history"}</h2>
-      {activeTab === "upcoming" && (upcoming.length ? <div className="appointment-list__grid">{upcoming.map((appointment) => <AppointmentCard key={appointment.id} appointment={appointment} isPatient={isPatient} isUpcoming now={now} onCancel={onCancel} />)}</div> : <p className="appointment-list__empty">No upcoming appointments.</p>)}
-      {activeTab === "history" && (history.length ? <div className="appointment-list__grid">{history.map((appointment) => <AppointmentCard key={appointment.id} appointment={appointment} isPatient={isPatient} isUpcoming={false} now={now} onCancel={onCancel} />)}</div> : <p className="appointment-list__empty">No appointment history yet.</p>)}
+      {activeTab === "upcoming" && (upcoming.length ? <div className="appointment-list__grid">{upcoming.map((appointment) => <AppointmentCard key={appointment.id} appointment={appointment} isPatient={isPatient} isUpcoming now={now} onCancel={onCancel} onReschedule={onReschedule} onClinicianCancel={onClinicianCancel} onOutcome={onOutcome} onNote={onNote} noteAvailable={noteIds.has(appointment.id)} />)}</div> : <p className="appointment-list__empty">No upcoming appointments.</p>)}
+      {activeTab === "history" && (history.length ? <div className="appointment-list__grid">{history.map((appointment) => <AppointmentCard key={appointment.id} appointment={appointment} isPatient={isPatient} isUpcoming={false} now={now} onCancel={onCancel} onReschedule={onReschedule} onClinicianCancel={onClinicianCancel} onOutcome={onOutcome} onNote={onNote} noteAvailable={noteIds.has(appointment.id)} />)}</div> : <p className="appointment-list__empty">No appointment history yet.</p>)}
     </section>
   </section>;
 }

@@ -4,6 +4,7 @@ export const ROUTES = Object.freeze({
   ADMINISTRATION: "/dashboard",
   APP: "/app",
   APPOINTMENTS: "/appointments",
+  ADMIN_APPOINTMENTS: "/admin-appointments",
   DEMO_MEETING: "/appointments/:appointmentId/meeting",
   BOOKING: "/patient-appointment",
   LOGIN: "/login",
@@ -14,6 +15,7 @@ export const SUBJECTS = Object.freeze({
   APPOINTMENTS: "appointments",
   ADMINISTRATION: "administration",
   BOOKING: "booking",
+  ADMIN_APPOINTMENTS: "admin-appointments",
 });
 
 export const ROLE_NAVIGATION = Object.freeze({
@@ -22,7 +24,10 @@ export const ROLE_NAVIGATION = Object.freeze({
     { label: "My appointments", path: ROUTES.APPOINTMENTS, subject: SUBJECTS.APPOINTMENTS },
   ],
   [APP_ROLES.PSYCHIATRIST]: [{ label: "My appointments", path: ROUTES.APPOINTMENTS, subject: SUBJECTS.APPOINTMENTS }],
-  [APP_ROLES.ADMIN]: [{ label: "Administration", path: ROUTES.ADMINISTRATION, subject: SUBJECTS.ADMINISTRATION }],
+  [APP_ROLES.ADMIN]: [
+    { label: "Appointment operations", path: ROUTES.ADMIN_APPOINTMENTS, subject: SUBJECTS.ADMIN_APPOINTMENTS },
+    { label: "Administration", path: ROUTES.ADMINISTRATION, subject: SUBJECTS.ADMINISTRATION },
+  ],
 });
 
 export function getRoleNavigation(role) {
