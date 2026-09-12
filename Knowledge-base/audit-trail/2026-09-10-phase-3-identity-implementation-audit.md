@@ -69,6 +69,35 @@ their owning phases. Prototype cleanup is recorded in
 - An authenticated synthetic patient attempting psychiatrist provisioning returns HTTP 403, without
   sending an email.
 
+## Mailpit QA procedure and evidence
+
+The local email test was performed as follows:
+
+1. Install and start Docker Desktop because the Supabase CLI local stack requires a Docker-compatible
+   runtime.
+2. Run `supabase start` from the repository root and confirm the local API, Auth, database, and
+   Mailpit services start successfully.
+3. Confirm Mailpit is reachable at `http://localhost:54324` and use the local project values for the
+   Orion app URL and publishable key. The local service key stayed server-side and was not placed in
+   the browser environment.
+4. Start the Orion app locally, create a synthetic patient account, and leave the Orion confirmation
+   page open.
+5. Open Mailpit, locate the confirmation message, and verify that the message is captured locally
+   rather than sent to an external inbox.
+6. Verify the confirmation content: Orion branding, six-digit `{{ .Token }}` code, expiration
+   guidance, and the `{{ .ConfirmationURL }}` link fallback.
+7. Verify the link path reaches Orion's confirmation callback and establishes the session. The first
+   link check showed that Mailpit/browser link handling may open a new tab; this is expected client
+   behavior and is why the code path is the recommended same-tab experience.
+8. Verify the code path by returning to the original Orion tab, entering the captured code, and
+   confirming that the account is authenticated and redirected to `/app` in that same tab.
+
+This procedure uses only local synthetic data. Mailpit does not deliver messages externally and does
+not consume the hosted Supabase project's two-email-per-hour allowance. The local stack was restarted
+after the template configuration changed, and the final UI/build checks passed. Hosted SMTP setup and
+the full email-consuming hosted Auth repetition remain intentionally deferred in
+[deferredpostdevelopment.md](../engineering/phases/deferredpostdevelopment.md).
+
 ## Closure decision and post-development scope
 
 Phase 3 is closed for the current synthetic implementation scope. The hosted project's default email
