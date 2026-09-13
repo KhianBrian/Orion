@@ -19,7 +19,7 @@ No one layer replaces another. A passing browser test does not prove RLS is secu
 
 ## Playwright baseline
 
-The app uses `@playwright/test` with Chromium and a Pixel 5 mobile viewport. Playwright starts Vite automatically for local tests, captures a trace, screenshot, and video only when a test fails, and creates an HTML report. The current public-navigation suite is prototype smoke coverage only; it is not real authentication or production-release evidence.
+The app uses `@playwright/test` with Chromium and a Pixel 5 mobile viewport. Playwright starts Vite automatically for local tests, captures a trace, screenshot, and video only when a test fails, and creates an HTML report. All generated output is consolidated under `Orion_React_App/test-artifacts/playwright/`; it is ignored by Git and must not be committed. The current public-navigation suite is prototype smoke coverage only; it is not real authentication or production-release evidence.
 
 ```text
 npm run test:e2e
@@ -57,6 +57,15 @@ temporary synthetic fixtures while checking ownership, the 24-hour denial, idemp
 concurrency, slot reopening, and audit behavior.
 
 Run `npx playwright install chromium` after a fresh dependency install when the browser binary is absent.
+
+## Test artifact location
+
+Playwright writes the HTML report to `Orion_React_App/test-artifacts/playwright/report/` and traces,
+screenshots, videos, and per-test result files to `Orion_React_App/test-artifacts/playwright/results/`.
+Open the report with `npm run test:e2e:report` from `Orion_React_App`. Do not create timestamped
+report or result folders in the repository root or beside the application source. Remove generated
+artifacts after diagnosing a failure unless they are being retained temporarily for a documented
+review.
 
 ## Test ownership and structure
 

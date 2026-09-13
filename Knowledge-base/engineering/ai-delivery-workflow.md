@@ -120,6 +120,11 @@ RUN_SCHEDULING_E2E=1 npm run test:e2e:authenticated
 Do not paste credentials into chat or command output. Keep Playwright authentication state in the
 ignored `playwright/.auth/` directory and never commit it.
 
+Playwright output is consolidated under `Orion_React_App/test-artifacts/playwright/`. The HTML report
+is in `report/`; traces, screenshots, videos, and per-test files are in `results/`. These generated
+artifacts are ignored by Git and should be removed after diagnosis unless a short-lived review copy is
+specifically needed.
+
 ## 5. Start local services automatically
 
 Local integration QA may start services as part of the workflow:

@@ -13,6 +13,9 @@
 **/playwright/.auth/
 **/playwright-report/
 **/test-results/
+**/test-artifacts/*
+!**/test-artifacts/
+!**/test-artifacts/README.md
 
 # Supabase local CLI state
 supabase/.branches/

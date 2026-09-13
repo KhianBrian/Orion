@@ -148,7 +148,7 @@ readiness gate.
 ### P1-1 — Version control and repository composition
 
 1. Initialise the repository at the workspace root, so the knowledge base and the application move together and a policy change and the code change it authorises can appear in one reviewable commit.
-2. Compose the first commit deliberately. `.gitignore` covers `.env`, `.env.*.local`, `node_modules`, `dist`, `playwright/.auth/`, `playwright-report/`, `test-results/`, Supabase CLI scratch directories, and `.DS_Store`. Verify the staged file list before committing rather than after — the absence of history is an advantage that exists exactly once.
+2. Compose the first commit deliberately. `.gitignore` covers `.env`, `.env.*.local`, `node_modules`, `dist`, `playwright/.auth/`, the consolidated `test-artifacts/` directory, Supabase CLI scratch directories, and `.DS_Store`. Verify the staged file list before committing rather than after — the absence of history is an advantage that exists exactly once.
 3. Decide the legacy `Orion/` prototype. It is out of scope, it is not the product, and it contains images that appear to depict identifiable people. **Recommendation: keep it out of the repository entirely** and archive it separately. Confirm the consent and licensing position for any image of an identifiable person before it is committed or served, including the copies already under `public/images/`. This is a question to answer, not one this plan answers.
 4. Add `.env.example` naming every variable with no values.
 
