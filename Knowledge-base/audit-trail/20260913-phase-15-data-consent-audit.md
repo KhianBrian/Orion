@@ -5,10 +5,13 @@
 Phase 15 implemented the provider-neutral data foundation from R1.1 and the approved first
 administrative support-ticket slice. Development was performed on branch
 `codex/phase-15-data-consent-audit` in worktree `../Orion-phase-15`, created from the clean Phase 14
-`main` state. The main worktree remains unchanged. No linked database migration, Edge Function
-deployment, Git push, or production action was performed.
+`main` state. The implementation was fast-forwarded to `main` at commit `25b9db8` and pushed to
+`origin/main`. The four Phase 15 migrations were subsequently applied to the linked synthetic
+non-production `Orion-demo` project, and the JWT-protected `support-tickets` Edge Function was
+deployed there.
 
-All data and verification remained synthetic and local/non-production.
+All test data remained synthetic; verification was performed locally and against the linked
+non-production project only.
 
 ## User-visible support flow
 
@@ -49,10 +52,11 @@ content is returned only through an audited protected read and is not copied int
 
 ## Verification performed
 
-- `supabase db reset --local --no-seed --yes` — passed; all 21 local migrations applied from empty.
-- `supabase migration list --local` — passed; local migration history includes both Phase 15
-  migrations.
+- `supabase db reset --local --no-seed --yes` — passed; all local migrations applied from empty.
+- `supabase migration list --local` and `supabase migration list --linked` — passed; the linked
+  `Orion-demo` project matches all local migrations through the four Phase 15 migrations.
 - `supabase db lint --local --fail-on error` — passed; no schema errors.
+- `supabase db lint --linked --fail-on error` — passed; no remote schema errors.
 - Synthetic demo-user provisioning against local Supabase — passed.
 - `npm run test:db:phase15` — passed; patient/psychiatrist participation, cross-role replies, unread
   state, ownership, audited reads, redaction, and idempotent creation verified.
@@ -64,15 +68,18 @@ content is returned only through an audited protected read and is not copied int
 - Public/accessibility/navigation Playwright checks — 56 passed.
 - Existing authenticated scheduling Playwright checks — 14 passed across Chromium and mobile
   Chromium.
+- Remote support Playwright checks — 6 passed across Chromium and mobile Chromium against the
+  deployed Edge Function.
 - `git diff --check` — passed.
 
 ## Remaining boundaries and gates
 
-- The branch is not merged or pushed. The linked non-production project is intentionally unchanged.
+- Remote application and deployment are complete for the linked synthetic non-production project;
+  production remains untouched.
 - Field-level ownership, retention, disposal, export, legal-hold, and named reader decisions remain
   governance gates for real-user activation.
 - Guardian decision/review behavior remains Phase 16; provider-specific payment behavior remains
   Phase 17; production meeting behavior remains Phase 18; full support operations remain Phase 19.
-- The Phase 15 migration has been verified locally over empty and seeded synthetic state. Remote
-  application and deployment require separate explicit authorization.
+- The Phase 15 migrations have been verified locally and on the linked synthetic project over
+  synthetic state. The deployed function remains JWT-protected and service-role-backed.
 - This audit does not close any real-user launch gate.

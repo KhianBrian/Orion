@@ -43,6 +43,10 @@ documentation, source files, or Git.
 | `20260912184158` | [`phase4_scheduling_workflow.sql`](../../supabase/migrations/20260912184158_phase4_scheduling_workflow.sql) | Adds the server-authoritative Phase 4 appointment lifecycle: booking control, cancellations, outcomes, notes, rescheduling, audit events, idempotency, and concurrency protections. |
 | `20260912185905` | [`phase14_doctor_managed_availability.sql`](../../supabase/migrations/20260912185905_phase14_doctor_managed_availability.sql) | Adds psychiatrist weekday schedules, Manila-local overrides, approval for outside-normal-hours availability, 15-minute starts, 45-minute sessions, two-week booking horizon, and conflict-safe schedule changes. |
 | `20260913090000` | [`fix_session_note_lint.sql`](../../supabase/migrations/20260913090000_fix_session_note_lint.sql) | Keeps the appointment row lock used by session-note authorization while removing the unused row variable reported by migration lint. |
+| `20260913121934` | [`phase15_data_consent_audit_support.sql`](../../supabase/migrations/20260913121934_phase15_data_consent_audit_support.sql) | Adds provider-neutral eligibility, guardian-consent evidence, payment attempt/event, support-ticket/message, reservation-state, booking-basis, audit, RLS, and protected-function foundations. |
+| `20260913124101` | [`phase15_active_reservation_constraints.sql`](../../supabase/migrations/20260913124101_phase15_active_reservation_constraints.sql) | Adds active-slot uniqueness and active-session overlap protection for `payment_pending`, `reserved`, and `booked` states. |
+| `20260913131526` | [`phase15_support_messaging_and_roles.sql`](../../supabase/migrations/20260913131526_phase15_support_messaging_and_roles.sql) | Adds psychiatrist requesters, cross-role support replies, per-actor read state, and server-computed unread indicators. |
+| `20260913131754` | [`phase15_support_reply_function.sql`](../../supabase/migrations/20260913131754_phase15_support_reply_function.sql) | Adds the protected, idempotent support-ticket reply transaction with audit events. |
 
 The local filenames intentionally match the remote migration history. Never edit either migration after
 application; create a new forward migration for every correction.
@@ -64,6 +68,11 @@ application; create a new forward migration for every correction.
 - Deployed the Phase 4 scheduling Edge Functions and the Phase 14 `manage-schedule` Edge Function
   only after the user confirmed the target project. `supabase migration list --linked` matched the
   local migration history after deployment.
+- Applied the four Phase 15 migrations to the linked synthetic `Orion-demo` project after explicit
+  user authorization; `supabase migration list --linked` matched local history and both local and
+  linked schema lint reported no errors.
+- Deployed `support-tickets` version 1 with JWT verification enabled. Remote database checks passed,
+  and the focused remote support Playwright suite passed 6/6 across Chromium and mobile Chromium.
 
 ## Security and operating rules
 

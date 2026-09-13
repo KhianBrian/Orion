@@ -3,9 +3,8 @@
 **R1 mapping:** Implements the provider-neutral foundation planned in
 [R1.1](../launch-readiness/r1.1-data-consent-and-audit-extension.md).
 
-**Status:** Implemented and locally verified on `codex/phase-15-data-consent-audit` — see the
-[2026-09-13 as-built audit](../../../audit-trail/20260913-phase-15-data-consent-audit.md). The
-branch is not merged, pushed, or remotely applied.
+**Status:** Implemented, merged to `main` at `25b9db8`, pushed, and verified on the linked synthetic
+non-production Supabase project — see the [2026-09-13 as-built audit](../../../audit-trail/20260913-phase-15-data-consent-audit.md).
 
 **Scope amendment — 13 September 2026:** The approved Phase 15 slice includes the first support-ticket
 experience: patient and psychiatrist submission/list/detail, an authorised admin queue/detail view,
