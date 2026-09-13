@@ -8,7 +8,7 @@ const manilaDateTime = new Intl.DateTimeFormat("en-PH", {
   timeZone: "Asia/Manila",
 });
 
-export function AppointmentCard({ appointment, isPatient, isUpcoming, now, onCancel }) {
+export function AppointmentCard({ appointment, isPatient, isUpcoming, now, onCancel, onReschedule, onClinicianCancel, onOutcome, onNote, noteAvailable }) {
   const canJoin = appointment.status === "booked" && isInDemoMeetingWindow(appointment.starts_at, appointment.ends_at, now);
 
   return <article className="appointment-card" data-testid={`appointment-card-${appointment.id}`}>
@@ -21,6 +21,15 @@ export function AppointmentCard({ appointment, isPatient, isUpcoming, now, onCan
     <div className="appointment-card__actions">
       {canJoin && <ButtonLink to={`/appointments/${appointment.id}/meeting`}>Join call</ButtonLink>}
       {isPatient && isUpcoming && appointment.status === "booked" && <Button variant="danger" onClick={() => onCancel(appointment)}>Cancel appointment</Button>}
+      {isPatient && isUpcoming && appointment.status === "booked" && <Button variant="secondary" onClick={() => onReschedule(appointment)}>Request reschedule</Button>}
+      {!isPatient && isUpcoming && appointment.status === "booked" && <Button variant="danger" onClick={() => onClinicianCancel(appointment)}>Cancel appointment</Button>}
+      {!isPatient && appointment.status === "booked" && new Date(now).getTime() >= new Date(appointment.starts_at).getTime() && <>
+        <Button variant="secondary" onClick={() => onOutcome(appointment, "completed")}>Mark completed</Button>
+        <Button variant="secondary" onClick={() => onOutcome(appointment, "no_show")}>Record no-show</Button>
+      </>}
+      {((!isPatient && (appointment.status === "booked" || appointment.status === "completed")) || (isPatient && noteAvailable)) && <Button variant="quiet" onClick={() => onNote(appointment)}>Session note</Button>}
+      {appointment.rescheduled_from_id && <p className="appointment-card__linkage">This appointment replaces an earlier appointment.</p>}
+      {appointment.replacement_appointment_id && <p className="appointment-card__linkage">A replacement appointment is linked to this history.</p>}
     </div>
   </article>;
 }

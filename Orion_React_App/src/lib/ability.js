@@ -18,6 +18,7 @@ export function defineAbilityFor(role) {
 
   if (role === APP_ROLES.ADMIN) {
     can("visit", SUBJECTS.ADMINISTRATION);
+    can("visit", SUBJECTS.ADMIN_APPOINTMENTS);
   }
 
   return build();

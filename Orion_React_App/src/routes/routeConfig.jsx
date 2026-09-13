@@ -12,6 +12,7 @@ import MarketingPage from "../pages/MarketingPage";
 import AccountHome from "../pages/AccountHome";
 import Appointments from "../pages/Appointments";
 import PatientAppointment from "../pages/PatientAppointment";
+import AdminAppointments from "../pages/AdminAppointments";
 import { RequireAbility, RequireAuth } from "../features/auth/RouteGuards";
 import { AuthenticatedShell } from "../features/auth/AuthenticatedShell";
 import { ROUTES, SUBJECTS } from "../constants/routes";
@@ -23,6 +24,7 @@ const ProvisionPsychiatrist = lazy(() => import("../features/admin/ProvisionPsyc
 
 const protectedFeatureRoutes = [
   { path: ROUTES.ADMINISTRATION.slice(1), subject: SUBJECTS.ADMINISTRATION, element: <ProvisionPsychiatrist /> },
+  { path: ROUTES.ADMIN_APPOINTMENTS.slice(1), subject: SUBJECTS.ADMIN_APPOINTMENTS, element: <AdminAppointments /> },
 ];
 
 const authenticatedAppRoutes = [

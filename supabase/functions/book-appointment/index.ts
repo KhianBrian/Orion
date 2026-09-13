@@ -5,6 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function response(body: Record<string, unknown>, status: number) {
   return new Response(JSON.stringify(body), {
@@ -27,7 +28,8 @@ Deno.serve(async (request) => {
     return response({ error: "invalid_request" }, 400);
   }
 
-  if (typeof payload.slotId !== "string" || typeof payload.idempotencyKey !== "string") {
+  if (typeof payload.slotId !== "string" || typeof payload.idempotencyKey !== "string"
+      || !uuidPattern.test(payload.slotId) || !uuidPattern.test(payload.idempotencyKey)) {
     return response({ error: "invalid_request" }, 400);
   }
 
@@ -54,6 +56,7 @@ Deno.serve(async (request) => {
 
   if (error) {
     if (error.message.includes("slot_unavailable")) return response({ error: "slot_unavailable" }, 409);
+    if (error.message.includes("booking_disabled")) return response({ error: "booking_disabled" }, 423);
     if (error.message.includes("booking_not_permitted")) return response({ error: "booking_not_permitted" }, 403);
     return response({ error: "booking_failed" }, 500);
   }
