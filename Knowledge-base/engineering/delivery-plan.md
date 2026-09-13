@@ -94,10 +94,10 @@ requirements identifiers while the executable plan continues numerically from Ph
 | [Phase 19](phases/phase-19-support-tickets-and-launch-operations.md) / R1.5 | Patient tickets, audited operations, approved payment/provider exceptions, retention/data-rights processes, runbooks, and kill switches. | Phase 15–18 as-built inputs plus approved support/retention/operations, privacy, finance, and provider decisions. |
 | [Phase 20](phases/phase-20-integrated-launch-verification-and-controlled-release.md) / R1.5 | Integrated feature, security, privacy, clinical, accessibility, performance, restore, rollback, and release evidence. | All prior phase gates, production-baseline controls, named-authority approvals, and company-owner go/no-go. |
 
-The next implementation action is Phase 15 after its named decisions and fresh deployed-state checks
-are ready. Phase 15 consumes the Phase 14 as-built audit and migration/RLS/function evidence. Each
-numbered phase then consumes the preceding phase's dated as-built output. All work stays synthetic and
-disabled until its own gate and the overall production launch gate close.
+Phase 15 has consumed the Phase 14 as-built audit and its migration/RLS/function evidence. The next
+implementation action is Phase 16, which consumes the Phase 15 dated as-built output and its named
+identity, guardian, clinical, privacy, and wording decisions. All work stays synthetic and disabled
+until its own gate and the overall production launch gate close.
 
 ## Phase 0 — Governance and service design
 

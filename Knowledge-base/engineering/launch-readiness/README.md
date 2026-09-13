@@ -28,7 +28,7 @@ that authorises its scope. It must never mark a baseline gate complete by implic
 | Work item | Purpose | Status |
 | --- | --- | --- |
 | [R1.0 — Governance and change control](r1.0-governance-and-change-control.md) | Record the new direction, reconcile authoritative documents, and turn unresolved policy inputs into explicit gates. | Completed ✅ — detailed planning may begin, but no launch gate is closed |
-| [R1.1 — Data, consent, and audit extension](r1.1-data-consent-and-audit-extension.md) | Plan protected records for guardian consent, payment attempts/events, support tickets, and revised note timing. | Planning completed ✅ — implementation not started; owner/clinical/DPO/vendor gates retained |
+| [R1.1 — Data, consent, and audit extension](r1.1-data-consent-and-audit-extension.md) | Define protected records for guardian consent, payment attempts/events, support tickets, and revised note timing. | Phase 15 implementation complete ✅ — remaining owner/clinical/DPO/vendor gates retained |
 | R1.2 — Identity and eligibility | Plan adult and minor onboarding, guardian-consent status, and booking activation rules. | Mapped to Phase 16; implementation blocked on Phase 15 and policy decisions |
 | R1.3 — Payment-authorized booking | Plan PayMaya checkout, webhook reconciliation, payment state, and appointment reservation. | Mapped to Phase 17; blocked on Phase 16, PayMaya materials, and commercial policy |
 | R1.4 — Google Meet integration | Plan provider configuration, per-appointment meetings, access controls, timing, and outage handling. | Mapped to Phase 18; blocked on Phase 17, Workspace, and vendor approval |

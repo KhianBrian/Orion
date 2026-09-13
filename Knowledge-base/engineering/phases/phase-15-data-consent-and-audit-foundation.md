@@ -190,9 +190,9 @@ Phase 15 does not close any real-user launch gate.
 Phase 16 draws from the Phase 15 as-built audit—not this proposal—for exact eligibility/consent table
 names, status codes, RLS predicates, protected function signatures, audit codes, and unresolved gaps.
 
-## Inputs not yet available
+## Inputs not yet available for broader real-user activation
 
-- Phase 14 as-built evidence or a sequencing amendment.
+- Final Phase 14-to-15 policy handoff beyond the evidence consumed by this implementation.
 - Named clinical, DPO/privacy, support/operations, payment, and audit-review owners.
 - Guardian subject/assurance/reviewer/access decisions.
 - Final field-level retention/disposal/export decisions.

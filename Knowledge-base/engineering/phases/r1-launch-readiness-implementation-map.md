@@ -1,7 +1,8 @@
 # R1 Implementation Phase Map — From R1.1 Contract to Feature Completion
 
-**Status:** Planning synthesis completed 9 September 2026 — no application, database, provider, or
-deployment implementation is authorised by this document.
+**Status:** Planning synthesis completed 9 September 2026. Phase 15 is complete for its approved
+synthetic non-production scope; this map remains a planning and traceability document for the
+remaining phases.
 
 ## Purpose
 
@@ -13,7 +14,8 @@ location for each increment, and its provisional Tier 2 outline becomes executab
 phase re-grounds it from predecessor evidence, approved decisions, and current deployed state.
 
 R1 remains separate from the historical Phase 0–6, D0–D7, and Phase 7–14 tracks. This map does not
-rewrite a historical gate or claim that Phase 15–20 have been implemented. The
+rewrite a historical gate or claim that the remaining Phase 16–20 work is implemented. Phase 15's
+completion is evidenced by its dated as-built audit. The
 [authority order](../../README.md#authority-order),
 [R1.0 governance boundary](../launch-readiness/r1.0-governance-and-change-control.md), and
 [phase planning contract](README.md#prompt-contract-for-planning) continue to govern.
@@ -103,17 +105,15 @@ function-only audited read/write/release controls, and patient/psychiatrist UI.
 
 | Numbered phase | R1 mapping | Primary result | Status and gate |
 | --- | --- | --- | --- |
-| [Phase 15 — Data, consent, and audit foundation](phase-15-data-consent-and-audit-foundation.md) | R1.1 | Provider-neutral objects, role/action matrix, active-state compatibility, RLS/functions, typed audit, and tests. | Planned; wait for Phase 14 as-built evidence or an explicit sequencing amendment, then resolve named data/role/retention decisions. |
+| [Phase 15 — Data, consent, and audit foundation](phase-15-data-consent-and-audit-foundation.md) | R1.1 | Provider-neutral objects, role/action matrix, active-state compatibility, RLS/functions, typed audit, and tests. | Complete ✅ — see the dated as-built audit; synthetic non-production deployment verified. |
 | [Phase 16 — Identity and minor eligibility](phase-16-identity-and-minor-eligibility.md) | R1.2 | A server-held patient eligibility state and approved consent-review path that fails closed before booking/admission. | Planned; blocked on Phase 15 as-built plus guardian, clinical, DPO/legal, and wording decisions. |
 | [Phase 17 — PayMaya payment-authorised booking](phase-17-paymaya-payment-authorised-booking.md) | R1.3 | One booking path creates a reserved `payment_pending` appointment and confirms it only through a verified provider event. | Planned; blocked on Phase 16 as-built, official PayMaya material, and commercial/DPO decisions. |
 | [Phase 18 — Google Meet and session timing](phase-18-google-meet-and-session-timing.md) | R1.4 | Approved provider admission consumes `booked` and database-authoritative 15/45/15 boundaries. | Planned; blocked on Phase 17 as-built, Workspace/vendor validation, and clinical timing decisions. |
 | [Phase 19 — Support tickets and launch operations](phase-19-support-tickets-and-launch-operations.md) | R1.5 | Patient tickets, audited operations, approved exceptions, kill switches, retention processes, and runbooks. | Planned; blocked on Phase 15–18 as-built plus support, operations, retention, DPO/legal, finance, and provider decisions. |
 | [Phase 20 — Integrated launch verification and controlled release](phase-20-integrated-launch-verification-and-controlled-release.md) | R1.5 | Integrated evidence, restore/rollback exercises, named approvals, and controlled release decision. | Planned; blocked on all prior gates, production-baseline controls, and company-owner go/no-go. |
 
-The plans now exist, but implementation remains sequential because every phase consumes exact
-as-built facts from its predecessor. Since Phase 14 is currently planned rather than evidenced,
-Phase 15 waits for its dated as-built audit unless the governing owners record a deliberate sequencing
-amendment with the scheduling compatibility risk and compensating checks.
+The plans remain sequential because every phase consumes exact as-built facts from its predecessor.
+Phase 16 now consumes the completed Phase 15 as-built audit and its unresolved policy inputs.
 
 ## Cross-cutting implementation rules
 
@@ -168,10 +168,10 @@ or application behavior itself.
 
 ### Exit condition
 
-The R1.1 plan, this synthesis, and the canonical
-[Phase 15 plan](phase-15-data-consent-and-audit-foundation.md) are linked from the active indexes. No
-code or audit completion is claimed. The next implementation action is Phase 15 only after Phase 14
-as-built evidence or an explicit sequencing amendment and Phase 15's named decision gates exist.
+The R1.1 plan, this synthesis, the canonical [Phase 15 plan](phase-15-data-consent-and-audit-foundation.md),
+and the dated Phase 15 as-built audit are linked from the active indexes. Phase 15's approved
+implementation and synthetic non-production deployment are complete. The next implementation action
+is Phase 16 after its named identity, guardian, clinical, privacy, and wording decisions are closed.
 
 ## Phase 16 / R1.2 — Identity, eligibility, and guardian consent
 
