@@ -23,12 +23,18 @@ The app uses `@playwright/test` with Chromium and a Pixel 5 mobile viewport. Pla
 
 ```text
 npm run test:e2e
-npm run test:e2e:authenticated
+RUN_SCHEDULING_E2E=1 npm run test:e2e:authenticated
 npm run test:db:cancellation
 npm run seed:human-checks
 npm run test:e2e:ui
 npm run test:e2e:report
 ```
+
+The full Playwright suite is required; credentialed authorization tests are only one part of it.
+Public tests run without credentials and cover public routes, navigation, accessibility, responsive
+layout, and public failure states. Authenticated tests use the synthetic patient, psychiatrist, and
+admin accounts for protected routes, complete journeys, and allow/deny authorization checks. When
+the authenticated suite is enabled, it must run alongside the public suite rather than replacing it.
 
 For repeatable human checks of booking and cancellation after frontend changes, use the
 [synthetic human-check checklist](repeatable-human-checks.md). The seed command creates only its
@@ -41,6 +47,10 @@ suite remains opt-in through `RUN_SCHEDULING_E2E=1`; when explicitly enabled, mi
 fail the run instead of silently skipping it. Copy variable names from `.env.test.example` and keep
 all values local. Supabase Auth retains the signed-in browser session in `sessionStorage`, so an
 ordinary refresh remains on the current route without persisting appointment or query data.
+Before authenticated QA, confirm the required variable names exist without printing values. The
+service-role key is for local database scripts only and must never be placed in a `VITE_*` variable
+or browser bundle. The local QA environment may be started automatically with Docker, `supabase
+start`, `supabase status`, and `supabase functions serve` when integration tests require it.
 `test:db:cancellation` requires Docker Desktop for local Supabase or an approved
 synthetic remote project, plus a local-only `SUPABASE_SERVICE_ROLE_KEY`; it creates and removes
 temporary synthetic fixtures while checking ownership, the 24-hour denial, idempotency,
@@ -108,6 +118,9 @@ Authenticated Playwright state belongs in `playwright/.auth/`, is ignored by Git
 
 ## Delivery gates
 
-- Before handoff: run relevant Playwright tests, `npm run lint`, and `npm run build`.
-- Before merging/deploying: run the critical desktop Chromium suite.
+- Before handoff: run the relevant database/RLS tests, the full Playwright suite, the credentialed
+  authenticated suite when its environment is available, `npm run lint`, and `npm run build`.
+- Before merging/deploying: run the full public suite plus the critical credentialed desktop and
+  mobile flows for the changed feature. A credentialed test failure is not fixed by running only
+  public tests, and public tests must not be omitted because credentials are available.
 - Before controlled pilot: run the full desktop and mobile suite, database/RLS tests, and a two-role booking scenario in separate browser contexts.

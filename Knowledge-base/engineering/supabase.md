@@ -2,7 +2,7 @@
 
 ## Status
 
-**Applied and verified ✅ — 30 August 2026.** Orion uses a dedicated, hosted non-production Supabase
+**Applied and verified ✅ — 13 September 2026.** Orion uses a dedicated, hosted non-production Supabase
 project in Sydney (`ap-southeast-2`). It is limited to synthetic demo work and is not a production
 environment or an approval to process real health information.
 
@@ -40,6 +40,9 @@ documentation, source files, or Git.
 | `20260910142221` | [`phase3_identity_auth_boundaries.sql`](../../supabase/migrations/20260910142221_phase3_identity_auth_boundaries.sql) | Fixes Auth-created profiles to the `patient` role and adds the service-role-only, admin-actor psychiatrist provisioning transaction. |
 | `20260910145812` | [`phase3_provisioning_service_role_fix.sql`](../../supabase/migrations/20260910145812_phase3_provisioning_service_role_fix.sql) | Removes a hosted PostgREST request-GUC check that rejected legitimate service-role calls while retaining service-role-only grants and the admin-actor check. |
 | `20260910145906` | [`phase3_provisioning_conflict_fix.sql`](../../supabase/migrations/20260910145906_phase3_provisioning_conflict_fix.sql) | Qualifies the psychiatrist upsert conflict target through its unique constraint so the returned `profile_id` name cannot cause ambiguity. |
+| `20260912184158` | [`phase4_scheduling_workflow.sql`](../../supabase/migrations/20260912184158_phase4_scheduling_workflow.sql) | Adds the server-authoritative Phase 4 appointment lifecycle: booking control, cancellations, outcomes, notes, rescheduling, audit events, idempotency, and concurrency protections. |
+| `20260912185905` | [`phase14_doctor_managed_availability.sql`](../../supabase/migrations/20260912185905_phase14_doctor_managed_availability.sql) | Adds psychiatrist weekday schedules, Manila-local overrides, approval for outside-normal-hours availability, 15-minute starts, 45-minute sessions, two-week booking horizon, and conflict-safe schedule changes. |
+| `20260913090000` | [`fix_session_note_lint.sql`](../../supabase/migrations/20260913090000_fix_session_note_lint.sql) | Keeps the appointment row lock used by session-note authorization while removing the unused row variable reported by migration lint. |
 
 The local filenames intentionally match the remote migration history. Never edit either migration after
 application; create a new forward migration for every correction.
@@ -55,6 +58,12 @@ application; create a new forward migration for every correction.
   broader use of password authentication.
 - Performance reports only unused-index informational notices, which are expected while the new
   database has no demo records.
+- Applied and verified the Phase 4, Phase 14, and session-note lint migrations locally and on the
+  linked synthetic `Orion-demo` project. `supabase db lint --local` reported no schema errors after
+  the cleanup migration.
+- Deployed the Phase 4 scheduling Edge Functions and the Phase 14 `manage-schedule` Edge Function
+  only after the user confirmed the target project. `supabase migration list --linked` matched the
+  local migration history after deployment.
 
 ## Security and operating rules
 
@@ -65,6 +74,9 @@ application; create a new forward migration for every correction.
   the variable-name template.
 - Before any future schema change, inspect the live tables and migration history, use a new timestamped
   local migration, apply it only to the Orion-scoped project, and rerun security advisors.
+- Remote migration and function deployment require explicit user authorization for the target project.
+  A Git push to `origin/main` is a separate approval and does not automatically authorize a remote
+  Supabase change.
 - Keep the demo synthetic and disposable. Production provisioning, real data, retention, vendor
   approval, and operational controls remain blocked by the relevant governance decisions.
 
@@ -109,3 +121,27 @@ Supabase OTP verification on the original Orion tab. The link callback remains s
 fallback, while psychiatrist invitations remain link-based because they also begin the password-setup
 flow. Start the local stack with `supabase start`, then inspect captured messages at
 `http://localhost:54324`; the local stack is not public and does not change the hosted project's quota.
+
+## Phase 4 and Phase 14 as-built boundary — 13 September 2026
+
+Phase 4 and Phase 14 now share one server-authoritative scheduling workflow. Patients receive a
+protected availability projection and submit a slot identifier to the booking Edge Function. The
+database transaction locks the slot, revalidates the current state and time rules, derives the
+appointment timestamps, writes the appointment, marks the slot booked, and records an audit event.
+It is safe to retry and protects against two users taking the same slot concurrently.
+
+Phase 4 adds the appointment lifecycle around that booking transaction: patient cancellation more
+than 24 hours before the session, psychiatrist cancellation more than 48 hours before the session
+with a reason, administrative cancellation with a reason, psychiatrist-recorded outcomes, protected
+session notes, and request/review rescheduling. The booking kill switch is server-side and separate
+from video access.
+
+Phase 14 adds psychiatrist-owned weekday rules in Asia/Manila, date-specific overrides, admin review
+for outside-normal-hours availability, server-generated 15-minute starts for 45-minute sessions, a
+two-week patient booking horizon, and schedule-change blocking when an existing appointment would be
+affected. Only the 45-minute clinical session conflicts; the 15-minute early-join and post-session
+note windows do not consume schedule time. Existing appointments are never silently moved or deleted.
+
+The patient, psychiatrist, and admin screens use the existing Orion theme. Admin schedule access is
+read-only, and no second booking path was introduced. Detailed evidence is recorded in the [Phase 4
+audit](../audit-trail/20260913-phase-4-scheduling-audit.md) and [Phase 14 audit](../audit-trail/20260913-phase-14-doctor-managed-availability-audit.md).

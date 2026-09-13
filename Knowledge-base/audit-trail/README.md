@@ -20,6 +20,8 @@ This folder contains dated records of completed audits and implementation passes
 | [2026-09-04 Phase 8 UI system and application shell](2026-09-04-phase-8-ui-system-and-app-shell-audit.md) | Responsive public and authenticated shells, shared accessible primitives, login accessibility, and removal of current React legacy marketing routes. |
 | [2026-09-05 Phase 9 appointment experience](2026-09-05-phase-9-appointment-experience-audit.md) | Safe relationship-scoped appointment projection, booking/cancellation experience, history-action correction, and Phase 9 verification. |
 | [2026-09-12 Phase 11 frontend acceptance](2026-09-12-phase-11-frontend-acceptance-audit.md) | Required refresh persistence, frontend performance guardrails, public accessibility/layout checks, meeting-shell routing, automated authenticated evidence, and deferred owner walkthrough. |
+| [2026-09-13 Phase 4 scheduling](20260913-phase-4-scheduling-audit.md) | Complete server-authoritative appointment lifecycle, cancellation boundaries, outcomes, notes, rescheduling, booking control, auditability, concurrency, migrations, Edge Functions, UI, and verification. |
+| [2026-09-13 Phase 14 doctor-managed availability](20260913-phase-14-doctor-managed-availability-audit.md) | Psychiatrist-owned schedules, Manila-local overrides, approval boundaries, server-generated availability, 15-minute starts, 45-minute sessions, two-week horizon, conflict protection, UI, migrations, and verification. |
 
 Read an audit when you need to understand why an existing UI or file looks the way it does, what was already verified, or which limitations remain open. When an audit conflicts with current product scope or architecture, the current parent document wins.
 
