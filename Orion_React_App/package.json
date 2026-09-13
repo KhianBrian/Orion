@@ -17,6 +17,7 @@
     "test:db:rls": "node scripts/test-rls-db.mjs",
     "test:db:phase2": "node scripts/test-phase2-db.mjs",
     "test:db:phase4": "node scripts/test-phase4-db.mjs",
+    "test:db:phase14": "node scripts/test-phase14-db.mjs",
     "test:auth:no-email": "node --env-file=.env scripts/test-phase3-auth-no-email.mjs",
     "seed:human-checks": "node --env-file=.env scripts/seed-human-checks.mjs",
     "test:e2e:ui": "playwright test --ui",

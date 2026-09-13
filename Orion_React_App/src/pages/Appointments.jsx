@@ -23,6 +23,8 @@ export default function Appointments() {
   const [message, setMessage] = useState(null);
   const [cancellationError, setCancellationError] = useState(false);
   const [cancellationDenied, setCancellationDenied] = useState(false);
+  const [cancellationReasonCode, setCancellationReasonCode] = useState("");
+  const [cancellationExplanation, setCancellationExplanation] = useState("");
   const client = useQueryClient();
   const { data: appointments = [], error, isPending, refetch } = useQuery({
     queryKey: appointmentQueryKey(profile.id),
@@ -41,6 +43,8 @@ export default function Appointments() {
     setCancellationRequestId(null);
     setCancellationError(false);
     setCancellationDenied(false);
+    setCancellationReasonCode("");
+    setCancellationExplanation("");
   };
 
   const selectAppointmentForCancellation = (appointment) => {
@@ -49,6 +53,8 @@ export default function Appointments() {
     setMessage(null);
     setCancellationError(false);
     setCancellationDenied(false);
+    setCancellationReasonCode("");
+    setCancellationExplanation("");
   };
 
   const confirmCancellation = async (reason) => {
@@ -94,7 +100,7 @@ export default function Appointments() {
     {!isPending && !error && !appointments.length && <StatusMessage>No appointments are scheduled.</StatusMessage>}
     {message && <StatusMessage tone={message.kind === "success" ? "success" : "error"}>{message.text}</StatusMessage>}
     {!isPending && !error && appointments.length > 0 && <AppointmentList appointments={appointments} isPatient={isPatient} now={now} noteIds={noteIds} onCancel={selectAppointmentForCancellation} onReschedule={(appointment) => navigate(`/patient-appointment?reschedule=${appointment.id}`)} onClinicianCancel={selectAppointmentForCancellation} onOutcome={(appointment, status) => setSelectedOutcome({ appointment, status })} onNote={setSelectedNote} />}
-    <CancellationDialog key={selectedAppointment?.id || "cancellation-closed"} appointment={selectedAppointment} busy={cancellation.isPending || clinicianCancellation.isPending} error={cancellationError} denied={cancellationDenied} onClose={closeCancellation} onConfirm={confirmCancellation} requiresReason={!isPatient} />
+    <CancellationDialog appointment={selectedAppointment} busy={cancellation.isPending || clinicianCancellation.isPending} error={cancellationError} denied={cancellationDenied} onClose={closeCancellation} onConfirm={confirmCancellation} requiresReason={!isPatient} reasonCode={cancellationReasonCode} explanation={cancellationExplanation} onReasonCodeChange={setCancellationReasonCode} onExplanationChange={setCancellationExplanation} />
     <OutcomeDialog appointment={selectedOutcome?.appointment} status={selectedOutcome?.status} busy={outcome.isPending} error={Boolean(outcome.error)} onClose={() => setSelectedOutcome(null)} onConfirm={confirmOutcome} />
     <SessionNoteDialog appointment={selectedNote} note={(notes.data || []).find((item) => item.appointment_id === selectedNote?.id)} isPatient={isPatient} accountId={profile.id} onClose={() => setSelectedNote(null)} />
   </section>;

@@ -14,11 +14,13 @@ export function defineAbilityFor(role) {
 
   if (role === APP_ROLES.PSYCHIATRIST) {
     can("visit", SUBJECTS.APPOINTMENTS);
+    can("visit", SUBJECTS.SCHEDULE);
   }
 
   if (role === APP_ROLES.ADMIN) {
     can("visit", SUBJECTS.ADMINISTRATION);
     can("visit", SUBJECTS.ADMIN_APPOINTMENTS);
+    can("visit", SUBJECTS.ADMIN_SCHEDULES);
   }
 
   return build();

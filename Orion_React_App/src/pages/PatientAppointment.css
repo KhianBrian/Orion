@@ -48,4 +48,29 @@
 .admin-appointment-list { display: grid; gap: 1rem; }
 .booking-control { align-items: center; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; gap: 1rem; justify-content: space-between; margin-bottom: 2rem; padding: 1rem 1.25rem; }
 .booking-control p { margin: 0; }
+.booking-step { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-md); margin: 1.25rem 0; padding: 1.25rem; }
+.booking-step__heading { align-items: start; display: flex; gap: .8rem; margin-bottom: 1rem; }
+.booking-step__heading h2 { color: var(--color-navy); font-size: 1.2rem; margin: 0 0 .25rem; }
+.booking-step__heading p { color: var(--color-muted); margin: 0; }
+.booking-step__number { align-items: center; background: var(--color-navy); border-radius: 50%; color: var(--color-white); display: inline-flex; flex: 0 0 auto; font-weight: 800; height: 1.8rem; justify-content: center; width: 1.8rem; }
+.choice-grid { display: grid; gap: .85rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.choice-card, .date-card { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-sm); color: var(--color-navy); cursor: pointer; font: inherit; padding: 1rem; text-align: left; transition: background-color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast); }
+.choice-card { display: grid; gap: .35rem; }
+.choice-card span { color: var(--color-muted); font-size: .9rem; }
+.choice-card:hover, .date-card:hover { background: #f4f7f8; border-color: var(--color-bronze); transform: translateY(-1px); }
+.choice-card--selected, .date-card--selected { background: #edf4f6; border-color: var(--color-navy); box-shadow: 0 0 0 2px rgb(35 61 77 / 12%); }
+.date-grid { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); }
+.date-card { min-height: 3.4rem; text-align: center; }
+.slot-card h3 { font-size: 1.15rem; margin: 0; }
+.schedule-editor { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-md); margin: 1.25rem 0; padding: 1.25rem; }
+.schedule-form { align-items: end; display: grid; gap: .85rem; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.schedule-form label { color: var(--color-navy); display: grid; font-weight: 700; gap: .35rem; }
+.schedule-form input, .schedule-form select { border: 1px solid var(--color-border); border-radius: var(--radius-sm); font: inherit; min-height: 2.75rem; padding: .6rem; }
+.schedule-form .ui-button { min-height: 2.75rem; }
+.schedule-record-list { display: grid; gap: .55rem; margin-top: 1.25rem; }
+.schedule-record-list h3 { color: var(--color-navy); font-size: 1rem; margin: 0; }
+.schedule-record { align-items: center; background: #f7f9fa; border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; gap: .75rem; justify-content: space-between; padding: .7rem .8rem; }
+.schedule-record strong { color: var(--color-bronze); font-size: .85rem; text-transform: capitalize; }
+@media (max-width: 600px) { .booking-step { padding: 1rem; } .date-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .schedule-form { grid-template-columns: repeat(2, minmax(0, 1fr)); } .schedule-form .ui-button { grid-column: 1 / -1; } }
 @media (max-width: 600px) { .scheduling-page { padding: 1.5rem 1rem; } .scheduling-header { display: block; } .scheduling-header .action-button, .scheduling-header .secondary-action-button { display: inline-block; margin-top: 1rem; } .booking-success { align-items: start; grid-template-columns: auto 1fr; }.booking-success .ui-button { grid-column: 1 / -1; width: 100%; } }

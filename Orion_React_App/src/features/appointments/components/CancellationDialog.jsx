@@ -10,9 +10,13 @@ const manilaDateTime = new Intl.DateTimeFormat("en-PH", {
   timeZone: "Asia/Manila",
 });
 
-export function CancellationDialog({ appointment, busy, error, denied, onClose, onConfirm, requiresReason = false }) {
-  const [reasonCode, setReasonCode] = useState("");
-  const [explanation, setExplanation] = useState("");
+export function CancellationDialog({ appointment, busy, error, denied, onClose, onConfirm, requiresReason = false, reasonCode: controlledReasonCode, explanation: controlledExplanation, onReasonCodeChange, onExplanationChange }) {
+  const [internalReasonCode, setInternalReasonCode] = useState("");
+  const [internalExplanation, setInternalExplanation] = useState("");
+  const reasonCode = controlledReasonCode ?? internalReasonCode;
+  const explanation = controlledExplanation ?? internalExplanation;
+  const setReasonCode = onReasonCodeChange || setInternalReasonCode;
+  const setExplanation = onExplanationChange || setInternalExplanation;
   const title = denied ? "Cancellation unavailable" : requiresReason ? "Record a cancellation" : "Cancel this appointment?";
 
   return <Dialog open={Boolean(appointment)} onClose={onClose} title={title} className={denied ? "ui-dialog--denial" : ""} actions={denied

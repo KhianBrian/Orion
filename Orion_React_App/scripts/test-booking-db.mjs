@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createClient } from "@supabase/supabase-js";
+import { nextWeekdayStart } from "./scheduling-test-helpers.mjs";
 
 try {
   process.loadEnvFile(".env");
@@ -37,8 +38,7 @@ const ids = {
   idempotentSlot: crypto.randomUUID(),
   concurrentSlot: crypto.randomUUID(),
 };
-const startsAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-startsAt.setUTCMinutes(0, 0, 0);
+const startsAt = nextWeekdayStart({ daysAhead: 7 });
 
 async function createOpenSlot(id, offsetHours) {
   const start = new Date(startsAt.getTime() + offsetHours * 60 * 60 * 1000);

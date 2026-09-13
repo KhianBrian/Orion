@@ -59,6 +59,10 @@ export function releaseSessionNote(noteId) {
   return invoke("session-note", { action: "release", noteId });
 }
 
+export function manageSchedule(values) {
+  return invoke("manage-schedule", values);
+}
+
 export function readSessionNote(noteId) {
   return invoke("session-note", { action: "read", noteId });
 }
