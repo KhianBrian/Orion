@@ -43,8 +43,8 @@ assert.ok(projection.every((slot) => new Date(slot.ends_at).getTime() - new Date
 assert.ok(projection.every((slot) => new Date(slot.starts_at).getMinutes() % 15 === 0));
 assert.ok(projection.every((slot) => new Date(slot.starts_at).getTime() <= Date.now() + 14 * 24 * 60 * 60 * 1000));
 
-const ownSchedule = await required(psychiatrist.client.functions.invoke("manage-schedule", { body: { action: "list" } }), "psychiatrist schedule projection");
-assert.ok(Array.isArray(ownSchedule.data?.schedule));
-const adminSchedule = await required(admin.client.functions.invoke("manage-schedule", { body: { action: "admin-list" } }), "admin schedule overview");
-assert.ok(Array.isArray(adminSchedule.data?.schedule));
+const ownSchedule = await required(service.rpc("get_my_schedule", { actor_profile_id: psychiatrist.userId }), "psychiatrist schedule projection");
+assert.ok(Array.isArray(ownSchedule));
+const adminSchedule = await required(service.rpc("get_admin_schedule_overview", { actor_profile_id: admin.userId }), "admin schedule overview");
+assert.ok(Array.isArray(adminSchedule));
 console.log("Phase 14 database checks passed: default rules, raw-table protection, server availability projection, clinician schedule projection, and admin read-only overview.");

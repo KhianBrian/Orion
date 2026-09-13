@@ -59,20 +59,26 @@ async function createIsolatedSlot(psychiatristEmail, projectName, hoursAhead = 7
       ends_at: new Date(startsAt.getTime() + 45 * 60 * 1000).toISOString(),
       status: "open",
     });
-    if (!error) return id;
+    if (!error) {
+      return {
+        id,
+        dateText: new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Manila", weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(startsAt),
+        timeText: new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Manila", hour: "numeric", minute: "2-digit" }).format(startsAt),
+      };
+    }
     if (!/overlap|exclusion|duplicate/i.test(error.message)) throw new Error(`create isolated slot: ${error.message}`);
   }
   throw new Error(`could not create an isolated synthetic slot for ${projectName}`);
 }
 
-async function removeIsolatedSlot(slotId) {
-  if (!slotId) return;
-  const appointments = await required(service.from("appointments").select("id").eq("slot_id", slotId), "load isolated test appointments");
+async function removeIsolatedSlot(slot) {
+  if (!slot) return;
+  const appointments = await required(service.from("appointments").select("id").eq("slot_id", slot.id), "load isolated test appointments");
   if (appointments.length) {
     await required(service.from("audit_events").delete().in("target_id", appointments.map(({ id }) => id)), "remove isolated test audit events");
-    await required(service.from("appointments").delete().eq("slot_id", slotId), "remove isolated test appointments");
+    await required(service.from("appointments").delete().eq("slot_id", slot.id), "remove isolated test appointments");
   }
-  await required(service.from("availability_slots").delete().eq("id", slotId), "remove isolated test slot");
+  await required(service.from("availability_slots").delete().eq("id", slot.id), "remove isolated test slot");
 }
 
 async function signIn(page, email, password) {
@@ -83,14 +89,25 @@ async function signIn(page, email, password) {
   await expect(page).toHaveURL(/\/app$/);
 }
 
-async function chooseAvailableTime(page, displayName) {
-  await page.getByRole("button", { name: displayName, exact: true }).click();
+async function chooseAvailableTime(page, displayName, targetSlot) {
+  await page.getByRole("button", { name: new RegExp(displayName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) }).click();
   const dates = page.locator(".date-card");
   const slots = page.getByLabel("Open appointment slots").locator("article");
+  const availabilityStep = page.locator('section.booking-step[aria-labelledby="choose-time-title"]');
   for (let index = 0; index < await dates.count(); index += 1) {
+    const dateText = (await dates.nth(index).innerText()).replace(/\s+/g, " ");
+    if (targetSlot && !dateText.includes(targetSlot.dateText)) continue;
     await dates.nth(index).click();
-    if (await slots.filter({ hasText: displayName }).count()) {
-      return slots.filter({ hasText: displayName }).last();
+    await expect.poll(async () => {
+      const hasSlots = await slots.count() > 0;
+      const isEmpty = await availabilityStep.getByText("There are no available times for this date. Choose another date.").count() > 0;
+      const hasError = await availabilityStep.getByRole("alert").count() > 0;
+      return hasSlots || isEmpty || hasError;
+    }, { timeout: 10000 }).toBeTruthy();
+    const matchingSlots = slots.filter({ hasText: displayName });
+    const targetSlots = targetSlot ? matchingSlots.filter({ hasText: targetSlot.timeText }) : matchingSlots;
+    if (await targetSlots.count()) {
+      return targetSlots.last();
     }
   }
   throw new Error(`No available time found for ${displayName} in the two-week booking horizon`);
@@ -99,16 +116,16 @@ async function chooseAvailableTime(page, displayName) {
 test.describe("database-backed scheduling", () => {
   test.describe.configure({ mode: "serial" });
   test.skip(!enabled, "requires ignored synthetic demo credentials");
-  let isolatedSlotId;
+  let isolatedSlot;
 
   test.beforeAll(async ({ browser: _browser }, testInfo) => {
     void _browser;
     const users = syntheticUsers[testInfo.project.name];
-    isolatedSlotId = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name);
+    isolatedSlot = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name);
   });
 
   test.afterAll(async () => {
-    await removeIsolatedSlot(isolatedSlotId);
+    await removeIsolatedSlot(isolatedSlot);
   });
 
   test("a synthetic session survives refresh and protected navigation is cleared on sign-out", async ({ page }, testInfo) => {
@@ -169,7 +186,7 @@ test.describe("database-backed scheduling", () => {
 
     await expect(page.getByRole("heading", { name: "Book an appointment" })).toBeVisible();
     await assertNoSeriousViolations(page);
-    const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName);
+    const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName, isolatedSlot);
     await expect(psychiatristSlot.getByRole("button", { name: "Choose this time" })).toBeVisible();
     await psychiatristSlot.getByRole("button", { name: "Choose this time" }).click();
     await page.getByRole("button", { name: "Confirm booking" }).click();
@@ -185,17 +202,17 @@ test.describe("database-backed scheduling", () => {
   test("a patient can cancel a booked appointment", async ({ page }, testInfo) => {
     test.setTimeout(60_000);
     const users = syntheticUsers[testInfo.project.name];
-    let slotId;
+    let slot;
     try {
-      slotId = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name);
+      slot = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name, 8 * 24);
       await signIn(page, users.patient.email, users.patient.password);
       await page.getByRole("main").getByRole("link", { name: "Book an appointment" }).click();
-      const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName);
+      const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName, slot);
       await psychiatristSlot.getByRole("button", { name: "Choose this time" }).click();
       await page.getByRole("button", { name: "Confirm booking" }).click();
       await expect(page.getByRole("heading", { name: "You’re all set." })).toBeVisible();
 
-      const appointment = await required(service.from("appointments").select("id").eq("slot_id", slotId).single(), "load booked appointment for cancellation dialog regression");
+      const appointment = await required(service.from("appointments").select("id").eq("slot_id", slot.id).single(), "load booked appointment for cancellation dialog regression");
       await page.getByRole("main").getByRole("link", { name: "My appointments", exact: true }).click();
       await expect(page.getByRole("heading", { name: "My appointments" })).toBeVisible();
       await assertNoSeriousViolations(page);
@@ -219,24 +236,24 @@ test.describe("database-backed scheduling", () => {
       await expect(bookedAppointment.getByText("Cancelled", { exact: true })).toBeVisible();
       await expect(bookedAppointment.getByRole("button", { name: "Cancel appointment" })).toHaveCount(0);
     } finally {
-      await removeIsolatedSlot(slotId);
+      await removeIsolatedSlot(slot);
     }
   });
 
   test("a past appointment that was never cancelled shows in history with no cancel action", async ({ page }, testInfo) => {
     test.setTimeout(60_000);
     const users = syntheticUsers[testInfo.project.name];
-    let slotId;
+    let slot;
     try {
-      slotId = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name);
+      slot = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name, 6 * 24);
       await signIn(page, users.patient.email, users.patient.password);
       await page.getByRole("main").getByRole("link", { name: "Book an appointment" }).click();
-      const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName);
+      const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName, slot);
       await psychiatristSlot.getByRole("button", { name: "Choose this time" }).click();
       await page.getByRole("button", { name: "Confirm booking" }).click();
       await expect(page.getByRole("heading", { name: "You’re all set." })).toBeVisible();
 
-      const appointment = await required(service.from("appointments").select("id").eq("slot_id", slotId).single(), "load booked appointment for history regression");
+      const appointment = await required(service.from("appointments").select("id").eq("slot_id", slot.id).single(), "load booked appointment for history regression");
       const pastStart = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
       await required(
         service.from("appointments").update({ starts_at: pastStart.toISOString(), ends_at: new Date(pastStart.getTime() + 45 * 60 * 1000).toISOString() }).eq("id", appointment.id),
@@ -253,24 +270,24 @@ test.describe("database-backed scheduling", () => {
       await page.getByRole("tab", { name: /Upcoming/ }).click();
       await expect(page.getByTestId(`appointment-card-${appointment.id}`)).toHaveCount(0);
     } finally {
-      await removeIsolatedSlot(slotId);
+      await removeIsolatedSlot(slot);
     }
   });
 
   test("a cancellation inside 24 hours is denied in the dialog", async ({ page }, testInfo) => {
     test.setTimeout(60_000);
     const users = syntheticUsers[testInfo.project.name];
-    let slotId;
+    let slot;
     try {
-      slotId = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name, 12);
+      slot = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name, 12);
       await signIn(page, users.patient.email, users.patient.password);
       await page.getByRole("main").getByRole("link", { name: "Book an appointment" }).click();
-      const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName);
+      const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName, slot);
       await psychiatristSlot.getByRole("button", { name: "Choose this time" }).click();
       await page.getByRole("button", { name: "Confirm booking" }).click();
       await expect(page.getByRole("heading", { name: "You’re all set." })).toBeVisible();
 
-      const bookedAppointment = await required(service.from("appointments").select("id").eq("slot_id", slotId).single(), "load booked appointment for cancellation-window regression");
+      const bookedAppointment = await required(service.from("appointments").select("id").eq("slot_id", slot.id).single(), "load booked appointment for cancellation-window regression");
       await page.getByRole("main").getByRole("link", { name: "My appointments", exact: true }).click();
       const appointment = page.getByTestId(`appointment-card-${bookedAppointment.id}`);
       await appointment.getByRole("button", { name: "Cancel appointment" }).click();
@@ -278,7 +295,7 @@ test.describe("database-backed scheduling", () => {
       await expect(page.getByRole("heading", { name: "Cancellation unavailable" })).toBeVisible();
       await expect(page.getByRole("alert")).toContainText("more than 24 hours");
     } finally {
-      await removeIsolatedSlot(slotId);
+      await removeIsolatedSlot(slot);
     }
   });
 });

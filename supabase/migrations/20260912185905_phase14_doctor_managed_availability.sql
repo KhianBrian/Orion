@@ -128,14 +128,12 @@ security definer
 set search_path = pg_catalog, public
 as $$
 declare
-  day_offset integer;
   target_date date;
   period record;
-  minute_offset integer;
   local_start time;
   local_end time;
-  starts_at timestamptz;
-  ends_at timestamptz;
+  candidate_starts_at timestamptz;
+  candidate_ends_at timestamptz;
 begin
   if exists (
     select 1 from public.appointments appointment
@@ -146,8 +144,8 @@ begin
     raise exception 'schedule_conflict' using errcode = 'P0001';
   end if;
 
-  delete from public.availability_slots
-  where psychiatrist_id = target_psychiatrist_id and status = 'open' and starts_at >= now();
+  delete from public.availability_slots as slot
+  where slot.psychiatrist_id = target_psychiatrist_id and slot.status = 'open' and slot.starts_at >= now();
 
   for day_offset in 0..14 loop
     target_date := ((now() at time zone 'Asia/Manila')::date + day_offset);
@@ -166,12 +164,12 @@ begin
       for minute_offset in 0..((extract(epoch from (period.ends_local - period.starts_local))::integer / 60) - 45) by 15 loop
         local_start := period.starts_local + make_interval(mins => minute_offset);
         local_end := local_start + interval '45 minutes';
-        starts_at := ((target_date + local_start) at time zone 'Asia/Manila');
-        ends_at := ((target_date + local_end) at time zone 'Asia/Manila');
-        if starts_at > now() and starts_at <= now() + interval '14 days'
-           and private.schedule_range_published(target_psychiatrist_id, starts_at, ends_at) then
+        candidate_starts_at := ((target_date + local_start) at time zone 'Asia/Manila');
+        candidate_ends_at := ((target_date + local_end) at time zone 'Asia/Manila');
+        if candidate_starts_at > now() and candidate_starts_at <= now() + interval '14 days'
+           and private.schedule_range_published(target_psychiatrist_id, candidate_starts_at, candidate_ends_at) then
           insert into public.availability_slots (psychiatrist_id, starts_at, ends_at, status)
-          values (target_psychiatrist_id, starts_at, ends_at, 'open')
+          values (target_psychiatrist_id, candidate_starts_at, candidate_ends_at, 'open')
           on conflict (psychiatrist_id, starts_at) do nothing;
         end if;
       end loop;
@@ -275,7 +273,7 @@ as $$
   select 'override', override.id, null::smallint, override.local_date, override.starts_local, override.ends_local, override.kind, override.approval_status
   from public.psychiatrist_schedule_overrides override
   join public.psychiatrists psychiatrist on psychiatrist.id = override.psychiatrist_id and psychiatrist.profile_id = actor_profile_id
-  order by record_type, local_date nulls first, weekday nulls first, starts_local;
+  order by 1, 4 nulls first, 3 nulls first, 5;
 $$;
 revoke all on function public.get_my_schedule(uuid) from public, anon, authenticated;
 grant execute on function public.get_my_schedule(uuid) to service_role;
@@ -363,7 +361,7 @@ begin
      or extract(minute from target_starts_local)::integer % 15 <> 0 or extract(minute from target_ends_local)::integer % 15 <> 0 then
     raise exception 'invalid_schedule' using errcode = '22023';
   end if;
-  approval := case when target_kind = 'available' and (target_starts_local < time '08:00' or target_ends_local > time '17:00') then 'pending' else 'approved' end;
+  approval := (case when target_kind = 'available' and (target_starts_local < time '08:00' or target_ends_local > time '17:00') then 'pending' else 'approved' end)::public.schedule_approval_status;
   if target_override_id is null then
     insert into public.psychiatrist_schedule_overrides (psychiatrist_id, local_date, starts_local, ends_local, kind, approval_status, requested_by, approved_by, approved_at)
     values (save_psychiatrist_id, target_date, target_starts_local, target_ends_local, target_kind, approval, actor_profile_id,
@@ -397,7 +395,7 @@ begin
   select * into saved from public.psychiatrist_schedule_overrides where id = target_override_id for update;
   if not found or saved.approval_status <> 'pending' then raise exception 'schedule_not_permitted' using errcode = '42501'; end if;
   select id into psychiatrist_id from public.psychiatrists where id = saved.psychiatrist_id;
-  update public.psychiatrist_schedule_overrides set approval_status = case when approve then 'approved' else 'rejected' end,
+  update public.psychiatrist_schedule_overrides set approval_status = (case when approve then 'approved' else 'rejected' end)::public.schedule_approval_status,
     approved_by = actor_profile_id, approved_at = case when approve then now() else null end
   where id = target_override_id returning * into saved;
   if approve then perform private.refresh_psychiatrist_availability(psychiatrist_id); end if;
