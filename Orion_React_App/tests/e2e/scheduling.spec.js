@@ -50,7 +50,7 @@ async function createIsolatedSlot(psychiatristEmail, projectName, hoursAhead = 7
   while ([0, 6].includes(localDate.getUTCDay())) localDate.setUTCDate(localDate.getUTCDate() + 1);
   const localHour = projectName === "chromium" ? 9 : 11;
   for (let attempt = 0; attempt < 12; attempt += 1) {
-    const startsAt = new Date(Date.UTC(localDate.getUTCFullYear(), localDate.getUTCMonth(), localDate.getUTCDate(), localHour, attempt * 15) - (8 * 60 * 60 * 1000));
+    const startsAt = new Date(Date.UTC(localDate.getUTCFullYear(), localDate.getUTCMonth(), localDate.getUTCDate(), localHour, attempt * 15, 1) - (8 * 60 * 60 * 1000));
     const id = crypto.randomUUID();
     const { error } = await service.from("availability_slots").insert({
       id,

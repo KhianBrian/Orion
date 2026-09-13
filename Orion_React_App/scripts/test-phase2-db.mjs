@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createClient } from "@supabase/supabase-js";
+import { nextWeekdayStart } from "./scheduling-test-helpers.mjs";
 
 try {
   process.loadEnvFile(".env");
@@ -89,25 +90,11 @@ const originalPhones = Object.fromEntries(
     .map(({ id, phone }) => [id, phone]),
 );
 
-const existingSlots = await data(
-  service.from("availability_slots")
-    .select("ends_at")
-    .in("psychiatrist_id", [psychiatristOneRow.id, psychiatristTwoRow.id]),
-  "load existing psychiatrist slots",
-);
-const latestSlotEnd = existingSlots.reduce(
-  (latest, { ends_at }) => Math.max(latest, new Date(ends_at).getTime()),
-  0,
-);
-
 const openSlotId = crypto.randomUUID();
 const appointmentSlotId = crypto.randomUUID();
 const otherPsychiatristSlotId = crypto.randomUUID();
 const bookingRequestId = crypto.randomUUID();
-const start = new Date(Math.max(
-  Date.now() + 45 * 24 * 60 * 60 * 1000,
-  latestSlotEnd + 2 * 60 * 60 * 1000,
-));
+const start = nextWeekdayStart({ daysAhead: 7 });
 const openSlotStart = new Date(start);
 const appointmentSlotStart = new Date(start.getTime() + 2 * 60 * 60 * 1000);
 const otherPsychiatristSlotStart = new Date(start.getTime() + 4 * 60 * 60 * 1000);
@@ -190,15 +177,15 @@ try {
   assert.equal((await rows(psychiatristTwo.client.from("psychiatrists").select("id").eq("id", psychiatristOneRow.id), "unassigned psychiatrist cannot see other row")).length, 0);
   assert.equal((await rows(admin.client.from("psychiatrists").select("id").in("id", [psychiatristOneRow.id, psychiatristTwoRow.id]), "admin sees clinician rows")).length, 2);
 
-  const patientSlots = await rows(patientOne.client.from("availability_slots").select("id").in("id", [openSlotId, otherPsychiatristSlotId]), "patient sees active open slots");
-  assert.deepEqual(patientSlots.map(({ id }) => id).sort(), [openSlotId, otherPsychiatristSlotId].sort());
-  assert.equal((await rows(psychiatristOne.client.from("availability_slots").select("id").in("id", [openSlotId, appointmentSlotId, otherPsychiatristSlotId]), "psychiatrist sees own slots only")).length, 2);
-  assert.equal((await rows(psychiatristTwo.client.from("availability_slots").select("id").in("id", [openSlotId, otherPsychiatristSlotId]), "second psychiatrist sees own slot only")).length, 1);
-  assert.equal((await rows(admin.client.from("availability_slots").select("id").in("id", [openSlotId, appointmentSlotId, otherPsychiatristSlotId]), "admin sees all slots")).length, 3);
+  for (const session of sessions) {
+    const rawAvailability = await session.client.from("availability_slots").select("id").limit(1);
+    assert.ok(rawAvailability.error, `${session.label} cannot read raw availability rows`);
+  }
 
   await data(service.from("psychiatrists").update({ is_active: false }).eq("id", psychiatristTwoRow.id), "deactivate second psychiatrist for gating check");
   assert.equal((await rows(patientOne.client.from("psychiatrists").select("id").eq("id", psychiatristTwoRow.id), "patient cannot see inactive psychiatrist")).length, 0);
-  assert.equal((await rows(patientOne.client.from("availability_slots").select("id").eq("id", otherPsychiatristSlotId), "patient cannot see inactive psychiatrist slot")).length, 0);
+  const inactiveSlots = await patientOne.client.from("availability_slots").select("id").eq("id", otherPsychiatristSlotId);
+  assert.ok(inactiveSlots.error, "patient cannot read raw availability rows");
   await data(service.from("psychiatrists").update({ is_active: true }).eq("id", psychiatristTwoRow.id), "restore second psychiatrist activation");
   console.log("Phase 2 matrix: checking appointment visibility...");
 
