@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createClient } from "@supabase/supabase-js";
+import { nextWeekdayStart } from "./scheduling-test-helpers.mjs";
 
 try { process.loadEnvFile(".env"); } catch (error) { if (error.code !== "ENOENT") throw error; }
 const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -17,7 +18,7 @@ const [patients, psychiatrist, admin] = await Promise.all([
 assert.ok(patients.length >= 2);
 const ids = Array.from({ length: 5 }, () => crypto.randomUUID());
 const [switchSlot, clinicianSlot, outcomeSlot, originalSlot, replacementSlot] = ids;
-const future = new Date(Date.now() + 72 * 60 * 60 * 1000); future.setUTCMinutes(0, 0, 0);
+const future = nextWeekdayStart({ daysAhead: 3, hour: 8 });
 const starts = [future, new Date(future.getTime() + 2 * 60 * 60 * 1000), new Date(Date.now() - 2 * 60 * 60 * 1000), new Date(future.getTime() + 6 * 60 * 60 * 1000), new Date(future.getTime() + 8 * 60 * 60 * 1000)];
 const appointments = [];
 try {
