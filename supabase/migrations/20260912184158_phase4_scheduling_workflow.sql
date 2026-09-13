@@ -507,7 +507,7 @@ begin
   if not found or original.status <> 'booked' then raise exception 'reschedule_not_permitted' using errcode = '42501'; end if;
   if not approve then
     update public.reschedule_requests set status = 'declined', decided_at = now(), decided_by = actor_profile_id,
-      decision_idempotency_key = request_id, decision_reason = nullif(btrim(decision_reason), '') where id = request_row.id returning * into request_row;
+      decision_idempotency_key = request_id, decision_reason = nullif(btrim($3), '') where id = request_row.id returning * into request_row;
     insert into public.audit_events (actor_id, event_code, target_type, target_id, outcome, reason_code, correlation_id)
     values (actor_profile_id, 'appointment_reschedule_declined', 'reschedule_request', request_row.id, 'success', 'psychiatrist_declined', request_id);
     return query select request_row.id, request_row.status, request_row.replacement_appointment_id; return;
@@ -531,7 +531,7 @@ begin
   end;
   update public.availability_slots set status = 'booked' where id = request_row.requested_slot_id;
   update public.reschedule_requests set status = 'approved', decided_at = now(), decided_by = actor_profile_id,
-    decision_idempotency_key = request_id, decision_reason = nullif(btrim(decision_reason), ''), replacement_appointment_id = replacement.id
+    decision_idempotency_key = request_id, decision_reason = nullif(btrim($3), ''), replacement_appointment_id = replacement.id
     where id = request_row.id returning * into request_row;
   insert into public.audit_events (actor_id, event_code, target_type, target_id, outcome, correlation_id, metadata)
   values (actor_profile_id, 'appointment_reschedule_approved', 'reschedule_request', request_row.id, 'success', request_id,
