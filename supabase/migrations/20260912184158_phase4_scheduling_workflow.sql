@@ -523,8 +523,7 @@ begin
   update public.availability_slots set status = 'open' where id = original.slot_id;
   begin
     insert into public.appointments (patient_id, psychiatrist_id, slot_id, starts_at, ends_at, idempotency_key, rescheduled_from_id)
-    select original.patient_id, requested.psychiatrist_id, requested.id, requested.starts_at, requested.ends_at, request_id, original.id
-    from public.availability_slots as requested where requested.id = request_row.requested_slot_id
+    values (original.patient_id, requested.psychiatrist_id, requested.id, requested.starts_at, requested.ends_at, request_id, original.id)
     returning * into replacement;
   exception when unique_violation then
     raise exception 'slot_unavailable' using errcode = 'P0001';
