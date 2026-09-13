@@ -111,7 +111,7 @@ prove payment.
 - Re-ground the existing patient cancellation transaction against pending/payment states.
 - Do not let existing cancellation logic accidentally cancel/reopen/refund a pending or paid booking
   without approved policy.
-- Integrate Phase 13 reschedule/no-show/outcome only after their commercial effects are approved.
+- Integrate the Phase 4 reschedule/no-show/outcome contract only after any commercial effects are approved.
 - Make manual reconciliation require approved actor, reason, evidence reference, correlation, and
   immutable audit; relationship IDs remain immutable.
 

@@ -93,7 +93,7 @@ explicit prerequisite increment under its owning authority and give it separate 
 | Phase 4 — Scheduling | Synthetic booking/cancellation exists, but full cancellation/reschedule/no-show/notes workflow is not built. | R1.3 replaces the future real booking behavior with payment authorisation while retaining approved cancellation and concurrency rules. |
 | Phase 5 — Video | JaaS exists only for the synthetic demo; production provider work is blocked. | R1.4 creates a separate approved Google Meet boundary and does not promote or overwrite D5 evidence. |
 | Phase 6 — Operations | Production support, retention, incidents, access review, recovery, and release exercises are not implemented. | R1.5 extends and consumes this work; it does not claim Phase 6 closure without Phase 6 evidence. |
-| Phase 13 — Outcomes | Completion/no-show/reschedule/correction behavior is planned but decision-blocked. | R1.4/R1.5 preserve manual outcomes and hand those decisions back to Phase 13. |
+| Phase 4 — Outcomes | Completion/no-show/reschedule/correction behavior is part of the Phase 4 contract. | R1.4/R1.5 preserve manual outcomes and hand timing/provider facts back to Phase 4. |
 
 This handshake is especially important for session notes: the 15-minute display window can be
 planned independently, but a usable note flow still requires the separately authorised note schema,
@@ -447,10 +447,10 @@ specification.
 - Scheduled end and `end + 15 minutes` cause no automatic appointment outcome, note lock, or release.
 - Existing D5 JaaS synthetic access matrix stays green and remains clearly non-production.
 
-### Handoff to R1.5 and Phase 13
+### Handoff to R1.5 and Phase 4
 
 R1.4 records exact provider resources, admission rules, event data, kill-switch behavior, and timing
-facts. R1.5 builds the outage/support process from those facts. Phase 13 continues to own human-recorded
+facts. R1.5 builds the outage/support process from those facts. Phase 4 continues to own human-recorded
 appointment outcomes, no-show, rescheduling, and outcome correction.
 
 ## Phase 19–20 / R1.5 — Support, operations, verification, and controlled launch
@@ -647,7 +647,7 @@ Related eligible user requests join
 ```
 
 Early end, late note, no-show, completion, outcome correction, and rescheduling remain governed by the
-recorded clinical decisions and Phase 13.
+recorded clinical decisions and Phase 4.
 
 ### Support ticket
 

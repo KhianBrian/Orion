@@ -25,7 +25,7 @@ note-writing display window never create an automatic appointment outcome, note 
    as-built audits. If absent, implementation stops.
 5. Official Google Workspace/API material and the approved organisation configuration.
 6. Fresh inspection of current appointment/note schema, meeting route/function, provider settings,
-   timing helpers, Phase 13 status, and tests.
+   timing helpers, Phase 4 status, and tests.
 
 JaaS/D5 is historical synthetic evidence. Its JWT/token claims are not implementation basis for
 Google Meet behavior.
@@ -37,7 +37,7 @@ Google Meet behavior.
 - Scheduled session-end and approved host/end-session behavior.
 - Derived patient join and psychiatrist note-window states.
 - Provider outage/kill switch, safe audit/observability, and synthetic/manual verification.
-- Explicit handoff of outcomes/no-show/reschedule/correction to Phase 13.
+- Explicit handoff of outcomes/no-show/reschedule/correction to Phase 4.
 
 ## Non-goals
 
@@ -64,7 +64,7 @@ Google Meet behavior.
 - Read Phase 16/17 as-built audits and query exact eligibility/booked/admission inputs.
 - Inspect current `get-demo-meeting-access`, `DemoMeeting`, `video_room_id`, timing helpers,
   appointment projection, note objects/functions if any, and provider feature flags.
-- Confirm whether Phase 2/4 session notes and Phase 13 outcomes are implemented. If notes are absent,
+- Confirm whether Phase 2/4 session notes and Phase 4 outcomes are implemented. If notes are absent,
   schedule their separately authorised prerequisite with its own migration/RLS/audit gate; do not hide
   it in a Google Meet completion claim.
 - Map official Workspace behaviors and approved settings into an explicit provider contract.

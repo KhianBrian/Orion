@@ -1,5 +1,12 @@
 # Pilot Decision Register
 
+## Amendment — 13 September 2026: MFA deferral
+
+For the current launch, MFA is not a requirement. Phase 12 remains documented as a future privileged-
+access security-hardening phase, but it is deferred and must not block the current launch sequence.
+The role scope, factor, enrollment, recovery, and enforcement rules will be decided only if Phase 12
+is activated later.
+
 ## Amendment — 8 September 2026: Initial-launch change set
 
 This amendment records the owners' latest meeting direction. It is the current authority where it
@@ -48,7 +55,7 @@ the baseline artefacts it consumes, but cannot retrospectively mark an earlier p
 - The next milestone is a **safe demo with fake data**, not a real launch. It has exactly five accounts: two patients, two psychiatrists, and one admin. No real people, appointments, sessions, or public video calls are involved.
 - For the demo, Orion will use Jitsi as a Service with short-lived access tokens. That approval is for the demo only, not for real patient sessions.
 - Patients may create their own accounts at launch, but only adults may use the service at first. They will confirm their age themselves; Orion will not collect ID.
-- Orion is an appointment-booking service, not an emergency or urgent-care service. Patient-facing crisis and referral wording still needs clinical approval.
+- Orion is an appointment-booking service, not an emergency or urgent-care service. Orion will not infer clinical appropriateness from booking data or automatically block a booking for that reason; any general service-boundary wording belongs in separately approved legal/clinical content.
 - Appointments are 45 minutes. Patients can cancel or reschedule more than 24 hours before the appointment. Psychiatrists need 48 hours' notice to cancel themselves; after that, admin handles it and records why. A psychiatrist, not the system, marks a no-show after a grace period.
 - Orion may keep session notes written by psychiatrists. Patients see only the latest note version after the psychiatrist releases it. Corrections create protected prior versions that patients cannot read; admin audit metadata provides proof of the access history without exposing note content.
 - Orion will not collect prescriptions, diagnoses, recordings, transcripts, chat messages, file uploads, or reasons for visit.
@@ -168,7 +175,7 @@ Carried forward from the 27 August 2026 review. Each item blocks the work named 
 
 ### Referred to the clinical lead
 
-- **Clinical emergency position.** The owners' view that a clinical emergency will not occur conflicts with the approved Q4 crisis and referral path. Engineering is proceeding with the Q4 answer — the crisis path stays in — pending a clinical ruling. Psychiatric consultations carry a foreseeable risk of acute distress or a safety disclosure during a session, and this is not a determination engineering may make.
+- **Clinical emergency position.** Orion remains a scheduled appointment service, not emergency or urgent care. Engineering will not build automated clinical triage or a booking-time crisis/referral decision. Any general service-boundary wording remains a separately approved legal/clinical-content concern, not a scheduling rule.
 - **Patient-visible session notes.** A note written knowing the patient will read it differs clinically from a private record. The release step agreed on 27 August 2026 gives the psychiatrist control of timing, but the clinical governance of patient-visible notes warrants a clinical lead's view.
 - **Late grace period before a no-show may be set.** Assigned to the clinical lead by the [appointment lifecycle](appointment-lifecycle.md) timing rules. Fifteen minutes of a 45-minute session is recommended for their consideration. *Blocks: Phase 4 no-show behaviour.*
 - **Early join, session end, and notes.** The meeting direction is 15 minutes early join, a 45-minute consultation, then a 15-minute psychiatrist note window. The clinical lead still confirms early-end, late-note, no-show, and patient-visibility edges. *Blocks: R1.1/R1.4 timing contracts.*
@@ -237,7 +244,7 @@ to close Q2 sooner than "anytime". Full text in
 - **Separate support role.** Superseded: no separate support account, booking surface, or note-access path is planned.
 - **Demo account set.** The milestone above fixes the current synthetic accounts. Confirm only whether session notes appear in the demo.
 
-- **MFA role scope.** Before real-user launch, confirm which roles must use an additional login step (recommended: psychiatrist and admin), who approves exceptions, and when enforcement is required. Implementation is tracked in [Phase 12](../engineering/phases/phase-12-mfa-and-privileged-access.md); the synthetic demo remains MFA-free.
+- **MFA role scope.** MFA is deferred and is not required for the current launch. If the owners activate the future [Phase 12](../engineering/phases/phase-12-mfa-and-privileged-access.md) hardening work, decide which roles must use an additional login step, who approves exceptions, and when enforcement is required. The synthetic demo remains MFA-free.
 
 ## Knowledge-base documents reconciled
 

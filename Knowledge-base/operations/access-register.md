@@ -21,7 +21,7 @@ service keys, private keys, recovery codes, or copied credentials.
 | Record named identity | Git repository | All | Read / write / admin | Record approved method | Record owner | YYYY-MM-DD | Link to review or offboarding record |
 | CI service identity | Repository CI | Test / staging | Minimum required deploy and test permissions | Short-lived or platform-managed credential | Engineering owner | YYYY-MM-DD | Link to rotation or revocation record |
 | Record named identity | Supabase dashboard | Staging | Minimum required project role | Record approved method | Supabase owner | YYYY-MM-DD | Link to review or offboarding record |
-| No production identity yet | Supabase production | Production | Not provisioned | MFA required before provisioning | Company owner | Not applicable | Not applicable |
+| No production identity yet | Supabase production | Production | Not provisioned | Least privilege; MFA deferred for the current launch and tracked in Phase 12 | Company owner | Not applicable | Not applicable |
 
 ## Review procedure
 

@@ -4,46 +4,57 @@
 
 Launch a controlled real-market pilot only after clinical, privacy, security, operational, and technical gates are approved. No production feature work bypasses an earlier gate.
 
-## Baseline position — 4 September 2026
+## Current progress — 13 September 2026
 
-The five-account synthetic demo track (D0–D7) is implemented and verified. It uses synthetic data only
-and does not close any controlled-pilot gate. Phases 0–6 remain in their documented states below;
-frontend continuation work is planned in Phases 7–11, and privileged-access MFA is a separate Phase 12.
-Real users, production data, and real consultations remain prohibited until the owner and clinical,
-privacy, vendor, retention, and operations decisions are recorded.
+The five-account synthetic demo track (D0–D7) is implemented and verified. The current scoped work for
+Phases 0–3 is complete, and the frontend continuation's [Phase 11 — Frontend Acceptance](phases/phase-11-frontend-acceptance.md)
+work is complete with evidence in the [12 September Phase 11 audit](../audit-trail/2026-09-12-phase-11-frontend-acceptance-audit.md).
+These results use synthetic data and non-production infrastructure only; they do not authorize real
+users, production data, real payments, or real consultations.
 
-## Start here — current implementation roadmap from Phase 9
+The repeatable AI implementation, QA, merge, publishing, and cleanup process is documented in the
+[AI delivery and verification workflow](ai-delivery-workflow.md). Use it for every approved phase.
 
-**Roadmap updated:** 10 September 2026
+### Completed current-scope work
 
-The last formally implemented and audited phase is [Phase 9 — Appointment Experience](phases/phase-9-appointment-experience.md),
-with evidence in the [5 September Phase 9 audit](../audit-trail/2026-09-05-phase-9-appointment-experience-audit.md).
-The owner priority is feature completion in isolated synthetic/non-production environments. The next
-implementation target is Phase 2's feature work; Phase 10 was a JaaS-specific synthetic-demo
-continuation and is superseded now that the demo is complete. Google Meet belongs to Phase 18 and is
-not implemented from the JaaS plan. The latest scheduling commit only refined the Phase 9 appointment
-surface; it did not implement Phase 14 or any R1 launch feature.
+| Phase | Current progress | Evidence / boundary |
+| --- | --- | --- |
+| Phase 0 — Governance and service design | Work completed for the current documented scope | Remaining owner, clinical, privacy, retention, vendor, and operations decisions still govern real-launch approval. |
+| Phase 1 — Secure platform baseline | Foundation work completed; production-readiness controls remain deferred | [Phase 1 implementation audit](../audit-trail/2026-09-10-phase-1-implementation-audit.md) |
+| Phase 2 — Data, RBAC, consent, and audit | Completed as-built foundation; consent remains deferred to the recorded post-development scope | [Phase 2 implementation audit](../audit-trail/2026-09-10-phase-2-data-rbac-foundation-audit.md) |
+| Phase 3 — Replace prototype identity | Completed and verified | [Phase 3 implementation audit](../audit-trail/2026-09-10-phase-3-identity-implementation-audit.md) |
+| Phase 11 — Frontend acceptance | Completed and verified; owner walkthrough remains deferred | [Phase 11 acceptance audit](../audit-trail/2026-09-12-phase-11-frontend-acceptance-audit.md) |
+
+## Start here — current implementation roadmap
+
+**Roadmap updated:** 13 September 2026
+
+Phase 4 and [Phase 14 — Doctor-managed availability](phases/phase-14-doctor-managed-availability.md)
+are implemented, verified, merged into local `main`, and pushed to `origin/main`. Their detailed
+as-built evidence is recorded in the [Phase 4 audit](../audit-trail/20260913-phase-4-scheduling-audit.md)
+and [Phase 14 audit](../audit-trail/20260913-phase-14-doctor-managed-availability-audit.md). The next
+baseline implementation target is Phase 15, subject to its documented decisions and gates.
+
+Phase 10's JaaS-specific continuation is superseded now that the synthetic demo is complete. Google
+Meet belongs to Phase 18 and must not be implemented from the old JaaS plan. Phase 12 MFA is currently
+deferred and is not a current-launch blocker; it remains available as a future security-hardening phase.
 
 Use this section as the starting instruction for a new implementation chat:
 
-1. Read the Phase 9 audit and inspect the current working tree, applied migrations, deployed
-   functions, RLS policies, and tests. The live/as-built system is the source of truth.
+1. Read the Phase 3 and Phase 11 audits and inspect the current working tree, applied migrations,
+   deployed functions, RLS policies, and tests. The live/as-built system is the source of truth.
 2. Treat the completed JaaS demo as historical synthetic evidence. Do not implement the superseded
    [Phase 10](phases/phase-10-meeting-experience.md) plan or promote its JaaS route to real sessions.
-   Defer [Phase 11](phases/phase-11-frontend-acceptance.md) unless the synthetic frontend track is
-   explicitly resumed; the next real-launch step is Phase 1, not Phase 15.
-3. Complete feature work in synthetic/non-production scope: [Phase 2](phases/phase-2-data-rbac.md)
-   → [Phase 3](phases/phase-3-identity.md) → [Phase 4](phases/phase-4-scheduling.md). The remaining
-   Phase 1 production-readiness evidence—access review, hosted CI/CD, staging deployment, monitoring,
-   and restore—is deferred until feature work is complete and must be in place before Phase 20 closes.
-   Use local checks while feature work is active. Each feature phase must still produce a dated as-built
-   audit before the next phase consumes it.
-4. After Phase 3 and the owner MFA decision, implement [Phase 12](phases/phase-12-mfa-and-privileged-access.md).
-   It may run alongside later scheduling work, but it must be complete before Phase 20 can approve
-   release.
-5. After the Phase 4 schema and lifecycle are verified, implement [Phase 13](phases/phase-13-appointment-outcomes-and-rescheduling.md),
-   then [Phase 14](phases/phase-14-doctor-managed-availability.md). Resolve the required clinical and
-   owner decisions before coding either phase.
+3. Use the [AI delivery and verification workflow](ai-delivery-workflow.md) for all new phase work.
+   Phase 4 and Phase 14 are complete in synthetic/non-production scope. The remaining Phase 1
+   production-readiness evidence—access review, hosted CI/CD, staging deployment, monitoring, and
+   restore—is deferred until feature work is complete and must be in place before Phase 20 closes.
+   Each feature phase must still produce a dated as-built audit before the next phase consumes it.
+4. Keep [Phase 12](phases/phase-12-mfa-and-privileged-access.md) deferred for now. Revisit it if the
+   owners make MFA a launch requirement or before a later privileged-access hardening milestone.
+5. Phase 4 and Phase 14 are now the verified scheduling foundation. Phase 13 outcomes and rescheduling
+   are merged into Phase 4 and must not be implemented separately. Continue with Phase 15 only after
+   its required decisions and predecessor evidence are confirmed.
 6. Implement the R1 continuation in order: [Phase 15](phases/phase-15-data-consent-and-audit-foundation.md)
    → [Phase 16](phases/phase-16-identity-and-minor-eligibility.md) →
    [Phase 17](phases/phase-17-paymaya-payment-authorised-booking.md) →
@@ -51,8 +62,8 @@ Use this section as the starting instruction for a new implementation chat:
    [Phase 19](phases/phase-19-support-tickets-and-launch-operations.md) →
    [Phase 20](phases/phase-20-integrated-launch-verification-and-controlled-release.md).
 
-Do not start Phase 15 while Phase 14 is only a plan. Phase 14 must first have a dated as-built audit,
-unless the owners record a sequencing amendment with compatibility checks. Phase 5's real-provider
+Phase 14 has a dated as-built audit and is no longer only a plan. Phase 15 may now consume that evidence
+once its own required decisions are resolved. Phase 5's real-provider
 work is implemented through Phase 18, and Phase 6's new support/release work is implemented through
 Phases 19–20; do not create duplicate provider or operations implementations. Phase 5 and Phase 6
 are not skipped: their remaining baseline gate evidence must be produced or explicitly delegated and
@@ -83,11 +94,10 @@ requirements identifiers while the executable plan continues numerically from Ph
 | [Phase 19](phases/phase-19-support-tickets-and-launch-operations.md) / R1.5 | Patient tickets, audited operations, approved payment/provider exceptions, retention/data-rights processes, runbooks, and kill switches. | Phase 15–18 as-built inputs plus approved support/retention/operations, privacy, finance, and provider decisions. |
 | [Phase 20](phases/phase-20-integrated-launch-verification-and-controlled-release.md) / R1.5 | Integrated feature, security, privacy, clinical, accessibility, performance, restore, rollback, and release evidence. | All prior phase gates, production-baseline controls, named-authority approvals, and company-owner go/no-go. |
 
-The first implementation action is not automatically Phase 15: Phase 14 is still planned rather than
-verified. Complete Phase 14 and write its dated as-built audit, or record an explicit sequencing
-amendment explaining why Phase 15 may safely proceed without it. Each numbered phase then consumes
-the preceding phase's dated as-built output. All work stays synthetic and disabled until its own gate
-and the overall production launch gate close.
+The next implementation action is Phase 15 after its named decisions and fresh deployed-state checks
+are ready. Phase 15 consumes the Phase 14 as-built audit and migration/RLS/function evidence. Each
+numbered phase then consumes the preceding phase's dated as-built output. All work stays synthetic and
+disabled until its own gate and the overall production launch gate close.
 
 ## Phase 0 — Governance and service design
 
@@ -119,6 +129,18 @@ Replace duplicate mock pages with server-authoritative booking/cancellation, cli
 
 **Gate:** Concurrent booking, retry/idempotency, cancellation boundary, timezone, and mobile/desktop checks pass.
 
+**As-built:** Implemented and verified. See the [Phase 4 audit](../audit-trail/20260913-phase-4-scheduling-audit.md).
+
+## Phase 14 — Doctor-managed availability
+
+Add psychiatrist-owned weekday schedules, Manila-local overrides, outside-hours approval, server-generated
+15-minute starts for 45-minute sessions, the two-week booking horizon, and conflict-safe schedule changes.
+
+**Gate:** Schedule ownership, approval, booked-appointment protection, server availability projection,
+RLS, migration lint, database, and desktop/mobile workflow checks pass.
+
+**As-built:** Implemented and verified. See the [Phase 14 audit](../audit-trail/20260913-phase-14-doctor-managed-availability-audit.md).
+
 ## Phase 5 — Approved private video
 
 Integrate the approved provider using short-lived participant tokens, a provider abstraction, preflight UI, and booking/video kill switches. Recording, transcription, chat, and files remain off by default.
@@ -133,11 +155,13 @@ Add minimal admin tooling, clinician offboarding, support/runbooks, monitoring, 
 
 ## Phase 12 — Multi-factor authentication and privileged access
 
-After the frontend continuation work, enforce an additional login step for the owner-selected
-privileged roles, protect recovery and offboarding, and verify the complete allow/deny matrix.
+After the frontend continuation work, this future hardening phase may enforce an additional login step
+for owner-selected privileged roles, protect recovery and offboarding, and verify the complete
+allow/deny matrix. It is not required for the current launch.
 
-**Gate:** Selected privileged roles cannot sign in without MFA, bypass paths are closed and audited, and
-company owners have recorded the role scope and launch requirement in the decision register.
+**Future gate:** If activated, selected privileged roles cannot sign in without MFA, bypass paths are
+closed and audited, and company owners have recorded the role scope and enforcement requirement in the
+decision register.
 
 ## Synthetic demo track (cross-cutting)
 

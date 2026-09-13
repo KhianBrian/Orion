@@ -2,7 +2,7 @@
 
 ## Environment separation
 
-Use distinct local, test, staging, and production projects/accounts. Production never receives fixtures, test accounts, copied authentication state, or debug configuration. A named owner controls each environment and production access is least-privilege with MFA.
+Use distinct local, test, staging, and production projects/accounts. Production never receives fixtures, test accounts, copied authentication state, or debug configuration. A named owner controls each environment and production access is least-privilege. MFA is deferred for the current launch and tracked as future Phase 12 hardening.
 
 ## Secrets
 

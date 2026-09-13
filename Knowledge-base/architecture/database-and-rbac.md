@@ -73,7 +73,7 @@ this schema and belong to Phase 18.
 
 The complete three-role table/action matrix and its live verification command are recorded in the
 [Phase 2 data/RBAC plan](../engineering/phases/phase-2-data-rbac.md#complete-three-role-rls-allowdeny-matrix). Outcome transitions, psychiatrist
-cancellation, no-show recording, and rescheduling are Phase 13 responsibilities; this schema stores
+cancellation, no-show recording, and rescheduling are Phase 4 responsibilities; this schema stores
 their provider-neutral appointment facts without exposing unfinished transition functions.
 
 ## Sensitive commands

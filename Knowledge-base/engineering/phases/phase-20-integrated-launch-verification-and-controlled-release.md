@@ -90,7 +90,7 @@ and the evidence is corrected before testing continues.
 - Verify pending, refused, withdrawn, superseded, expired, abandoned, failed, duplicated, late,
   cancelled, provider-unavailable, out-of-window, closed-ticket, and retry states.
 - Verify appointment outcomes, cancellation, rescheduling, refunds, and corrections only where their
-  separately approved Phase 13/17 contracts exist; otherwise record a launch blocker.
+  separately approved Phase 4/17 contracts exist; otherwise record a launch blocker.
 
 ### P20-2 — Cross-role and security acceptance
 

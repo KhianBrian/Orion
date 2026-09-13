@@ -39,7 +39,7 @@ and operations policy; no implementation may choose them by default.
 
 ### Psychiatrist cancellation
 
-- A psychiatrist may cancel in the system only when `starts_at > server_now + 48 hours`. The notice period is deliberately longer than the patient's, because a late clinician cancellation disrupts a patient who has arranged their day around the appointment.
+- A psychiatrist may cancel in the system only when `starts_at > server_now + 48 hours`, and must provide an approved cancellation reason. The notice period is deliberately longer than the patient's, because a late clinician cancellation disrupts a patient who has arranged their day around the appointment.
 - Inside 48 hours a psychiatrist has no self-service route. Late cancellation is executed by an admin on the psychiatrist's behalf, with a mandatory reason recorded and an audit event raised.
 - **This path is required, not optional.** Without it an appointment cancelled by phone stays `booked` in the system while being off in reality, and the record goes stale.
 - A psychiatrist cancellation does **not** return the slot to availability.

@@ -8,7 +8,7 @@
 - **Support tickets:** are an R1 feature, not a new role. Their reader/writer matrix must be defined
   by R1.1/R1.5 before implementation; ticket access does not grant appointment, payment, or note access.
 
-Roles are created and changed only by protected server processes. Self-assignment, email-based inference, editable metadata claims, browser state, and URL parameters are prohibited. Privileged users require MFA before pilot launch.
+Roles are created and changed only by protected server processes. Self-assignment, email-based inference, editable metadata claims, browser state, and URL parameters are prohibited. MFA is deferred and is not required for the current launch; future privileged-access enforcement is tracked in Phase 12.
 
 ## Break-glass
 

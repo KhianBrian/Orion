@@ -312,7 +312,7 @@ approved data boundary admits a credential document.
 - **The cancelling party is a stored column**, populated at cancellation, never inferred from who called the endpoint. Slot reopening depends on it, and the [integrity rules](../../product/appointment-lifecycle.md#integrity-rules) require it as a stored fact.
 - **The absent party is a nullable column beside a single `no_show` status.** This is the extension-safe option the charter names: if the clinical lead later rules that a psychiatrist no-show is distinguishable, the ruling changes a value rather than the status model. Populated only when the status is `no_show`.
 - A self-reference links a reschedule's two appointment records, written in the same transaction that creates them so a partial link cannot exist.
-- **Transition ownership:** Phase 2 stores `no_show_party` and `rescheduled_from_id`; Phase 13 owns the
+- **Transition ownership:** Phase 2 stores `no_show_party` and `rescheduled_from_id`; Phase 4 owns the
   authorized outcome, psychiatrist-cancellation, no-show, and reschedule functions after its named
   clinical decisions are ratified. Phase 2 does not expose incomplete transition endpoints.
 - Indexes on `(psychiatrist_id, starts_at)` and `(patient_id, starts_at)` and on open-slot lookup, per [database and RBAC](../../architecture/database-and-rbac.md#indexes-and-integrity).

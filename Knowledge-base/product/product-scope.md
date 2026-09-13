@@ -58,7 +58,7 @@ Full appointment transitions are in the [appointment lifecycle](appointment-life
 
 ## Out of scope
 
-- Insurance/HMO, prescriptions, diagnoses, clinical records other than the session note, SMS/email reminders, support-email notifications, native apps, a full hospital admin panel, and a custom video server. MFA is required for privileged roles before pilot launch.
+- Insurance/HMO, prescriptions, diagnoses, clinical records other than the session note, SMS/email reminders, support-email notifications, native apps, a full hospital admin panel, and a custom video server. MFA is deferred for the current launch and retained as future privileged-access hardening in Phase 12.
 - Session recordings, transcripts, file uploads, chat, and free-text reasons for care.
 - Blog CMS/submissions, portfolio, testimonials, career counseling, unrelated medical specialties, dashboard charts, duplicate booking flows, and the legacy `Orion/` static prototype.
 
