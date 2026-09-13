@@ -17,6 +17,13 @@
 !**/test-artifacts/
 !**/test-artifacts/README.md
 
+# Local-only historical reports retained outside Git
+/OrionProgressReport_Aug26-Sept2.pdf
+/OrionProgressReport|08-26|to|09-02|.md
+/VIDEO_HOSTING_OPTIONS_MEETING.md
+/Orion_React_App/playwright-report*/
+/Orion_React_App/test-results*/
+
 # Supabase local CLI state
 supabase/.branches/
 supabase/.temp/
