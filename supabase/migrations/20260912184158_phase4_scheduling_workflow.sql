@@ -120,7 +120,11 @@ security definer
 set search_path = pg_catalog
 as $$
 begin
-  if coalesce(current_setting('request.jwt.claim.role', true), '') <> 'service_role' then
+  if coalesce(
+    current_setting('request.jwt.claim.role', true),
+    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role'),
+    ''
+  ) <> 'service_role' then
     raise exception 'operation_not_permitted' using errcode = '42501';
   end if;
 end;
