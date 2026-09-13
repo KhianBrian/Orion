@@ -49,10 +49,10 @@ try {
   const requestKey = crypto.randomUUID();
   const request = (await required(db.rpc("request_appointment_reschedule", { target_appointment_id: original.appointment_id, requested_slot_id: replacementSlot, request_id: requestKey, actor_profile_id: patients[0].id }), "request reschedule"))[0];
   const retry = (await required(db.rpc("request_appointment_reschedule", { target_appointment_id: original.appointment_id, requested_slot_id: replacementSlot, request_id: requestKey, actor_profile_id: patients[0].id }), "retry reschedule request"))[0];
-  assert.equal(retry.id, request.id);
-  const approval = (await required(db.rpc("review_appointment_reschedule", { target_request_id: request.id, approve: true, decision_reason: null, request_id: crypto.randomUUID(), actor_profile_id: psychiatrist.profile_id }), "approve reschedule"))[0];
+  assert.equal(retry.reschedule_request_id, request.reschedule_request_id);
+  const approval = (await required(db.rpc("review_appointment_reschedule", { target_request_id: request.reschedule_request_id, approve: true, decision_reason: null, request_id: crypto.randomUUID(), actor_profile_id: psychiatrist.profile_id }), "approve reschedule"))[0];
   appointments.push(approval.replacement_appointment_id);
-  const approvalRetry = (await required(db.rpc("review_appointment_reschedule", { target_request_id: request.id, approve: true, decision_reason: null, request_id: crypto.randomUUID(), actor_profile_id: psychiatrist.profile_id }), "retry reschedule approval"))[0];
+  const approvalRetry = (await required(db.rpc("review_appointment_reschedule", { target_request_id: request.reschedule_request_id, approve: true, decision_reason: null, request_id: crypto.randomUUID(), actor_profile_id: psychiatrist.profile_id }), "retry reschedule approval"))[0];
   assert.equal(approvalRetry.replacement_appointment_id, approval.replacement_appointment_id);
   console.log("Phase 4 database checks passed: kill switch, clinician cancellation, manual no-show, reschedule retry, and approval idempotency.");
 } finally {
