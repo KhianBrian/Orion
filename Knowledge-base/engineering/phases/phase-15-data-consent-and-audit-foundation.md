@@ -3,15 +3,23 @@
 **R1 mapping:** Implements the provider-neutral foundation planned in
 [R1.1](../launch-readiness/r1.1-data-consent-and-audit-extension.md).
 
-**Status:** Planned — implementation has not started. The provisional Tier 2 outline below becomes
-executable only after P15-0 re-grounds it from Phase 14 evidence, live state, and approved decisions.
+**Status:** Implemented and locally verified on `codex/phase-15-data-consent-audit` — see the
+[2026-09-13 as-built audit](../../../audit-trail/20260913-phase-15-data-consent-audit.md). The
+branch is not merged, pushed, or remotely applied.
+
+**Scope amendment — 13 September 2026:** The approved Phase 15 slice includes the first support-ticket
+experience: patient and psychiatrist submission/list/detail, an authorised admin queue/detail view,
+cross-role replies, and unread-reply indicators. It remains administrative-only, synthetic-data-only,
+and excludes attachments, email, clinical content, and unapproved lifecycle actions.
 
 ## Outcome
 
 Create the forward-only, deny-first database foundation consumed by Phases 16–20: patient eligibility,
 guardian-consent evidence, payment attempts/events, support tickets/messages, active appointment
 reservation states, typed audit evidence, protected functions, and a complete RLS/grant test matrix.
-No patient flow, PayMaya adapter, Google Meet integration, or support UI is activated in this phase.
+No eligibility/guardian decision flow, PayMaya adapter, or Google Meet integration is activated in
+this phase. The support-ticket UI is included as a narrow administrative-help vertical slice with
+patient/psychiatrist requesters and admin replies.
 
 ## Where implementation draws its basis
 
@@ -48,8 +56,8 @@ booking to `booked`, and no R1 object. Reverify rather than relying on this sent
 
 ## Non-goals
 
-- Registration, guardian submission/review screens, PayMaya calls/webhooks, Google Meet, ticket UI,
-  email support, retention deletion jobs, or production activation.
+- Registration, guardian submission/review screens, PayMaya calls/webhooks, Google Meet, email
+  support, retention deletion jobs, or production activation.
 - Seeding legal/clinical wording or inventing age, assurance, commercial, support, retention, vendor,
   emergency, or outcome policy.
 - Editing any applied migration or backfilling fake payment/consent evidence for synthetic bookings.
@@ -115,7 +123,7 @@ contract is approved.
 - Provide only patient-safe, assigned-psychiatrist coarse, and approved admin projections; no separate support role
   remains denied unless explicitly approved.
 
-### P15-4 — Ticket and message foundation
+### P15-4 — Ticket and message foundation plus first UI slice
 
 - Create support ticket metadata and append-only ticket messages only after categories, free-text,
   lifecycle, responders, and admin scope are approved.
@@ -123,6 +131,10 @@ contract is approved.
 - Create no attachment/upload, clinical category, emergency, diagnosis, treatment, provider-secret,
   or note field.
 - Require audited protected reads for ticket content because RLS alone cannot audit `select`.
+- Add the patient/psychiatrist support surface for creating and viewing own administrative tickets,
+  the admin queue/detail surface for authorised operational review, and audited replies between the
+  requester and admin. Show an unread-reply indicator from server-side read state. Keep close/reopen,
+  escalation, uploads, and email notifications disabled until separately approved.
 
 ### P15-5 — Audit and protected-function boundary
 
@@ -150,7 +162,8 @@ contract is approved.
 
 - New timestamped files under `supabase/migrations/`; never the six applied migrations.
 - New or extended database test scripts under `Orion_React_App/scripts/`.
-- No React user-facing feature is required by Phase 15.
+- React support-ticket routes, feature queries/mutations, and responsive UI are required by the
+  approved Phase 15 slice.
 - Data dictionary, privacy governance, database/RBAC, access/audit, Supabase, implementation status,
   decision register when decisions land, and the dated audit entry.
 

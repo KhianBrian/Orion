@@ -15,6 +15,7 @@ import PatientAppointment from "../pages/PatientAppointment";
 import AdminAppointments from "../pages/AdminAppointments";
 import PsychiatristSchedule from "../pages/PsychiatristSchedule";
 import AdminSchedules from "../pages/AdminSchedules";
+import SupportTickets from "../pages/SupportTickets";
 import { RequireAbility, RequireAuth } from "../features/auth/RouteGuards";
 import { AuthenticatedShell } from "../features/auth/AuthenticatedShell";
 import { ROUTES, SUBJECTS } from "../constants/routes";
@@ -35,6 +36,7 @@ const authenticatedAppRoutes = [
   { element: <RequireAbility action="visit" subject={SUBJECTS.BOOKING} />, children: [{ path: ROUTES.BOOKING.slice(1), element: <PatientAppointment /> }] },
   { element: <RequireAbility action="visit" subject={SUBJECTS.APPOINTMENTS} />, children: [{ path: ROUTES.APPOINTMENTS.slice(1), element: <Appointments /> }] },
   { element: <RequireAbility action="visit" subject={SUBJECTS.SCHEDULE} />, children: [{ path: ROUTES.SCHEDULE.slice(1), element: <PsychiatristSchedule /> }] },
+  { element: <RequireAbility action="visit" subject={SUBJECTS.SUPPORT} />, children: [{ path: ROUTES.SUPPORT.slice(1), element: <SupportTickets /> }] },
   ...protectedFeatureRoutes.map(({ path, subject, element }) => ({ element: <RequireAbility action="visit" subject={subject} />, children: [{ path, element }] })),
 ];
 
