@@ -686,7 +686,7 @@ language plpgsql stable security definer set search_path = pg_catalog, public
 as $$
 declare actor_id uuid := actor_profile_id; actor_role public.app_role;
 begin
-  select role into actor_role from public.profiles where id = actor_id;
+  select profile.role into actor_role from public.profiles as profile where profile.id = actor_id;
   if actor_role = 'patient' then
     return query select n.id, n.appointment_id, n.version_number, n.supersedes_note_id, n.released_at, n.created_at
     from public.session_notes n join public.appointments a on a.id = n.appointment_id
