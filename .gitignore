@@ -36,3 +36,9 @@ supabase/.wrappers/
 # Generated owner-report renders and temporary inspection artifacts
 output/
 tmp/
+
+# Private local Claude/Codex coordination board; never commit live messages
+/agent-coordination/
+
+# Local Knowledge Base; keep authority notes outside Git commits
+/Knowledge-base/

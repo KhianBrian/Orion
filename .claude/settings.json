@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git branch*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git worktree*)",
+      "Bash(rg*)",
+      "Bash(find*)",
+      "Bash(sed*)",
+      "Bash(npm run lint*)",
+      "Bash(npm run build*)",
+      "Bash(npm run test:unit*)",
+      "Bash(node Knowledge-base/engineering/agent-coordination/generate-board.mjs*)"
+    ]
+  }
+}
