@@ -33,6 +33,15 @@ For Claude/Codex coordination, also read [`../Knowledge-base/engineering/ai-agen
 - Do not guess clinical, privacy/legal, retention, vendor, or emergency policy. Escalate it to the named owner.
 - Use synthetic data in all tests and non-production environments.
 
+## Phase-status synchronization
+
+When planning status changes, update the canonical `../Knowledge-base/engineering/phase-status.json`
+registry and automatically run `npm run phase-status:sync` followed by `npm run phase-status:check`.
+Fix every stale or conflicting indexed Markdown reference before handoff. This is an AI workflow
+requirement; the user should not have to run the check manually. New phase documents must be
+registered in the canonical file; the verifier checks for unregistered, unindexed, and conflicting
+phase records.
+
 ## Before handoff
 
 Run relevant unit, RLS, and Playwright tests, then `npm run lint` and `npm run build`. Update the appropriate knowledge-base decision, policy, or audit entry whenever a durable boundary changes.

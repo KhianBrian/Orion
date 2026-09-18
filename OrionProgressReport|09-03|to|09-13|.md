@@ -12,8 +12,9 @@ environment. It does not authorise real patient information, real appointments, 
 clinical consultations, or production video sessions.
 
 The work completed during this period improves the application and prepares foundations for a possible
-future launch. The JaaS video demonstration remains limited to the five synthetic accounts. Google
-Meet is only a proposed provider for future real use and has not been approved or implemented.
+future launch. The existing video prototype remains limited to synthetic accounts. Google Meet is
+only a proposed provider for future real use and has not been approved or implemented; Direct WebRTC
+and TURN are now the preferred architecture candidates for review.
 
 ---
 
@@ -113,7 +114,8 @@ The documented direction includes:
 - People under 18 require a parent or guardian consent process and cannot book simply because a form
   was submitted.
 - Real sessions are intended to use PayMaya payment confirmation.
-- Google Meet is the proposed provider for real sessions because the JaaS allowance is limited.
+- Direct WebRTC + TURN is the preferred architecture candidate for real sessions because it fits the
+  strict one-to-one service boundary; provider approval and infrastructure review are still pending.
 - Patients and psychiatrists may use in-app support for administrative or software questions.
 - The intended session timing is 15 minutes of early joining, a 45-minute consultation, and a further
   15-minute note-writing period for the psychiatrist.
@@ -269,9 +271,9 @@ They do not confirm that Orion is ready for real patients or real clinical activ
 | Psychiatrist availability | Completed and verified ✅ | Continue using the protected schedule and booking rules. |
 | Support foundation | Completed and verified ✅ | Define the full support and incident operation before launch. |
 | Secure production baseline | Partially completed | Finish access, deployment, monitoring, recovery, and operational ownership. |
-| Minor eligibility and guardian consent | Planned, not started | Need Template for Consent for under 18 users            |
-| PayMaya payment booking | Planned, not started | Need Paymaya API Obtain provider information and approve payment policies. |
-| Google Meet and real timing | Planned, not started | Approve the provider, Workspace setup, vendor terms, and clinical timing. |
+| Minor eligibility and guardian consent | Waiting for owner decisions after meeting | Non-blocking for unrelated phases. Consent flow, age/identity verification, evidence, review handling, and approved wording remain open before implementation. |
+| PayMaya payment booking | Waiting on PayMaya API | Provider integration material and payment, refund, chargeback, retention, and reconciliation policies remain open before implementation. |
+| Google Meet and real timing | Planned — blocked | Pending Phase 17 payment state, Workspace/provider validation, privacy/vendor approval, and clinical timing decisions. |
 | Final launch verification | Planned, not started | Complete all earlier work, approvals, and the owner go/no-go decision. |
 
 Phase 10 meeting-specific work was superseded by the updated launch direction. Reusable meeting

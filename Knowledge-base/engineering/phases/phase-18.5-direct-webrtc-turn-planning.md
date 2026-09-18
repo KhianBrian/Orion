@@ -10,9 +10,9 @@ strictly one-to-one psychiatrist-to-patient video session. This document is a pl
 owners, clinical, privacy/DPO, security, and operations reviewers can identify missing factors before
 a full implementation plan is written.
 
-The current Phase 18 authority remains [Phase 18 — Google Meet and session timing](phase-18-google-meet-and-session-timing.md)
-until the video-provider decision record and decision register are deliberately amended. Direct
-WebRTC + TURN must not replace the synthetic JaaS demo, and this document does not approve real
+The current Phase 18 provider authority remains unresolved until the video-provider decision record
+and decision register are deliberately amended. Direct WebRTC + TURN is the preferred candidate for
+review because it fits Orion’s strict one-to-one scope, but this document does not approve real
 patients, real appointments, real payments, real clinical sessions, or production infrastructure.
 
 ## Review basis and authority
@@ -33,9 +33,13 @@ This proposal was prepared from:
 9. [Operations and incident response](../../operations/operations-and-incident-response.md) and
    [environment, release, and secrets](../../operations/environment-release-and-secrets.md).
 
-The repository currently records Phase 16 and Phase 17 as planned and blocked, and Phase 18 as
-blocked. Their dated as-built evidence is therefore a prerequisite to any implementation that
-depends on eligibility or payment-authorised `booked` state.
+The infrastructure work packages and acceptance criteria are included in this document below.
+
+The repository currently records Phase 16 as waiting for owner decisions after its meeting, Phase 17
+as waiting on the PayMaya API, and Phase 18 as blocked. Phase 16 and Phase 17 are not blockers for
+unrelated work, but their approved eligibility predicate and provider-verified payment contract are
+prerequisites for implementation that depends on minor eligibility or payment-authorised `booked`
+state.
 
 ## Proposed outcome for discussion
 
@@ -49,7 +53,8 @@ The proposed boundary is deliberately narrow:
 - project-owned TURN only as a connectivity relay;
 - a small authorised signaling service carrying setup messages only;
 - no SFU, group-call, media-server, recording, transcription, chat, file, or screen-sharing feature;
-- JaaS retained as a synthetic-demo-only implementation;
+- Existing video prototype code remains outside the real-session architecture and must not be used
+  as a production fallback;
 - no unapproved provider or public-room fallback.
 
 This architecture provides admission control and encrypted media transport, but it cannot prevent a
@@ -283,8 +288,8 @@ artifacts.
 
 Rollback disables admission, signaling joins, and TURN credential issuance. It does not delete
 appointments, consent, notes, audit history, session history, or incident evidence. There is no
-fallback to public Jitsi or another unapproved provider. JaaS remains available only within its
-existing synthetic-demo boundary.
+fallback to an unapproved provider. The prototype video path remains outside the production
+architecture and is not a fallback.
 
 ## Future full implementation plan
 
@@ -362,7 +367,7 @@ passing UI demo alone is not sufficient evidence.
 | Signaling lease/reconnect semantics | Proposed, not approved | Security and operations |
 | Kill-switch owner and patient-facing outage copy | Not named | Operations, clinical, company owners |
 | Approved notices and telepsychiatry consent | Not finalized | DPO/legal and clinical lead |
-| Phase 16/17 as-built evidence | Not available | Engineering predecessor gates |
+| Phase 16/17 as-built evidence | Phase 16 waiting for owner decisions; Phase 17 waiting on PayMaya API | Engineering predecessor gates |
 
 ## Gate
 
@@ -374,3 +379,94 @@ Phase 18.5 remains a discussion document until:
 - named clinical, privacy/DPO, security, hosting, operations, and owner approvals exist;
 - the full implementation plan and QA protocol are written and approved; and
 - implementation and verification are separately authorised.
+
+## Consolidated infrastructure plan
+
+This section is the implementation-planning detail for the six infrastructure concerns. It is
+planning-only and does not authorise provisioning or code changes.
+
+### 1. Dedicated signaling service
+
+Use a separate horizontally scalable WebSocket gateway, not the database and not a long-lived
+Supabase database connection. The gateway will accept only short-lived Orion-signed join tokens,
+verify the appointment participant, allow one patient and one psychiatrist, forward only bounded SDP
+and ICE setup messages, enforce heartbeats/rate limits, and close connections on expiry, revocation,
+or the kill switch. Signaling data remains in memory and is not persisted.
+
+### 2. TURN relay servers
+
+Deploy project-owned coturn separately from the frontend, Supabase database, and signaling service.
+Use isolated staging and production pools, UDP normally, TLS/TCP fallback, controlled relay ports,
+bandwidth/allocation limits, health checks, and approved minimal logs. Start with multiple production
+relay nodes before real-user activation and size them using measured concurrent sessions and relay
+bandwidth.
+
+### 3. Short-lived TURN credentials
+
+The protected video-session-access operation verifies identity, role, relationship, eligibility,
+payment, appointment state, and the time window before issuing credentials. Credentials use the
+approved short-lived TURN REST/HMAC pattern, are session/participant scoped where supported, expire
+no later than `ends_at`, and are never stored in URLs, browser storage, logs, analytics, or database
+records. Reconnects receive new credentials only after reauthorization.
+
+### 4. Connection and reconnect handling
+
+Use an explicit client/gateway state machine: authorizing, connecting, connected, reconnecting,
+expired, revoked, failed, or remote-left. Reauthorize before reconnecting, use bounded exponential
+backoff with jitter, trigger ICE restart after network changes, preserve only non-sensitive UI state,
+and reuse the same appointment session. Never create a second session during reconnect.
+
+### 5. Capacity monitoring and testing
+
+Measure active sessions, signaling connections, direct-versus-relay ratio, TURN allocations,
+relay bandwidth, time to connect, reconnects, ICE restarts, failed joins, and gateway/TURN latency.
+Do not collect media, SDP, ICE candidates, raw IP addresses, tokens, credentials, or full user-agent
+strings.
+
+The capacity exercise must cover:
+
+- 100 concurrent sessions as the initial baseline;
+- 250 concurrent sessions as the growth target;
+- 1,000 concurrent sessions as an architecture-ceiling exercise;
+- 20%, 50%, and 100% TURN-relayed traffic;
+- two-times reconnect storms;
+- signaling gateway restart;
+- regional TURN-node loss.
+
+The target must pass with approved headroom, not merely avoid immediate failure.
+
+### 6. TURN failover
+
+Before connection, admission selects a healthy relay from the approved pool. During setup, the
+client may try another approved relay candidate. If an active relay fails, the client reauthorizes,
+obtains fresh credentials, and performs a new ICE connection while retaining the same appointment
+and opaque session. Failover must never extend the appointment window or use a public/unapproved
+relay.
+
+### 7. Outage controls and kill switches
+
+Provide independently auditable server-side controls for all admission, signaling joins/reconnects,
+TURN credential issuance, individual relay regions, and the entire real-session feature. When
+disabled, new joins are denied, new credentials are not issued, active gateway sessions are closed
+where possible, and appointments, payment, consent, notes, and audit history remain unchanged.
+There is no automatic provider fallback.
+
+### Rollout order
+
+1. Approve Direct WebRTC + TURN as the provider direction.
+2. Name clinical, privacy, security, video-operations, support, and stop-authority owners.
+3. Approve regions, vendors, data flows, retention, and subprocessors.
+4. Build a synthetic local/staging signaling and TURN environment.
+5. Implement the server admission and credential contract.
+6. Implement the signaling and reconnect state machines.
+7. Run two-party, restrictive-network, mobile-handoff, outage, failover, and concurrency tests.
+8. Complete security, privacy, clinical, hosting, and operations review.
+9. Release disabled by default in non-production.
+10. Obtain a separate company-owner go/no-go decision before real-user activation.
+
+### Infrastructure exit criteria
+
+Phase 18.5 infrastructure planning is complete only when the repository records the approved
+signaling protocol, TURN topology, credential contract, capacity headroom, failover behavior,
+kill-switch ownership, outage copy, observability redaction, secret rotation, rollback procedure,
+and implementation authorization.

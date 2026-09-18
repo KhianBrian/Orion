@@ -45,6 +45,7 @@ tmp/
 /Knowledge-base/*
 !/Knowledge-base/engineering/
 /Knowledge-base/engineering/*
+!/Knowledge-base/engineering/phase-status.json
 !/Knowledge-base/engineering/phases/
 /Knowledge-base/engineering/phases/*
 !/Knowledge-base/engineering/phases/phase-18.5-direct-webrtc-turn-planning.md

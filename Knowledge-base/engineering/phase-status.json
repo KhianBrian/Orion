@@ -1,0 +1,32 @@
+{
+  "15": {
+    "title": "Data, consent, and audit foundation",
+    "status": "Complete ✅",
+    "summary": "Implemented and verified in synthetic non-production; governance and production gates remain separate."
+  },
+  "16": {
+    "title": "Identity and minor eligibility",
+    "status": "Waiting for owner decisions after meeting",
+    "summary": "Non-blocking for unrelated phases. Consent flow, age/identity verification, evidence, review handling, and approved wording remain open before implementation."
+  },
+  "17": {
+    "title": "PayMaya payment-authorised booking",
+    "status": "Waiting on PayMaya API",
+    "summary": "Provider integration material and payment, refund, chargeback, retention, and reconciliation policies remain open before implementation."
+  },
+  "18": {
+    "title": "Google Meet and session timing",
+    "status": "Planned — blocked",
+    "summary": "Pending Phase 17 payment state, Workspace/provider validation, privacy/vendor approval, and clinical timing decisions."
+  },
+  "19": {
+    "title": "Support tickets and launch operations",
+    "status": "Planned — implementation blocked",
+    "summary": "Depends on Phase 15–18 as-built evidence plus support, operations, retention, privacy, finance, and provider decisions."
+  },
+  "20": {
+    "title": "Integrated launch verification and controlled release",
+    "status": "Planned — blocked on all prior gates",
+    "summary": "Depends on all prior phase audits, production-baseline controls, named approvals, and company-owner go/no-go."
+  }
+}

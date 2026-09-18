@@ -21,6 +21,14 @@ Read this file before planning, modifying, reviewing, testing, or releasing Orio
 - A stated intention is not permission to begin implementation. Obtain a fresh explicit go-ahead.
 - Do not begin Phase 16 or later implementation until the phase is planned and all required owner, clinical, privacy, legal, vendor, retention, and operational decisions are recorded.
 
+## Phase-status synchronization
+
+`Knowledge-base/engineering/phase-status.json` is the canonical status registry for numbered
+phases. Any planning/status change must automatically run `cd Orion_React_App && npm run
+phase-status:sync && npm run phase-status:check`. Correct stale or conflicting Markdown index data
+before reporting completion; do not leave synchronization for the user. New managed phase documents
+must also be added to the registry; the verifier rejects unregistered or unindexed phases.
+
 ## Before handoff
 
 Run the relevant tests, `npm run lint`, and `npm run build`. Record exact results and any remaining decisions in the appropriate audit or Knowledge Base entry.
