@@ -14,13 +14,16 @@ users, production data, real payments, or real consultations.
 
 The repeatable AI implementation, QA, merge, publishing, and cleanup process is documented in the
 [AI delivery and verification workflow](ai-delivery-workflow.md). Use it for every approved phase.
+When a second-agent review or investigation is useful, use the [Claude/Codex coordination process](ai-agent-coordination.md)
+before implementation. Phase 16 and later remain planning-gated until all required decisions and
+prerequisites are documented and approved.
 
 ### Completed current-scope work
 
 | Phase | Current progress | Evidence / boundary |
 | --- | --- | --- |
-| Phase 0 — Governance and service design | Work completed for the current documented scope | Remaining owner, clinical, privacy, retention, vendor, and operations decisions still govern real-launch approval. |
-| Phase 1 — Secure platform baseline | Foundation work completed; production-readiness controls remain deferred | [Phase 1 implementation audit](../audit-trail/2026-09-10-phase-1-implementation-audit.md) |
+| Phase 0 — Governance and service design | Deferred to post-development — phase remains open | Remaining owner, clinical, privacy, retention, vendor, and operations decisions are recorded in the [post-development deferral register](phases/deferredpostdevelopment.md). |
+| Phase 1 — Secure platform baseline | Deferred to post-development — foundation partly implemented | Remaining production-readiness controls are recorded in the [post-development deferral register](phases/deferredpostdevelopment.md). [Phase 1 audit](../audit-trail/2026-09-10-phase-1-implementation-audit.md) |
 | Phase 2 — Data, RBAC, consent, and audit | Completed as-built foundation; consent remains deferred to the recorded post-development scope | [Phase 2 implementation audit](../audit-trail/2026-09-10-phase-2-data-rbac-foundation-audit.md) |
 | Phase 3 — Replace prototype identity | Completed and verified | [Phase 3 implementation audit](../audit-trail/2026-09-10-phase-3-identity-implementation-audit.md) |
 | Phase 11 — Frontend acceptance | Completed and verified; owner walkthrough remains deferred | [Phase 11 acceptance audit](../audit-trail/2026-09-12-phase-11-frontend-acceptance-audit.md) |
@@ -31,9 +34,11 @@ The repeatable AI implementation, QA, merge, publishing, and cleanup process is 
 
 Phase 4 and [Phase 14 — Doctor-managed availability](phases/phase-14-doctor-managed-availability.md)
 are implemented, verified, merged into local `main`, and pushed to `origin/main`. Their detailed
-as-built evidence is recorded in the [Phase 4 audit](../audit-trail/20260913-phase-4-scheduling-audit.md)
-and [Phase 14 audit](../audit-trail/20260913-phase-14-doctor-managed-availability-audit.md). The next
-baseline implementation target is Phase 15, subject to its documented decisions and gates.
+as-built evidence is recorded in the [Phase 4 audit](../audit-trail/20260913-phase-4-scheduling-audit.md),
+[Phase 14 audit](../audit-trail/20260913-phase-14-doctor-managed-availability-audit.md), and [Phase 15
+audit](../audit-trail/20260913-phase-15-data-consent-audit.md). Phase 15 is complete. The next
+numbered phase is Phase 16, but implementation remains deferred and planning-gated until its required
+decisions and prerequisites are documented and approved.
 
 Phase 10's JaaS-specific continuation is superseded now that the synthetic demo is complete. Google
 Meet belongs to Phase 18 and must not be implemented from the old JaaS plan. Phase 12 MFA is currently
@@ -48,13 +53,13 @@ Use this section as the starting instruction for a new implementation chat:
 3. Use the [AI delivery and verification workflow](ai-delivery-workflow.md) for all new phase work.
    Phase 4 and Phase 14 are complete in synthetic/non-production scope. The remaining Phase 1
    production-readiness evidence—access review, hosted CI/CD, staging deployment, monitoring, and
-   restore—is deferred until feature work is complete and must be in place before Phase 20 closes.
+   restore—is deferred to post-development and must be in place before Phase 20 closes.
    Each feature phase must still produce a dated as-built audit before the next phase consumes it.
 4. Keep [Phase 12](phases/phase-12-mfa-and-privileged-access.md) deferred for now. Revisit it if the
    owners make MFA a launch requirement or before a later privileged-access hardening milestone.
-5. Phase 4 and Phase 14 are now the verified scheduling foundation. Phase 13 outcomes and rescheduling
-   are merged into Phase 4 and must not be implemented separately. Continue with Phase 15 only after
-   its required decisions and predecessor evidence are confirmed.
+5. Phase 4, Phase 14, and Phase 15 are now the verified scheduling and R1 foundation. Phase 13 outcomes
+   and rescheduling are merged into Phase 4 and must not be implemented separately. Do not begin Phase
+   16 implementation until its required decisions and Phase 15 as-built evidence are confirmed.
 6. Implement the R1 continuation in order: [Phase 15](phases/phase-15-data-consent-and-audit-foundation.md)
    → [Phase 16](phases/phase-16-identity-and-minor-eligibility.md) →
    [Phase 17](phases/phase-17-paymaya-payment-authorised-booking.md) →
@@ -62,8 +67,8 @@ Use this section as the starting instruction for a new implementation chat:
    [Phase 19](phases/phase-19-support-tickets-and-launch-operations.md) →
    [Phase 20](phases/phase-20-integrated-launch-verification-and-controlled-release.md).
 
-Phase 14 has a dated as-built audit and is no longer only a plan. Phase 15 may now consume that evidence
-once its own required decisions are resolved. Phase 5's real-provider
+Phase 14 has a dated as-built audit and is no longer only a plan. Phase 15 has consumed that evidence
+and has its own dated as-built audit. Phase 5's real-provider
 work is implemented through Phase 18, and Phase 6's new support/release work is implemented through
 Phases 19–20; do not create duplicate provider or operations implementations. Phase 5 and Phase 6
 are not skipped: their remaining baseline gate evidence must be produced or explicitly delegated and

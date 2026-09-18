@@ -1,6 +1,6 @@
 # Phase 1 — Secure Platform Baseline
 
-**Tier 2 status:** Foundation slice implemented; production-readiness gate deferred — 10 September 2026. The implementation plan is below the charter.
+**Tier 2 status:** Foundation slice implemented; production-readiness gate deferred to post-development — 10 September 2026. The implementation plan is below the charter.
 
 ## Purpose
 

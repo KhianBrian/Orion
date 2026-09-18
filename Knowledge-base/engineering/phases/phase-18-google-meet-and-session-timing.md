@@ -2,8 +2,12 @@
 
 **R1 mapping:** Implements R1.4 using Phase 16 eligibility and Phase 17 booked-payment evidence.
 
-**Status:** Blocked — Google Workspace/vendor validation, clinical timing decisions, and Phase 17
-as-built evidence are required before implementation.
+**Status:** Blocked — Google Workspace/vendor validation, production OAuth and verification planning,
+clinical timing decisions, and Phase 17 as-built evidence are required before implementation.
+
+The isolated free-Gmail feasibility result is recorded in the
+[Phase 18 Google Meet POC evidence](phase-18-google-meet-free-gmail-poc.md). It is feasibility
+evidence only and does not remove the implementation gate.
 
 ## Outcome
 
@@ -53,6 +57,7 @@ Google Meet behavior.
 | Authority | Decision/input |
 | --- | --- |
 | Google Workspace/vendor | Organisation/domain, edition, host identity, meeting creation, participant invitation/admission, early entry, removal/end-session, events, quotas, reconciliation, outage behavior, and API details. |
+| Orion engineering/operations | Separate test and production Google projects, production Web OAuth client, secure psychiatrist account connection, Google application verification, and the controlled-pilot plan if production review is not yet complete. |
 | Clinical lead | Confirmation of 15/45/15, early end, late/no note, no-show, patient visibility, completion authority, and correction interaction. |
 | DPO/legal/security | Vendor/transfer/data-flow approval, provider fields, secrets/auth, retention/deletion, features, subprocessors, and breach support. |
 | Owners/operations | Host/end responsibility, outage/no-fallback behavior, stop authority, support communication, and service commitments. |
@@ -68,6 +73,38 @@ Google Meet behavior.
   schedule their separately authorised prerequisite with its own migration/RLS/audit gate; do not hide
   it in a Google Meet completion claim.
 - Map official Workspace behaviors and approved settings into an explicit provider contract.
+
+### P18-0a — Prepare production Google authorization
+
+- Keep the current free-Gmail project as testing evidence only; do not use its Desktop OAuth client
+  as the production Orion web client.
+- Create a separate production Google Cloud project and production Web OAuth client when the owners
+  approve moving forward.
+- Have the developer configure the production consent screen, redirect address, support contact,
+  Orion homepage, privacy policy, and authorized domain.
+- Request only the Meet permission required to create and manage Orion appointment meeting spaces.
+- Implement one secure **Connect Google account** flow per psychiatrist. The psychiatrist authorizes
+  their account once; they do not repeat the developer's Google Cloud setup.
+- Keep patients on the guest-join flow. They do not need to authorize the Meet API.
+
+### P18-0b — Complete Google production review
+
+- Keep the production application in Testing mode while implementation and controlled testing are
+  still underway.
+- When ready, publish the application to production and complete Google's branding check for the
+  app name, logo, website, privacy policy, support email, and verified domain.
+- Open Google's Verification Center, declare the `meetings.space.created` permission, and explain
+  why Orion needs it and why a narrower permission is not sufficient.
+- Provide up to three relevant documentation links and an unlisted demonstration video showing the
+  Google account connection, consent screen, and meeting creation flow.
+- Submit the production application for Google's review before broad external use because the
+  current Meet creation permission is Sensitive.
+- Respond to any questions sent to the production project owners or editors and record the final
+  review result.
+- Track Google's questions through the production project contacts and record the approval status in
+  the Phase 18 as-built evidence.
+- If the owners approve a limited pilot before review is complete, record the test-user limit,
+  warning-screen impact, named pilot users, and the decision owner before enabling it.
 
 ### P18-1 — Database admission authority
 
@@ -122,6 +159,9 @@ Google Meet behavior.
 - Test that scheduled end and `end + 15 minutes` cause no automatic outcome/note transition.
 - Run D5 synthetic JaaS matrix unchanged plus booking/cancellation/RLS/desktop/mobile regressions.
 - Complete approved manual two-party desktop/mobile provider checks without retaining sensitive artifacts.
+- Record the production Google project, OAuth client type, requested scopes, verification status,
+  and any approved controlled-pilot limits. Do not claim broad production readiness until Google's
+  required review is complete or an explicit internal-only exception applies.
 - Write the Phase 18 as-built audit.
 
 ## Expected files changed during implementation
@@ -145,6 +185,8 @@ Phase 18 completes only when:
 - no automatic outcome, note lock, or release exists;
 - provider, RLS, audit, redaction, desktop/mobile, manual-call, and existing regression checks pass;
 - Google/DPO/clinical/security/operations approvals are recorded; and
+- the production Google authorization and verification status is recorded, with any limited-pilot
+  exception explicitly approved; and
 - the dated Phase 18 as-built audit exists.
 
 ## Phase 19 and Phase 20 implementation input

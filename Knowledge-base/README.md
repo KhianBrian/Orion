@@ -9,7 +9,8 @@ This is the authoritative foundation for Orion. Orion is being prepared for a co
 | [Product](product/) | Scope, service boundary, appointment rules, clinical safety, and the company-owner decision register. | Planning any user-facing capability or workflow. |
 | [Architecture](architecture/) | System design, data/RBAC, threats, video, and access auditing. | Changing data, auth, video, APIs, security, or integrations. |
 | [Governance](governance/) | Privacy, data classification, consent, retention, and approval ownership. | Handling real client/clinician data, vendors, notices, or requests. |
-| [Engineering](engineering/) | Code conventions, QA, test-data policy, and ordered delivery plan. | Coding, reviewing, testing, releasing, or choosing next work. |
+| [Engineering](engineering/README.md) | Engineering entry point for code conventions, QA, test-data policy, ordered delivery, and current status. | Coding, reviewing, testing, releasing, or choosing next work. |
+| [Claude/Codex coordination](engineering/ai-agent-coordination.md) | Append-only, evidence-labelled coordination between Claude Code and Codex. | Using a second agent for planning, investigation, implementation review, or verification. |
 | [Implementation status](engineering/implementation-status.md) | Current phase-by-phase execution tracker, next steps, and blockers. | Finding where Orion implementation stopped or what should happen next. |
 | [Supabase integration](engineering/supabase.md) | Orion's scoped non-production Supabase connection, migrations, and operational guardrails. | Configuring or changing Orion's Supabase project. |
 | [Operations](operations/) | Environments, secrets, deployment, monitoring, incidents, and recovery. | Deploying, configuring vendors, or operating the pilot. |

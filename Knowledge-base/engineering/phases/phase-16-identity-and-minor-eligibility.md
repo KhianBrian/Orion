@@ -2,8 +2,8 @@
 
 **R1 mapping:** Implements R1.2 using the Phase 15 data/RLS foundation.
 
-**Status:** Planned — implementation blocked on the decisions below and on a verified Phase 15
-as-built gate.
+**Status:** Deferred — planning only; implementation blocked on the decisions below and on a verified
+Phase 15 as-built gate.
 
 ## Outcome
 

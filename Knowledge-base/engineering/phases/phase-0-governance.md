@@ -1,6 +1,6 @@
 # Phase 0 — Governance and Service Design
 
-**Tier 2 status:** Planned 27 August 2026. The implementation plan is below the charter. The phase itself remains open and cannot be closed by the developer.
+**Tier 2 status:** Deferred to post-development. The implementation plan is below the charter. The phase itself remains open and cannot be closed by the developer.
 
 ## Historical baseline and R1 handoff
 
