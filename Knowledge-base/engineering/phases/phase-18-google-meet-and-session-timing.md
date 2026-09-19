@@ -6,7 +6,7 @@
 clinical timing decisions, and Phase 17 as-built evidence are required before implementation.
 
 The isolated free-Gmail feasibility result is recorded in the
-[Phase 18 Google Meet POC evidence](phase-18-google-meet-free-gmail-poc.md). It is feasibility
+[Phase 18 Google Meet POC evidence](../../audit-trail/2026-09-16-phase-18-google-meet-free-gmail-poc.md). It is feasibility
 evidence only and does not remove the implementation gate.
 
 ## Outcome
