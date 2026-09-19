@@ -1,0 +1,12 @@
+.google-meeting-page { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+.google-meeting-header { display: flex; align-items: start; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+.google-meeting-header h1 { margin: .25rem 0 .5rem; }
+.google-meeting-card { display: grid; gap: 1rem; max-width: 42rem; border: 1px solid var(--color-border); border-radius: .75rem; padding: 1.5rem; background: var(--color-white); }
+.google-meeting-card h2, .google-meeting-card p { margin: 0; }
+.google-meeting-card .ui-button { justify-self: start; text-decoration: none; }
+.google-meeting-note { color: var(--color-muted); font-size: .95rem; }
+@media (max-width: 600px) {
+  .google-meeting-page { padding: 1rem; }
+  .google-meeting-header { display: block; }
+  .google-meeting-header button { margin-top: .75rem; }
+}

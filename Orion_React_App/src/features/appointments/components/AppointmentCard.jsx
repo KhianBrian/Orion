@@ -1,5 +1,5 @@
 import { Button, ButtonLink } from "../../../components/ui/Button";
-import { isInDemoMeetingWindow } from "../../../lib/appointmentTiming";
+import { isInMeetingWindow } from "../../../lib/appointmentTiming";
 import { AppointmentStatusBadge } from "./AppointmentStatusBadge";
 
 const manilaDateTime = new Intl.DateTimeFormat("en-PH", {
@@ -9,9 +9,7 @@ const manilaDateTime = new Intl.DateTimeFormat("en-PH", {
 });
 
 export function AppointmentCard({ appointment, isPatient, isUpcoming, now, onCancel, onReschedule, onClinicianCancel, onOutcome, onNote, noteAvailable }) {
-  const canJoin = appointment.status === "booked" && isInDemoMeetingWindow(appointment.starts_at, appointment.ends_at, now);
-  const directWebRtcUi = import.meta.env.VITE_DIRECT_WEBRTC_UI === "true";
-
+  const canJoin = appointment.status === "booked" && isInMeetingWindow(appointment.starts_at, appointment.ends_at, now);
   return <article className="appointment-card" data-testid={`appointment-card-${appointment.id}`}>
     <div className="appointment-card__heading">
       <h3>{appointment.counterpart_display_name || (isPatient ? "Assigned psychiatrist" : "Assigned patient")}</h3>
@@ -20,8 +18,7 @@ export function AppointmentCard({ appointment, isPatient, isUpcoming, now, onCan
     <p>{manilaDateTime.format(new Date(appointment.starts_at))}</p>
     <p className="appointment-card__duration">45 minutes</p>
     <div className="appointment-card__actions">
-      {canJoin && directWebRtcUi && <ButtonLink to={`/appointments/${appointment.id}/direct-meeting`}>Join secure call</ButtonLink>}
-      {canJoin && !directWebRtcUi && <ButtonLink to={`/appointments/${appointment.id}/meeting`}>Join call</ButtonLink>}
+      {canJoin && <ButtonLink to={`/appointments/${appointment.id}/google-meeting`}>Join Google Meet</ButtonLink>}
       {isPatient && isUpcoming && appointment.status === "booked" && <Button variant="danger" onClick={() => onCancel(appointment)}>Cancel appointment</Button>}
       {isPatient && isUpcoming && appointment.status === "booked" && <Button variant="secondary" onClick={() => onReschedule(appointment)}>Request reschedule</Button>}
       {!isPatient && isUpcoming && appointment.status === "booked" && <Button variant="danger" onClick={() => onClinicianCancel(appointment)}>Cancel appointment</Button>}

@@ -2,12 +2,17 @@
 
 **R1 mapping:** Implements R1.4 using Phase 16 eligibility and Phase 17 booked-payment evidence.
 
-**Status:** Blocked — Google Workspace/vendor validation, production OAuth and verification planning,
-clinical timing decisions, and Phase 17 as-built evidence are required before implementation.
+**Status:** Test-path implementation authorized and in place; real-user launch remains blocked by
+Google Workspace/vendor validation, production OAuth and verification, clinical timing decisions,
+and Phase 17 as-built evidence.
+
+Implementation evidence is recorded in the [Phase 18 test-path audit](../../audit-trail/2026-09-20-phase-18-google-meet-test-path-audit.md).
 
 The isolated free-Gmail feasibility result is recorded in the
 [Phase 18 Google Meet POC evidence](../../audit-trail/2026-09-16-phase-18-google-meet-free-gmail-poc.md). It is feasibility
-evidence only and does not remove the implementation gate.
+evidence only and does not remove the real-user launch gate. The owner has separately authorized a
+real Google Meet test path using test accounts and a test project, with payment bypass limited to
+test bookings.
 
 ## Outcome
 
@@ -38,6 +43,7 @@ Google Meet behavior.
 
 - One database admission-decision function using database time and prior-phase predicates.
 - Approved Google Meet meeting creation/retrieval and participant admission.
+- Test-project Web OAuth connection per psychiatrist, with server-held refresh authorization.
 - Scheduled session-end and approved host/end-session behavior.
 - Derived patient join and psychiatrist note-window states.
 - Provider outage/kill switch, safe audit/observability, and synthetic/manual verification.
@@ -67,7 +73,7 @@ Google Meet behavior.
 ### P18-0 — Re-ground provider, appointments, and notes
 
 - Read Phase 16/17 as-built audits and query exact eligibility/booked/admission inputs.
-- Inspect current `get-demo-meeting-access`, `DemoMeeting`, `video_room_id`, timing helpers,
+- Inspect current Google Meet session-access/connect functions, `GoogleMeeting`, `video_room_id`, timing helpers,
   appointment projection, note objects/functions if any, and provider feature flags.
 - Confirm whether Phase 2/4 session notes and Phase 4 outcomes are implemented. If notes are absent,
   schedule their separately authorised prerequisite with its own migration/RLS/audit gate; do not hide
@@ -76,8 +82,8 @@ Google Meet behavior.
 
 ### P18-0a — Prepare production Google authorization
 
-- Keep the current free-Gmail project as testing evidence only; do not use its Desktop OAuth client
-  as the production Orion web client.
+- Use the current free-Gmail project for the authorized test path, but add a Web OAuth client for
+  the Orion callback; do not treat that test client as the production Orion web client.
 - Create a separate production Google Cloud project and production Web OAuth client when the owners
   approve moving forward.
 - Have the developer configure the production consent screen, redirect address, support contact,
@@ -117,7 +123,8 @@ Google Meet behavior.
 
 ### P18-2 — Provider resource and admission adapter
 
-- Keep `video_room_id` and `get-demo-meeting-access` demo-only.
+- Keep `video_room_id` as a legacy appointment field until a later cleanup; the retired
+  `get-demo-meeting-access` JaaS path is not supported runtime behavior.
 - Create/retrieve one opaque Google Meet resource only after booked state and under the approved host.
 - Apply the approved invited-participant/admission configuration; copied provider data alone must not
   bypass Orion/Workspace controls.
@@ -157,7 +164,7 @@ Google Meet behavior.
 - Test one millisecond before/at early-open and before/at scheduled end using database-controlled time.
 - Test copied-link/admission denial, provider outage, kill switch, feature disablement, and audit/redaction.
 - Test that scheduled end and `end + 15 minutes` cause no automatic outcome/note transition.
-- Run D5 synthetic JaaS matrix unchanged plus booking/cancellation/RLS/desktop/mobile regressions.
+- Run Google OAuth/provider-boundary checks plus booking/cancellation/RLS/desktop/mobile regressions.
 - Complete approved manual two-party desktop/mobile provider checks without retaining sensitive artifacts.
 - Record the production Google project, OAuth client type, requested scopes, verification status,
   and any approved controlled-pilot limits. Do not claim broad production readiness until Google's
@@ -166,10 +173,9 @@ Google Meet behavior.
 
 ## Expected files changed during implementation
 
-- New forward admission/provider/note fields/functions migrations only as required.
-- New Google Meet server/Edge Function adapter; no silent rewrite of
-  `supabase/functions/get-demo-meeting-access/index.ts`.
-- New real-session meeting React feature/surface; `DemoMeeting.jsx` remains demo-specific.
+- New Google Meet admission/provider fields/functions migration and Edge Function adapter.
+- New real-session meeting React feature/surface; the retired `DemoMeeting.jsx` and JaaS function
+  are removed from the active runtime.
 - Appointment Join components, route constants/configuration, note surfaces, timing display helpers.
 - Admission/RLS/provider/unit/redaction/desktop/mobile tests and operations runbook inputs.
 - Video/privacy/clinical/lifecycle/RBAC/Supabase/status and dated Phase 18 audit documents.

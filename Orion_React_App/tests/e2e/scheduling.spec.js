@@ -168,13 +168,13 @@ test.describe("database-backed scheduling", () => {
     await assertNoSeriousViolations(page);
   });
 
-  test("the meeting route uses a focused layout without the authenticated shell", async ({ page }, testInfo) => {
+  test("the Google Meet route uses a focused layout without the authenticated shell", async ({ page }, testInfo) => {
     const users = syntheticUsers[testInfo.project.name];
     await signIn(page, users.patient.email, users.patient.password);
-    await page.goto("/appointments/00000000-0000-4000-8000-000000000000/meeting");
-    await expect(page.getByText("For scheduled appointments only.")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Leave call" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Meeting unavailable" })).toBeVisible();
+    await page.goto("/appointments/00000000-0000-4000-8000-000000000000/google-meeting");
+    await expect(page.getByText("Orion checked your appointment and the current server time before providing the meeting entry.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Return to appointments" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Google Meet is unavailable" })).toBeVisible();
     await expect(page.getByTestId("authenticated-shell")).toHaveCount(0);
   });
 

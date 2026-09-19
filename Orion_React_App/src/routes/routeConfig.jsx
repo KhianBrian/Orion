@@ -20,8 +20,7 @@ import { RequireAbility, RequireAuth } from "../features/auth/RouteGuards";
 import { AuthenticatedShell } from "../features/auth/AuthenticatedShell";
 import { ROUTES, SUBJECTS } from "../constants/routes";
 
-// Lazy-loaded: pulls in the Jitsi video SDK, which non-meeting routes should never download.
-const DemoMeeting = lazy(() => import("../pages/DemoMeeting"));
+const GoogleMeeting = lazy(() => import("../pages/GoogleMeeting"));
 const DirectMeeting = lazy(() => import("../pages/DirectMeeting"));
 // Lazy-loaded: admin-only, not needed in the everyday patient/psychiatrist bundle.
 const ProvisionPsychiatrist = lazy(() => import("../features/admin/ProvisionPsychiatrist"));
@@ -89,7 +88,7 @@ export const routeConfig = [
   },
   { element: <RequireAuth />, children: [
     { element: <AuthenticatedShell />, children: authenticatedAppRoutes },
-    { element: <RequireAbility action="visit" subject={SUBJECTS.APPOINTMENTS} />, children: [{ path: ROUTES.DEMO_MEETING.slice(1), element: <DemoMeeting /> }] },
+    { element: <RequireAbility action="visit" subject={SUBJECTS.APPOINTMENTS} />, children: [{ path: ROUTES.GOOGLE_MEETING.slice(1), element: <GoogleMeeting /> }] },
     { element: <RequireAbility action="visit" subject={SUBJECTS.APPOINTMENTS} />, children: [{ path: ROUTES.DIRECT_MEETING.slice(1), element: <DirectMeeting /> }] },
   ] },
   {

@@ -16,8 +16,8 @@
   },
   "18": {
     "title": "Google Meet and session timing",
-    "status": "Planned — blocked",
-    "summary": "Pending Phase 17 payment state, Workspace/provider validation, privacy/vendor approval, and clinical timing decisions."
+    "status": "Implemented — test path; real-user launch blocked",
+    "summary": "Real Google Meet test path, per-psychiatrist Gmail OAuth connection, protected admission, 15/45/15 timing, and admin kill switch are implemented. Payment-authorised booking, production provider validation, privacy/vendor approval, clinical edge decisions, and real-user activation remain blocked."
   },
   "18.5": {
     "title": "Direct WebRTC + TURN synthetic implementation",

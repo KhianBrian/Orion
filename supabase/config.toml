@@ -4,7 +4,13 @@
 # working directory name when running `supabase init`.
 project_id = "Orion"
 
-[functions.get-demo-meeting-access]
+[functions.google-meet-connect]
+verify_jwt = false
+
+[functions.google-meet-session-access]
+verify_jwt = true
+
+[functions.google-meet-control]
 verify_jwt = true
 
 [functions.video-session-access]

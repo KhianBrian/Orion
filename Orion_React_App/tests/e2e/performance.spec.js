@@ -11,7 +11,7 @@ test.describe("frontend acceptance performance and layout", () => {
     await expect(page.getByRole("heading", { name: "Sign in to Orion" })).toBeVisible();
 
     expect(requests.filter((url) => /fonts\.(googleapis|gstatic)\.com/i.test(url))).toEqual([]);
-    expect(requests.some((url) => /DemoMeeting-|ProvisionPsychiatrist-/.test(url))).toBe(false);
+    expect(requests.some((url) => /GoogleMeeting-|ProvisionPsychiatrist-/.test(url))).toBe(false);
   });
 
   for (const route of publicRoutes) {
