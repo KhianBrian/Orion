@@ -21,7 +21,8 @@ Vercel can host the frontend, but it does not replace the signaling gateway or T
 - **Repository/branch/worktree:** `Verified` — the complete Phase 18.5 implementation was merged
   from `codex/phase-18.5-launch-readiness` into local `main` as merge commit `3b8fa50`. The feature
   branch remains available as the implementation worktree; `main` is now the website deployment
-  source.
+  source; the Phase 18.5 merge and provider-decision record were first published to
+  `origin/main` at `7567d5e`.
 - **Environment/database:** `Verified` — the existing ignored `.env` test project was used for the
   gated browser attempt; its temporary synthetic slot/appointment fixtures were created and
   cleaned up by the test. No migration, Edge Function deployment, signaling deployment, TURN
@@ -89,5 +90,7 @@ Vercel can host the frontend, but it does not replace the signaling gateway or T
 - **Remote runtime actions:** no website, Edge Function, signaling, or TURN deployment and no
   runtime secret change were performed. The gated browser test did use the existing test project
   and cleaned its temporary synthetic data.
+- **Git publication:** the Phase 18.5 merge and provider-decision record were first pushed to
+  `origin/main` at `7567d5e`; this packet completes the publication record.
 - **Provider decision:** Direct WebRTC + TURN is implemented on `main`, but partners/owners must
   decide whether to use it or the Google Meet path before either provider is activated for use.
