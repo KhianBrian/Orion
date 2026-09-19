@@ -8,11 +8,12 @@ server admission, dedicated signaling, short-lived TURN credential issuance, dis
 feature control, and local desktop/mobile two-party checks are complete. This does not approve
 real-user activation or production infrastructure.
 
-The 8 September 2026 owner direction identifies **Google Meet** as the proposed real-launch provider
-because the JaaS 25-MAU demo allowance cannot support the expected initial demand. This is a planning
-direction, not production approval: the final provider requires DPO/legal, clinical, security, and
-operations approval of contract, data flow, data locations, subprocessors, retention, support, and
-incident handling.
+The 8 September 2026 owner direction identified **Google Meet** as the proposed real-launch provider
+because the JaaS 25-MAU demo allowance cannot support the expected initial demand. That proposal is
+now pending a partner/owner choice between Google Meet and the implemented Direct WebRTC + TURN
+alternative. Neither option is approved for real-user activation. The final provider requires
+DPO/legal, clinical, security, and operations approval of contract, data flow, data locations,
+subprocessors, retention, support, and incident handling.
 
 ## Required integration pattern
 
@@ -33,8 +34,8 @@ short-lived signaling/TURN admission. Use a server-side kill switch to stop toke
 
 | Option | Use | Decision |
 | --- | --- | --- |
-| Direct WebRTC + TURN | One-to-one browser media with dedicated signaling and project-owned relay boundary | Implemented and verified for Phase 18.5 synthetic/non-production; real-user activation pending the separate production gate |
-| Google Meet | Managed meeting spaces and Workspace-controlled participant admission | Proposed real-launch direction; pending Workspace, vendor, and operational approval |
+| Direct WebRTC + TURN | One-to-one browser media with dedicated signaling and project-owned relay boundary | Implemented on `main` for Phase 18.5 synthetic/non-production; partner/owner provider decision and real-user gate remain pending |
+| Google Meet | Managed meeting spaces and Workspace-controlled participant admission | Partner/owner provider decision pending; Workspace, vendor, and operational approval remain required |
 | Daily | Managed, token-gated browser video; free early allowance | Historical alternative; no longer preferred for R1 |
 | LiveKit Cloud | Managed, flexible token-gated video | Historical alternative if Google Meet is not approved |
 | Twilio Video | Mature managed option with usage billing | Consider if contract/region requirements fit |

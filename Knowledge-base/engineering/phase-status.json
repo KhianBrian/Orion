@@ -22,7 +22,7 @@
   "18.5": {
     "title": "Direct WebRTC + TURN synthetic implementation",
     "status": "Implemented — linked database verified; launch-readiness in progress",
-    "summary": "Phase 18.5 code, migrations, protected admission, UI, and local/linked verification are complete. Edge Function deployment, signaling/TURN runtime, security remediation, and real-user launch evidence remain open."
+    "summary": "Phase 18.5 code, migrations, protected admission, UI, and local/linked verification are merged in main. Partner/owner selection between Direct WebRTC + TURN and Google Meet remains open; no runtime, Edge Function, or real-user deployment has occurred."
   },
   "19": {
     "title": "Support tickets and launch operations",

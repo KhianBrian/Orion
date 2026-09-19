@@ -1,10 +1,10 @@
-# Google Meet Decision Brief
+# Google Meet and Direct WebRTC Decision Brief
 
 **Date:** 2026-09-16 (Asia/Manila)
 
-Google Meet has already been selected as the video provider. This document explains the two account
-options for using it with Orion, records Direct WebRTC as an alternative with its own operating cost,
-and recommends the best way to move forward.
+Partners/owners have not yet selected Orion's video provider. This document compares the two Google
+Meet account options with the implemented Direct WebRTC + TURN alternative, including the operating
+cost and implementation responsibility of each option.
 
 ## One-time Orion setup
 
@@ -338,19 +338,21 @@ and production account controls are complete. See [Google's OAuth app guidance](
 and [verification requirements](https://support.google.com/cloud/answer/13464321) for the current
 requirements.
 
-## Recommended choice
+## Current decision status
 
-Use **Option B — paid, company-controlled Google Workspace accounts** for real clinical sessions.
+The partner/owner provider decision is pending: choose either Google Meet or Direct WebRTC + TURN
+before activating either video path for use. Direct WebRTC is implemented on `main`, but its runtime
+is intentionally not deployed while this decision remains open.
 
-Use **Option A — free Gmail accounts** only for continued testing or for a limited pilot if you
-explicitly accept the account-ownership risks and complete the applicable external-app approval.
+For a one-day showcase, free Gmail + Google Meet remains the lowest-cost and lowest-risk option.
+For future real clinical sessions, paid, company-controlled Google Workspace accounts remain the
+preferred Google Meet account model if Google Meet is selected.
 
-Use **Option C — Direct WebRTC + TURN** only if the company explicitly accepts ownership of the
-additional always-running infrastructure, relay-bandwidth cost, operational responsibility, and
-separate real-user launch requirements. It is a valid future product direction, but it is not the
-lowest-risk choice for tomorrow's showcase.
+Direct WebRTC + TURN is a valid future product direction only if the company accepts the additional
+always-running infrastructure, relay-bandwidth cost, operational responsibility, and separate
+real-user launch requirements. It is not the lowest-risk choice for tomorrow's showcase.
 
-## Proposed Orion experience
+## If Google Meet is selected — proposed Orion experience
 
 1. A confirmed appointment receives one Google Meet meeting.
 2. The patient and psychiatrist see Join only during the approved appointment window.
@@ -365,8 +367,9 @@ lowest-risk choice for tomorrow's showcase.
 
 ## Decisions and approvals needed from you
 
-- Confirm whether Orion will use Option A or Option B.
-- If considering Option C, approve a showcase-only or real-user operating budget and name the
+- Partners/owners must choose Google Meet or Direct WebRTC + TURN as Orion's video provider.
+- If Google Meet is selected, confirm whether Orion will use Option A or Option B.
+- If Direct WebRTC is selected, approve a showcase-only or real-user operating budget and name the
   technical owner for signaling, TURN, certificates, monitoring, and incident response.
 - Name the person responsible for Google account administration, staff removal, and account
   recovery.

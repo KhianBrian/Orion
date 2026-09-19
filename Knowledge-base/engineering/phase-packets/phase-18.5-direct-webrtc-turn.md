@@ -3,12 +3,11 @@
 **Packet purpose:** Resume Phase 18.5 without reconstructing implementation and launch context from
 conversation history.
 **Last updated:** 2026-09-19
-**Status:** Reconnect/negotiation and TURN credential implementation verified — synthetic/non-production;
-runtime launch remains gated.
-**Recommended next action:** Choose an approved production-capable host/provider for signaling and
-coturn, then configure the test Supabase project; keep runtime deployment and real-user activation
-separately gated. Vercel can host the frontend, but it does not replace the signaling gateway or
-TURN relay.
+**Status:** Implemented on `main` — provider decision pending; runtime and real-user launch remain
+gated.
+**Recommended next action:** Partners/owners decide between Google Meet and Direct WebRTC + TURN.
+If Direct WebRTC is selected, choose and authorize the signaling/coturn runtime before deployment.
+Vercel can host the frontend, but it does not replace the signaling gateway or TURN relay.
 
 ## Authority map
 
@@ -19,9 +18,10 @@ TURN relay.
 
 ## Current snapshot
 
-- **Repository/branch/worktree:** `Verified` — continuation work is isolated in
-  `codex/phase-18.5-launch-readiness` at `/Users/khiansismundo/Downloads/Orion-phase-18.5-launch-readiness`;
-  local `main` remains the deployment source and was not changed by this worktree.
+- **Repository/branch/worktree:** `Verified` — the complete Phase 18.5 implementation was merged
+  from `codex/phase-18.5-launch-readiness` into local `main` as merge commit `3b8fa50`. The feature
+  branch remains available as the implementation worktree; `main` is now the website deployment
+  source.
 - **Environment/database:** `Verified` — the existing ignored `.env` test project was used for the
   gated browser attempt; its temporary synthetic slot/appointment fixtures were created and
   cleaned up by the test. No migration, Edge Function deployment, signaling deployment, TURN
@@ -36,6 +36,10 @@ TURN relay.
   initial JavaScript gzip against a 180 kB budget), signaling load (30 users, 20 peak
   participants, two waves), and the full browser suite (58 passed, 22 intentionally skipped) are
   recorded in the [2026-09-19 audit](../../audit-trail/20260919-phase-18.5-direct-webrtc-turn-audit.md).
+- **Verified on `main`:** environment-example validation, 9 unit tests, the 30-user/two-wave
+  signaling load profile, lint and phase-status synchronization, production build (170.07 kB initial
+  JavaScript gzip against the 180 kB budget), the browser suite (58 passed, 22 intentionally
+  skipped), local schema lint, and the signaling Docker image build all passed after merge.
 - **Verified:** the signaling gateway now supports same-participant lease replacement for bounded
   reconnect, while rejecting a different participant for the occupied role; the client now uses
   deterministic offer-collision handling, ICE candidate queuing, bounded access refresh, and ICE
@@ -56,17 +60,20 @@ TURN relay.
   gated two-party browser evidence remains deferred until the configured test runtime has its
   signaling/TURN boundary; runtime deployment and real-user launch evidence remain intentionally
   deferred.
-- **Blocked:** the repository has no selected or provisioned staging host for the signaling gateway
-  or coturn relay, so the four runtime values cannot be populated or deployed yet.
+- **Blocked:** partners/owners have not selected the provider. Google Meet remains available as the
+  managed-provider alternative; Direct WebRTC requires a signaling/coturn host decision before its
+  four runtime values can be populated or deployed.
 - **Blocked:** runtime progression still requires the launch-readiness prerequisites and explicit
   authorization recorded in the linked phase plan and launch-readiness track.
 
 ## Ordered next actions
 
-1. **Recommended:** confirm the runtime deployment decision and prerequisites against the launch-readiness track; do not deploy until explicitly authorized.
-2. If authorized, update this packet at each material runtime checkpoint and append fresh dated audit
-   evidence after each completed milestone.
-3. Re-run the phase-status synchronizer and relevant verification after any status change.
+1. **Recommended:** partners/owners select Google Meet or Direct WebRTC + TURN using the owner
+   decision brief and recorded cost/operational trade-offs.
+2. If Direct WebRTC is selected and deployment is explicitly authorized, provision the approved
+   runtime, configure the four server-side values, and add fresh relay-path evidence.
+3. If Google Meet is selected, continue its Workspace/OAuth and provider-validation path; do not
+   deploy unused Direct WebRTC infrastructure.
 
 ## Handoff
 
@@ -79,7 +86,8 @@ TURN relay.
 - **Commands and results:** `npm run test:unit`, `npm run lint`, `npm run build`,
   `npm run test:load:phase185`, and `npm run test:e2e` passed; phase-status synchronization and
   check passed as part of lint.
-- **Remote runtime actions:** no deployment, migration, secret change, or push was performed. The
-  gated browser test did use the existing test project and cleaned its temporary synthetic data.
-- **Untouched scope:** the three pre-existing untracked documentation items in the main worktree are
-  preserved and remain outside this task.
+- **Remote runtime actions:** no website, Edge Function, signaling, or TURN deployment and no
+  runtime secret change were performed. The gated browser test did use the existing test project
+  and cleaned its temporary synthetic data.
+- **Provider decision:** Direct WebRTC + TURN is implemented on `main`, but partners/owners must
+  decide whether to use it or the Google Meet path before either provider is activated for use.
