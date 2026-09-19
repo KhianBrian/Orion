@@ -43,8 +43,8 @@ test.describe("Direct WebRTC synthetic boundary", () => {
   let patientEmail;
   let psychiatristEmail;
 
-  test.beforeAll(async (fixtures, workerInfo) => {
-    void fixtures;
+  test.beforeAll(async ({ browser }, workerInfo) => {
+    void browser;
     const { data: users, error: usersError } = await service.auth.admin.listUsers({ page: 1, perPage: 1000 });
     if (usersError) throw usersError;
     const findUser = (email) => users.users.find((user) => user.email === email);

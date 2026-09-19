@@ -3,7 +3,8 @@
 **Date:** 2026-09-16 (Asia/Manila)
 
 Google Meet has already been selected as the video provider. This document explains the two account
-options for using it with Orion and recommends the best way to move forward.
+options for using it with Orion, records Direct WebRTC as an alternative with its own operating cost,
+and recommends the best way to move forward.
 
 ## One-time Orion setup
 
@@ -131,6 +132,148 @@ for current pricing and promotions.
 These estimates cover 30 psychiatrist host accounts and exclude tax, local-currency pricing,
 promotions, and any additional Workspace users. Patients do not need paid Workspace accounts.
 
+## Option C — Build and operate Direct WebRTC + TURN
+
+### How it works
+
+Orion can provide its own browser-to-browser video calling instead of creating a Google Meet link.
+The patient and psychiatrist open the Orion call page. Orion checks the appointment, the assigned
+people, the approved time window, and the feature kill switch before issuing short-lived access.
+
+The two browsers exchange connection setup messages through an Orion signaling service. Video and
+audio then travel directly between the browsers whenever their networks allow it. If a firewall,
+mobile network, or restrictive office network prevents that direct connection, coturn relays the
+media through an Orion-operated TURN service. The TURN service does not record calls.
+
+This is not just a Vercel or Supabase feature. The Direct WebRTC option adds two always-running
+backend services alongside the Orion website:
+
+- **Signaling gateway:** starts and recovers calls; it forwards only connection setup messages, not
+  video or audio.
+- **TURN relay:** is available for every call but carries media only when a direct browser-to-browser
+  connection cannot be made.
+
+Vercel continues to host the Orion website. Supabase continues to handle sign-in, appointment access,
+and short-lived credentials. Neither service carries the call media in this design.
+
+### How Orion would implement it
+
+- Orion's protected `video-session-access` operation checks the booked appointment, assigned
+  participant, time window, and kill switch before returning a short-lived signaling token and TURN
+  credentials.
+- The browser asks for camera and microphone permission only after the user selects **Continue**.
+- The browser connects to a dedicated WebSocket signaling gateway for offer, answer, and ICE setup
+  messages. The gateway permits one patient and one psychiatrist for each appointment session.
+- Browser media uses direct WebRTC first and the approved coturn relay only when required.
+- The browser reauthorizes before bounded reconnect attempts, queues ICE candidates safely, handles
+  duplicate offers deterministically, and shows an explicit unavailable, expired, revoked, or failed
+  state when a call cannot continue.
+- Orion records access and operational events but does not record the conversation, chat, or media.
+
+The Phase 18.5 code provides this application boundary, but its signaling gateway and coturn relay
+are not yet deployed. Until those services and their secrets are configured, the Direct WebRTC route
+correctly returns that the call is unavailable.
+
+### Deployment and operating process
+
+1. **Choose the operating level.** A one-server setup is sufficient for a controlled partner
+   showcase. It is not the resilient topology required for real-user launch.
+2. **Provision the runtime.** Deploy the signaling gateway and coturn relay on public infrastructure
+   with a domain, HTTPS for signaling, TURN/TLS, restricted firewall rules, health checks, and secure
+   secret storage. Vercel does not host coturn.
+3. **Set the four Supabase runtime values.** Configure the signaling WebSocket URL, TURN URLs, TURN
+   shared secret, and signaling signing secret as Supabase Edge Function secrets. Deploy the
+   `video-session-access` function to the intended project.
+4. **Deploy the Orion website.** Configure the existing public Supabase URL and publishable key in
+   Vercel. Set `VITE_DIRECT_WEBRTC_UI=true` only after the server-side runtime has passed testing.
+   Never put the service-role key, TURN secret, or signaling secret in Vercel browser variables.
+5. **Run a real two-party test.** Use two synthetic accounts, separate browser contexts or devices,
+   and verify desktop and mobile behavior, audio/video, permission denial, join-window enforcement,
+   and call end.
+6. **Run relay-path tests.** Test direct media, forced TURN relay, blocked UDP, TURN/TLS over TCP,
+   credential expiry, signaling restart, and mobile/network interruption recovery.
+7. **Monitor and operate it.** Record gateway and relay health, error rate, relay bandwidth, and
+   secret rotation. Name a person who can disable calls through the kill switch.
+8. **Scale only from measured use.** Increase TURN nodes based on simultaneous relayed calls and
+   observed media bitrate. Do not assume all calls will stay direct.
+
+### Pros
+
+- Orion owns the call experience, join timing, admission rules, and reconnect behavior.
+- Patients do not need Google accounts or a Google Meet interface.
+- Direct calls use no Orion media-relay bandwidth when peer-to-peer networking succeeds.
+- The UI and future calling features can be designed specifically for Orion.
+
+### Cons
+
+- Orion must operate and pay for signaling and TURN infrastructure continuously.
+- Call reliability now depends partly on Orion's own server, networking, certificate, firewall, and
+  on-call practices instead of Google's video platform.
+- Media relay bandwidth becomes a cost when direct connections fail.
+- Real-user deployment requires separate TURN relay nodes, monitoring, outage procedures, and
+  privacy/security review; it is not equivalent to deploying a static Vercel site.
+
+### Cost and billing
+
+DigitalOcean prices checked on 2026-09-19 list a 2 vCPU / 2 GB Droplet at **$18/month** with 3 TB
+of outbound transfer, and a 1 vCPU / 2 GB Droplet at **$12/month** with 2 TB. These are monthly
+maximums, not an upfront one-day charge: DigitalOcean bills Droplets per second, with a minimum
+charge of $0.01. A 24-hour run is approximately **$0.64** for the $18 server or **$0.43** for the
+$12 server, before tax. The server must be deleted after the showcase to stop the recurring charge.
+
+Extra outbound transfer is **$0.01 per GiB**. Inbound transfer is free. See
+[DigitalOcean Droplet pricing](https://www.digitalocean.com/pricing/droplets) and
+[bandwidth billing](https://docs.digitalocean.com/platform/billing/bandwidth/).
+
+| Operating level | WebRTC infrastructure | New WebRTC monthly base | Total monthly baseline if Vercel Pro and Supabase Pro are also needed |
+| --- | --- | ---: | ---: |
+| Partner showcase only | One 2 vCPU / 2 GB server runs signaling and coturn together | **$18** | **about $63** |
+| Initial real-user topology | One signaling server ($12) and two separate TURN servers ($18 each) | **about $48** | **about $93** |
+| More resilient topology | Two signaling servers ($12 each) and two TURN servers ($18 each), before routing, backups, and monitoring | **about $60+** | **about $105+** |
+
+The total column uses Vercel Pro at $20/month and Supabase Pro at $25/month. It excludes a domain,
+tax, backups, load balancing, monitoring/log-retention add-ons, support, compliance work, and any
+provider price changes. See [Vercel pricing](https://vercel.com/pricing) and
+[Supabase pricing](https://supabase.com/pricing).
+
+#### Cost of tomorrow's showcase
+
+| Showcase choice | Extra cost for tomorrow | What Orion demonstrates | Important limit |
+| --- | ---: | --- | --- |
+| Free Gmail + Google Meet | **$0** beyond any existing Orion hosting | The already tested appointment, join-window, host/guest, and automatic-end flow | Google operates the call; this does not demonstrate Orion-owned WebRTC |
+| Orion Direct WebRTC, 2 GB / 1 vCPU server for 24 hours | **about $0.43** | Orion's own call page, signaling, access rules, and TURN fallback | A small single-server demo, not the launch topology |
+| Orion Direct WebRTC, 2 GB / 2 vCPU server for 24 hours | **about $0.64** | The same Direct WebRTC flow with more capacity headroom | A small single-server demo, not the launch topology |
+
+The free Google Meet choice has no new video-infrastructure bill because Google runs the meeting
+platform. It is the lowest-cost choice for a one-day partner demonstration. Direct WebRTC has no
+dependable zero-cost remote option: it needs a publicly reachable signaling service and TURN relay
+to work reliably across partners' home, office, and mobile networks. A personal computer or an
+unverified free cloud offer may be technically possible, but it is not a dependable or appropriate
+choice for private partner calls. Vercel Hobby can technically serve the static site, but it is
+intended for personal, non-commercial use; use the appropriate Vercel plan for a business showcase.
+
+For Orion's current synthetic launch profile—10 simultaneous two-party calls, across two 45-minute
+waves—a deliberately conservative all-relay estimate is about **12.6–31.4 GiB** of TURN outbound
+traffic at 1–2.5 Mbps per participant. At the $18 server's included 3 TB, that is roughly 97–244
+such full two-wave test profiles per month before transfer overage. This is an estimate, not a
+guarantee: browser quality adapts to the network and the actual share of calls using TURN must be
+measured. Direct browser-to-browser calls add almost no media bandwidth cost to Orion.
+
+### Showcase versus real use
+
+For a one-day partner showcase, a single $18 server is technically sufficient after a real two-party
+test has passed. It is still a single point of failure and should be described as a showcase or pilot,
+not a production-ready real-user service.
+
+If the only goal is to demonstrate Orion tomorrow, the already tested free-Gmail Google Meet flow is
+the lowest-cost and lowest-risk path. It needs no Orion-run signaling or TURN server because Google
+operates the video infrastructure.
+
+If the goal is specifically to demonstrate Orion-owned Direct WebRTC tomorrow, use the one-server
+showcase level, run the two-party test first, and delete the server after the demonstration. Do not
+present this as the real-user production topology. A later real-user launch needs the separate TURN
+nodes, monitoring, recovery procedures, and named operational ownership described above.
+
 ## Shared prerequisite: Google OAuth production approval
 
 The free-Gmail test was done in Google's testing mode. That is enough for development and a small
@@ -202,6 +345,11 @@ Use **Option B — paid, company-controlled Google Workspace accounts** for real
 Use **Option A — free Gmail accounts** only for continued testing or for a limited pilot if you
 explicitly accept the account-ownership risks and complete the applicable external-app approval.
 
+Use **Option C — Direct WebRTC + TURN** only if the company explicitly accepts ownership of the
+additional always-running infrastructure, relay-bandwidth cost, operational responsibility, and
+separate real-user launch requirements. It is a valid future product direction, but it is not the
+lowest-risk choice for tomorrow's showcase.
+
 ## Proposed Orion experience
 
 1. A confirmed appointment receives one Google Meet meeting.
@@ -218,6 +366,8 @@ explicitly accept the account-ownership risks and complete the applicable extern
 ## Decisions and approvals needed from you
 
 - Confirm whether Orion will use Option A or Option B.
+- If considering Option C, approve a showcase-only or real-user operating budget and name the
+  technical owner for signaling, TURN, certificates, monitoring, and incident response.
 - Name the person responsible for Google account administration, staff removal, and account
   recovery.
 - Ask the privacy/DPO lead to review Google's handling of information.
