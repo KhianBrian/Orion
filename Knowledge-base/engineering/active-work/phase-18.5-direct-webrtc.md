@@ -1,7 +1,7 @@
 # Active Work — Phase 18.5 Direct WebRTC + TURN
 
 **Last updated:** 19 September 2026
-**Status:** Implementation complete; main integration and launch-runtime work remain in progress.
+**Status:** Implementation merged into `main`; launch-runtime work remains in progress.
 **Governing plan:** [Phase 18.5 plan](../phases/phase-18.5-direct-webrtc-turn-planning.md)
 **Launch evidence:** [Phase 18.5 readiness track](../phases/phase-18.5-production-readiness.md)
 **Historical evidence:** [Phase 18.5 audit](../../audit-trail/20260919-phase-18.5-direct-webrtc-turn-audit.md)
@@ -10,6 +10,11 @@
 
 - **Observed:** The implementation work is in worktree `/Users/khiansismundo/.codex/worktrees/a5ef/Orion`
   on branch `codex/phase-18.5-direct-webrtc-turn`.
+- **Verified:** Feature commit `01deb07` was merged into local `main` as merge commit `65678ba`.
+- **Verified:** Lint, unit tests, build, phase-status synchronization, and local schema lint passed
+  from the `main` worktree after integration.
+- **Observed:** Pre-existing untracked files in the main worktree were preserved and were not part
+  of this Phase 18.5 commit.
 - **Observed:** The feature code, migrations, Edge Functions, gateway, UI, and tests are present
   in this worktree. The website deployment target is `main`; do not deploy the website from this
   feature worktree.
@@ -70,8 +75,7 @@
 
 ## Ordered next actions
 
-1. Commit this worktree's code and documentation, merge it into local `main`, and push `main` only
-   after final verification on `main`.
+1. Push verified `main` and record the remote commit result.
 2. Link/configure the Vercel website project from `main` and keep `VITE_DIRECT_WEBRTC_UI=false`
    until the runtime boundary is deployed and verified.
 3. Correct and independently test TURN REST credential compatibility.
