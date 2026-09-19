@@ -11,7 +11,13 @@ import { callerId, corsHeaders, jsonPayload, response, serviceClient } from "../
 
 const unavailable = "google_meet_unavailable";
 
-function audit(client: ReturnType<typeof serviceClient>, actorId: string | null, outcome: "success" | "denied", reasonCode: string) {
+function audit(
+  client: ReturnType<typeof serviceClient>,
+  actorId: string | null,
+  outcome: "success" | "denied",
+  reasonCode: string,
+  metadata: Record<string, unknown> = {},
+) {
   return client.from("audit_events").insert({
     actor_id: actorId,
     event_code: "google_meet_oauth",
@@ -19,6 +25,7 @@ function audit(client: ReturnType<typeof serviceClient>, actorId: string | null,
     target_id: actorId,
     outcome,
     reason_code: reasonCode,
+    metadata,
   });
 }
 
@@ -55,8 +62,21 @@ Deno.serve(async (request) => {
       if (saveError) throw saveError;
       await audit(client, claims.sub, "success", "connected");
       return redirectToApp(config, "connected");
-    } catch {
-      await audit(client, claims.sub, "denied", "oauth_exchange_failed");
+    } catch (error) {
+      const exchangeError = error as Error & {
+        providerStatus?: number;
+        providerError?: string | null;
+        providerErrorDescription?: string | null;
+        hasAccessToken?: boolean;
+        hasRefreshToken?: boolean;
+      };
+      await audit(client, claims.sub, "denied", "oauth_exchange_failed", {
+        provider_status: exchangeError.providerStatus ?? null,
+        provider_error: exchangeError.providerError ?? null,
+        provider_error_description: exchangeError.providerErrorDescription ?? null,
+        has_access_token: exchangeError.hasAccessToken ?? false,
+        has_refresh_token: exchangeError.hasRefreshToken ?? false,
+      });
       return redirectError(config);
     }
   }

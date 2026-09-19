@@ -90,8 +90,24 @@ export async function exchangeGoogleCode(config: ReturnType<typeof googleMeetCon
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
   });
-  const payload = await response.json();
-  if (!response.ok || typeof payload.refresh_token !== "string") throw new Error("google_oauth_exchange_failed");
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || typeof payload.refresh_token !== "string") {
+    const error = Object.assign(new Error("google_oauth_exchange_failed"), {
+      providerStatus: response.status,
+      providerError: typeof payload.error === "string" ? payload.error : null,
+      providerErrorDescription: typeof payload.error_description === "string" ? payload.error_description : null,
+      hasAccessToken: typeof payload.access_token === "string",
+      hasRefreshToken: typeof payload.refresh_token === "string",
+    });
+    console.warn("google_oauth_exchange_failed", {
+      status: error.providerStatus,
+      error: error.providerError,
+      errorDescription: error.providerErrorDescription,
+      hasAccessToken: error.hasAccessToken,
+      hasRefreshToken: error.hasRefreshToken,
+    });
+    throw error;
+  }
   return payload as { refresh_token: string; access_token?: string; expires_in?: number; scope?: string; token_type?: string };
 }
 
