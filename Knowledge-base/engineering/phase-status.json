@@ -22,7 +22,7 @@
   "18.5": {
     "title": "Direct WebRTC + TURN synthetic implementation",
     "status": "Implemented — linked database verified; launch-readiness in progress",
-    "summary": "Phase 18.5 code, migrations, protected admission, UI, and local/linked verification are merged in main. Partner/owner selection between Direct WebRTC + TURN and Google Meet remains open; no runtime, Edge Function, or real-user deployment has occurred."
+    "summary": "Phase 18.5 code, migrations, protected admission, UI, and local/linked verification are merged in main. A controlled Open Relay showcase integration using Supabase Realtime is planned; partner/owner selection between Google Meet and a real-user Direct WebRTC provider remains open. No runtime, Edge Function, or real-user deployment has occurred."
   },
   "19": {
     "title": "Support tickets and launch operations",

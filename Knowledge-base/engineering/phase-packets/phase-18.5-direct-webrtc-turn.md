@@ -3,11 +3,11 @@
 **Packet purpose:** Resume Phase 18.5 without reconstructing implementation and launch context from
 conversation history.
 **Last updated:** 2026-09-19
-**Status:** Implemented on `main` — provider decision pending; runtime and real-user launch remain
-gated.
-**Recommended next action:** Partners/owners decide between Google Meet and Direct WebRTC + TURN.
-If Direct WebRTC is selected, choose and authorize the signaling/coturn runtime before deployment.
-Vercel can host the frontend, but it does not replace the signaling gateway or TURN relay.
+**Status:** Implemented on `main` — controlled Open Relay showcase integration planned; runtime and
+real-user launch remain gated.
+**Recommended next action:** Implement and verify the non-production Open Relay showcase path with
+synthetic accounts. The separate partner/owner real-user provider decision remains open. Vercel can
+host the frontend, but it does not replace the video fallback service.
 
 ## Authority map
 
@@ -30,6 +30,10 @@ Vercel can host the frontend, but it does not replace the signaling gateway or T
 - **Scope boundary:** `Verified` — code, migrations, protected Edge Functions, UI, signaling
   boundary, TURN credential boundary, and synthetic verification are recorded. Runtime deployment,
   real-user launch, and production readiness remain separate gates.
+- **Showcase direction:** `Planned` — use Supabase for Orion sign-in and appointment protection,
+  Supabase Realtime for the small browser-to-browser connection messages, and Open Relay Project for
+  the video fallback. This removes the need to provision Orion-owned video servers for the
+  controlled showcase only. It does not select Open Relay as Orion's real-user provider.
 
 ## Evidence and blockers
 
@@ -61,20 +65,34 @@ Vercel can host the frontend, but it does not replace the signaling gateway or T
   gated two-party browser evidence remains deferred until the configured test runtime has its
   signaling/TURN boundary; runtime deployment and real-user launch evidence remain intentionally
   deferred.
-- **Blocked:** partners/owners have not selected the provider. Google Meet remains available as the
-  managed-provider alternative; Direct WebRTC requires a signaling/coturn host decision before its
-  four runtime values can be populated or deployed.
+- **Showcase constraint:** Open Relay's free plan advertises 20 GB of fallback-video traffic per
+  month, but its terms provide no uptime warranty and allow service interruption without notice.
+  It is suitable only for the controlled showcase/onboarding evidence described below, not a
+  real-user clinical launch.
+- **Blocked:** the partner/owner real-user provider decision remains open. Google Meet remains the
+  managed-provider alternative; no Direct WebRTC provider is approved for real-user activation.
 - **Blocked:** runtime progression still requires the launch-readiness prerequisites and explicit
   authorization recorded in the linked phase plan and launch-readiness track.
 
 ## Ordered next actions
 
-1. **Recommended:** partners/owners select Google Meet or Direct WebRTC + TURN using the owner
-   decision brief and recorded cost/operational trade-offs.
-2. If Direct WebRTC is selected and deployment is explicitly authorized, provision the approved
-   runtime, configure the four server-side values, and add fresh relay-path evidence.
-3. If Google Meet is selected, continue its Workspace/OAuth and provider-validation path; do not
-   deploy unused Direct WebRTC infrastructure.
+1. **Showcase implementation:** replace the showcase-only custom signaling path with private
+   Supabase Realtime channels and change the protected server operation to request short-lived Open
+   Relay credentials. Keep every provider key and credential request on the server; never put a
+   provider secret in the browser.
+2. **No-TURN evidence:** run 50 short synthetic two-person attempts over varied real networks and
+   devices. Repeating one Wi-Fi pair does not count. Record only safe operational results: whether
+   audio/video connected, time to connect, browser/device class, and broad network type. Any failure
+   demonstrates that the fallback remains necessary; 50 successes do not prove it can be removed.
+3. **Open Relay evidence:** enable the fallback only in the test/showcase environment, repeat the
+   same varied-network tests, and record whether each call used the direct path or fallback path.
+   Monitor the provider dashboard and stop the controlled path before 15 GB of its 20 GB monthly
+   allowance is used.
+4. **Showcase stop rule:** if the free provider is unavailable, its allowance is exhausted, or a
+   security/privacy condition is not met, disable Direct WebRTC admission. Do not silently route a
+   call to another provider; Google Meet remains a separate provider decision and setup path.
+5. **After evidence:** partners/owners choose Google Meet or a real-user Direct WebRTC provider,
+   then authorize the separately documented runtime, privacy, clinical, and operations work.
 
 ## Handoff
 
@@ -92,5 +110,7 @@ Vercel can host the frontend, but it does not replace the signaling gateway or T
   and cleaned its temporary synthetic data.
 - **Git publication:** the Phase 18.5 merge and provider-decision record were first pushed to
   `origin/main` at `7567d5e`; this packet completes the publication record.
-- **Provider decision:** Direct WebRTC + TURN is implemented on `main`, but partners/owners must
-  decide whether to use it or the Google Meet path before either provider is activated for use.
+- **Showcase provider plan:** the next non-production implementation uses Supabase Realtime plus
+  Open Relay's free 20 GB fallback allowance. This is not deployed and is not a real-user provider
+  approval. Partners/owners must still decide between Google Meet and a real-user Direct WebRTC
+  provider before either route is activated for real users.

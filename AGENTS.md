@@ -13,6 +13,40 @@ For active or recently changed phases, use the matching `Knowledge-base/engineer
 packet as the first resume and handoff point. Packets link to authority and evidence; they do not
 replace phase plans or append-only audits.
 
+## Owner and partner-facing decision documents
+
+When writing a brief for Orion's partners, owners, or non-technical decision-makers:
+
+- Use plain English by default. Keep technical terms only when their name is necessary to identify an
+  option, vendor, cost, or approval; explain the practical effect rather than the implementation.
+- For a comparison of alternatives, use the same structure for every option: **How it works**,
+  **What's needed**, **Pros**, **Cons**, and **Pricing**. Add a short, actionable shared-prerequisite
+  checklist only when it applies to more than one option.
+- Center the document on the durable decision the reader must make. Do not let a temporary demo,
+  showcase, or test recommendation become the framing unless the document is specifically about
+  that temporary event.
+- Surface operational dependencies and costs early and plainly. State any separate always-on
+  services, recurring bills, scaling or usage costs, ownership duties, and material risks before or
+  alongside implementation recommendations.
+- Separate existing costs from new option-specific costs, identify whether a cost is one-time or
+  recurring, state the assumptions and date checked, and link the source for externally priced
+  services. Do not silently add assumed hosting plans to a comparison.
+- Distinguish clearly between code being implemented, a runtime being deployed, and a feature being
+  approved for real users. Never describe a feature as ready for real users solely because its code
+  is merged.
+
+### Current hosting-cost context
+
+Orion currently uses a paid Supabase plan and a free Vercel plan. Treat those as existing costs in
+decision briefs unless the task explicitly changes them. Reconfirm plan prices and suitability before
+making a future cost or production-hosting claim; this is context, not authorization to change plans.
+
+## Worktree dependency preference
+
+When a separate Git worktree needs JavaScript dependencies and a compatible canonical `node_modules`
+directory already exists, use a symlink to that directory rather than installing a duplicate copy.
+Do not delete, overwrite, or modify the source dependency directory while doing so.
+
 ## Phase-status synchronization
 
 `Knowledge-base/engineering/phase-status.json` is the canonical status registry for numbered

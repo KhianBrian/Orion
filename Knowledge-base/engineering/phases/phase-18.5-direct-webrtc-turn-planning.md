@@ -137,10 +137,10 @@ This is preferred for a strict one-to-one contract because it can enforce connec
 message-size limits, heartbeat, replay handling, and immediate session revocation more directly than
 a client-only channel.
 
-### Option not selected by this proposal: direct Supabase Realtime signaling
+### Controlled showcase alternative: Supabase Realtime signaling
 
-Supabase Realtime remains a possible implementation option, but it must not be assumed sufficient
-until it can prove all of the following in the target configuration:
+For the controlled Open Relay showcase, Supabase Realtime is the planned signaling option. It must
+prove all of the following in the target configuration before the showcase is presented:
 
 - private channel authorization by the exact appointment participants;
 - rejection of a third participant and duplicate active connections;
@@ -149,8 +149,50 @@ until it can prove all of the following in the target configuration:
 - no persistence or leakage of signaling payloads;
 - acceptable regional processing, retention, outage, and support terms.
 
-If those controls cannot be demonstrated, the dedicated gateway remains required. This is a review
-point, not permission to implement both signaling paths.
+The showcase implementation uses one signaling path only. If those controls cannot be demonstrated,
+the showcase is stopped rather than adding an unreviewed fallback.
+
+## Controlled Open Relay showcase plan
+
+This is a **non-production, synthetic-data showcase plan** for Phase 18.5. It is not a real-user
+launch decision and does not override the later provider, privacy, clinical, security, or operations
+gates.
+
+### Planned service split
+
+- **Supabase:** Orion login, appointment checks, short-lived access, and private connection
+  messages between the two browsers.
+- **Open Relay Project:** the backup route for audio/video only when the browsers cannot connect
+  directly. Its advertised free allowance is 20 GB per month.
+- **Vercel:** the existing free frontend hosting plan; it does not host the backup video route.
+
+The protected `video-session-access` operation must obtain temporary Open Relay connection details
+on the server and return only the short-lived browser configuration. The Open Relay API key must not
+be placed in browser code, `VITE_*` variables, Git, test fixtures, logs, or screenshots.
+
+### Evidence plan and limits
+
+1. Run 50 short synthetic two-person calls without the backup route across genuinely varied
+   home, mobile, office, browser, and device combinations. A connection passes only when both
+   people receive audio and video within the approved time; record connection time and failure
+   class without personal data.
+2. Treat any no-backup failure as evidence that the fallback is required. Treat 50 successes as a
+   useful sample, not proof that all future networks will connect directly.
+3. Enable Open Relay in the controlled environment, repeat the network matrix, and record direct
+   versus fallback use. Use browser connection statistics and the provider dashboard for aggregate
+   evidence only.
+4. Reserve 5 GB of the advertised 20 GB allowance as a safety margin. Pause the showcase path at
+   15 GB, investigate the usage, and do not rely on the free allowance after it is exhausted.
+5. Disable Direct WebRTC admission if Open Relay is unavailable, the allowance is exhausted, or
+   security/privacy review rejects the service. There is no automatic provider fallback.
+
+At an illustrative normal video rate, 20 GB covers roughly 22 one-hour calls if every call needs
+the fallback, or roughly 110 total one-hour calls if 20% need it. This is an estimate, not a
+capacity commitment: quality and provider billing rules affect the actual figure.
+
+Open Relay's public terms say the service has no warranty and may go down without notice. It must
+not be represented as a permanent or real-user clinical service. The provider's handling of fallback
+traffic and metadata also requires privacy/DPO review before any real-user proposal.
 
 ## TURN and hosting proposal
 

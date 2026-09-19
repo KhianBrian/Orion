@@ -34,7 +34,8 @@ short-lived signaling/TURN admission. Use a server-side kill switch to stop toke
 
 | Option | Use | Decision |
 | --- | --- | --- |
-| Direct WebRTC + TURN | One-to-one browser media with dedicated signaling and project-owned relay boundary | Implemented on `main` for Phase 18.5 synthetic/non-production; partner/owner provider decision and real-user gate remain pending |
+| Direct WebRTC + Open Relay showcase path | One-to-one browser media using Supabase Realtime for connection messages and Open Relay's 20 GB free backup route | Planned Phase 18.5 controlled showcase integration; no deployment, no real-user approval, and no permanent-provider decision |
+| Direct WebRTC + project-owned TURN | One-to-one browser media with dedicated signaling and project-owned relay boundary | Implemented on `main` for Phase 18.5 synthetic/non-production; remains the real-user Direct WebRTC alternative if separately approved |
 | Google Meet | Managed meeting spaces and Workspace-controlled participant admission | Partner/owner provider decision pending; Workspace, vendor, and operational approval remain required |
 | Daily | Managed, token-gated browser video; free early allowance | Historical alternative; no longer preferred for R1 |
 | LiveKit Cloud | Managed, flexible token-gated video | Historical alternative if Google Meet is not approved |
