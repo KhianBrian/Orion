@@ -10,6 +10,12 @@ function base64url(value: Uint8Array | string) {
   return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
 }
 
+function base64(value: Uint8Array) {
+  let binary = "";
+  value.forEach((byte) => { binary += String.fromCharCode(byte); });
+  return btoa(binary);
+}
+
 async function hmac(secret: string, value: string) {
   const key = await crypto.subtle.importKey(
     "raw",
@@ -28,7 +34,14 @@ async function signedJoinToken(secret: string, claims: Record<string, unknown>) 
 }
 
 async function turnCredential(secret: string, username: string) {
-  return hmac(secret, username);
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-1" },
+    false,
+    ["sign"],
+  );
+  return base64(new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(username))));
 }
 
 Deno.serve(async (request) => {

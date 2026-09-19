@@ -4,11 +4,13 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { createServer } from "node:http";
 
 const port = Number(process.env.DIRECT_WEBRTC_SIGNALING_PORT || 8787);
+const host = process.env.DIRECT_WEBRTC_SIGNALING_HOST || "127.0.0.1";
 const secret = process.env.DIRECT_WEBRTC_SIGNALING_SECRET;
 const maxMessageBytes = 64 * 1024;
 const heartbeatIntervalMs = 15_000;
 const heartbeatTimeoutMs = 45_000;
 const sessions = new Map();
+const sockets = new Set();
 
 if (!secret) {
   throw new Error("DIRECT_WEBRTC_SIGNALING_SECRET is required");
@@ -63,7 +65,8 @@ function removeParticipant(context) {
   if (context.expiryTimer) clearTimeout(context.expiryTimer);
   const session = sessions.get(context.claims.sid);
   if (!session) return;
-  if (session.participants.get(context.claims.role) === context) session.participants.delete(context.claims.role);
+  if (session.participants.get(context.claims.role) !== context) return;
+  session.participants.delete(context.claims.role);
   if (session.participants.size === 0) sessions.delete(context.claims.sid);
   else {
     for (const participant of session.participants.values()) send(participant.socket, { type: "peer_left" });
@@ -83,7 +86,14 @@ function handleMessage(context, message) {
   if (message.type === "join") {
     if (context.joined || message.sessionId !== context.claims.sid) return close(context.socket);
     const session = sessions.get(context.claims.sid) || { participants: new Map() };
-    if (session.participants.has(context.claims.role)) return close(context.socket, 1008);
+    const existing = session.participants.get(context.claims.role);
+    if (existing) {
+      const sameParticipant = existing.claims.sub === context.claims.sub
+        && existing.claims.gen === context.claims.gen;
+      if (!sameParticipant) return close(context.socket, 1008);
+      session.participants.delete(context.claims.role);
+      close(existing.socket, 1001);
+    }
     session.participants.set(context.claims.role, context);
     sessions.set(context.claims.sid, session);
     context.joined = true;
@@ -141,7 +151,12 @@ function consumeFrames(context, chunk) {
   }
 }
 
-const server = createServer((_request, response) => {
+const server = createServer((request, response) => {
+  if (request.method === "GET" && request.url === "/healthz") {
+    response.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
+    response.end(JSON.stringify({ status: "ok" }));
+    return;
+  }
   response.writeHead(404, { "Content-Type": "application/json" });
   response.end(JSON.stringify({ error: "not_found" }));
 });
@@ -174,15 +189,31 @@ server.on("upgrade", (request, socket) => {
     heartbeatTimer: null,
     expiryTimer: null,
   };
+  sockets.add(socket);
   context.heartbeatTimer = setInterval(() => {
     if (Date.now() - context.lastHeartbeatAt > heartbeatTimeoutMs) close(socket, 1001);
   }, heartbeatIntervalMs);
   context.expiryTimer = setTimeout(() => close(socket, 1008), Math.max(0, claims.exp * 1000 - Date.now()));
   socket.on("data", (chunk) => consumeFrames(context, chunk));
-  socket.on("close", () => removeParticipant(context));
-  socket.on("error", () => removeParticipant(context));
+  socket.on("close", () => {
+    sockets.delete(socket);
+    removeParticipant(context);
+  });
+  socket.on("error", () => {
+    sockets.delete(socket);
+    removeParticipant(context);
+  });
 });
 
-server.listen(port, "127.0.0.1", () => {
-  console.log(`Synthetic Direct WebRTC signaling gateway listening on ws://127.0.0.1:${port}/signaling`);
+function shutdown(signal) {
+  console.log(`Direct WebRTC signaling gateway received ${signal}; shutting down`);
+  for (const socket of sockets) close(socket, 1001);
+  server.close(() => process.exit(0));
+}
+
+process.once("SIGINT", () => shutdown("SIGINT"));
+process.once("SIGTERM", () => shutdown("SIGTERM"));
+
+server.listen(port, host, () => {
+  console.log(`Direct WebRTC signaling gateway listening on ws://${host}:${port}/signaling`);
 });
