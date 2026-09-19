@@ -1,0 +1,8 @@
+.direct-meeting-page { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+.direct-meeting-header { display: flex; align-items: start; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
+.direct-meeting-header h1 { margin: .25rem 0 .5rem; }
+.direct-meeting-preflight, .direct-meeting-frame { border: 1px solid #c8d1d9; border-radius: .75rem; padding: 1.5rem; background: #fff; }
+.direct-meeting-preflight button, .direct-meeting-frame button { border: 0; border-radius: .5rem; padding: .8rem 1rem; background: #0f5c5e; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+.direct-meeting-videos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; background: #17212b; border-radius: .75rem; padding: 1rem; }
+.direct-meeting-videos video { width: 100%; min-height: 260px; border-radius: .5rem; background: #0d1217; object-fit: cover; }
+@media (max-width: 600px) { .direct-meeting-page { padding: 1rem; } .direct-meeting-header { display: block; } .direct-meeting-header button { margin-top: .75rem; } .direct-meeting-videos { grid-template-columns: 1fr; } .direct-meeting-videos video { min-height: 180px; } }

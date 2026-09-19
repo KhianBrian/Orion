@@ -47,6 +47,9 @@ documentation, source files, or Git.
 | `20260913124101` | [`phase15_active_reservation_constraints.sql`](../../supabase/migrations/20260913124101_phase15_active_reservation_constraints.sql) | Adds active-slot uniqueness and active-session overlap protection for `payment_pending`, `reserved`, and `booked` states. |
 | `20260913131526` | [`phase15_support_messaging_and_roles.sql`](../../supabase/migrations/20260913131526_phase15_support_messaging_and_roles.sql) | Adds psychiatrist requesters, cross-role support replies, per-actor read state, and server-computed unread indicators. |
 | `20260913131754` | [`phase15_support_reply_function.sql`](../../supabase/migrations/20260913131754_phase15_support_reply_function.sql) | Adds the protected, idempotent support-ticket reply transaction with audit events. |
+| `20260919100000` | [`phase185_direct_webrtc_control_plane.sql`](../../supabase/migrations/20260919100000_phase185_direct_webrtc_control_plane.sql) | Adds the disabled-by-default synthetic Direct WebRTC session control plane, session access RPC, and admin kill switch. |
+| `20260919100500` | [`phase185_access_clock_fix.sql`](../../supabase/migrations/20260919100500_phase185_access_clock_fix.sql) | Corrects the access-window clock handling to use `timestamptz` values. |
+| `20260919101000` | [`phase185_session_lookup_fix.sql`](../../supabase/migrations/20260919101000_phase185_session_lookup_fix.sql) | Qualifies the session lookup against the function argument and preserves the forward-only correction boundary. |
 
 The local filenames intentionally match the remote migration history. Never edit either migration after
 application; create a new forward migration for every correction.

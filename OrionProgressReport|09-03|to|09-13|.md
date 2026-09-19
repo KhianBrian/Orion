@@ -114,8 +114,9 @@ The documented direction includes:
 - People under 18 require a parent or guardian consent process and cannot book simply because a form
   was submitted.
 - Real sessions are intended to use PayMaya payment confirmation.
-- Direct WebRTC + TURN is the preferred architecture candidate for real sessions because it fits the
-  strict one-to-one service boundary; provider approval and infrastructure review are still pending.
+- Direct WebRTC + TURN is implemented and verified for the Phase 18.5 synthetic/non-production slice
+  because it fits the strict one-to-one service boundary; real-user activation and production review
+  remain separately gated.
 - Patients and psychiatrists may use in-app support for administrative or software questions.
 - The intended session timing is 15 minutes of early joining, a 45-minute consultation, and a further
   15-minute note-writing period for the psychiatrist.

@@ -35,6 +35,11 @@ test.describe("public navigation", () => {
     await expect(page).toHaveURL(/\/login$/);
   });
 
+  test("a visitor is redirected before reaching the protected Direct WebRTC route", async ({ page }) => {
+    await page.goto("/appointments/00000000-0000-4000-8000-000000000000/direct-meeting");
+    await expect(page).toHaveURL(/\/login$/);
+  });
+
   test("a visitor is redirected before reaching the admin route", async ({ page }) => {
     await page.goto("/dashboard");
     await expect(page).toHaveURL(/\/login$/);

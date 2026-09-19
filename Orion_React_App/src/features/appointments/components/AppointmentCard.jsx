@@ -10,6 +10,7 @@ const manilaDateTime = new Intl.DateTimeFormat("en-PH", {
 
 export function AppointmentCard({ appointment, isPatient, isUpcoming, now, onCancel, onReschedule, onClinicianCancel, onOutcome, onNote, noteAvailable }) {
   const canJoin = appointment.status === "booked" && isInDemoMeetingWindow(appointment.starts_at, appointment.ends_at, now);
+  const directWebRtcUi = import.meta.env.VITE_DIRECT_WEBRTC_UI === "true";
 
   return <article className="appointment-card" data-testid={`appointment-card-${appointment.id}`}>
     <div className="appointment-card__heading">
@@ -19,7 +20,8 @@ export function AppointmentCard({ appointment, isPatient, isUpcoming, now, onCan
     <p>{manilaDateTime.format(new Date(appointment.starts_at))}</p>
     <p className="appointment-card__duration">45 minutes</p>
     <div className="appointment-card__actions">
-      {canJoin && <ButtonLink to={`/appointments/${appointment.id}/meeting`}>Join call</ButtonLink>}
+      {canJoin && directWebRtcUi && <ButtonLink to={`/appointments/${appointment.id}/direct-meeting`}>Join secure call</ButtonLink>}
+      {canJoin && !directWebRtcUi && <ButtonLink to={`/appointments/${appointment.id}/meeting`}>Join call</ButtonLink>}
       {isPatient && isUpcoming && appointment.status === "booked" && <Button variant="danger" onClick={() => onCancel(appointment)}>Cancel appointment</Button>}
       {isPatient && isUpcoming && appointment.status === "booked" && <Button variant="secondary" onClick={() => onReschedule(appointment)}>Request reschedule</Button>}
       {!isPatient && isUpcoming && appointment.status === "booked" && <Button variant="danger" onClick={() => onClinicianCancel(appointment)}>Cancel appointment</Button>}

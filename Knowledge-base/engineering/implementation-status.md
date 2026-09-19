@@ -1,6 +1,6 @@
 # Implementation status
 
-**Last verified:** 13 September 2026
+**Last verified:** 19 September 2026
 
 **R1 update:** 8 September owner direction is tracked separately in
 [Launch Readiness R1](launch-readiness/README.md). It changes future real-launch planning only and
@@ -71,6 +71,7 @@ history: [Supabase integration](supabase.md). Historical evidence: [28 August de
 | [Phase 16 / R1.2 — Identity and minor eligibility](phases/phase-16-identity-and-minor-eligibility.md) | Waiting for owner decisions after meeting | Non-blocking for unrelated phases. Consent flow, age/identity verification, evidence, review handling, and approved wording remain open before implementation. |
 | [Phase 17 / R1.3 — PayMaya payment-authorised booking](phases/phase-17-paymaya-payment-authorised-booking.md) | Waiting on PayMaya API | Provider integration material and payment, refund, chargeback, retention, and reconciliation policies remain open before implementation. |
 | [Phase 18 / R1.4 — Google Meet and timing](phases/phase-18-google-meet-and-session-timing.md) | Planned — blocked | Pending Phase 17 payment state, Workspace/provider validation, privacy/vendor approval, and clinical timing decisions. |
+| [Phase 18.5 — Direct WebRTC + TURN synthetic implementation](phases/phase-18.5-direct-webrtc-turn-planning.md) | Implemented — linked database verified; launch-readiness in progress | Phase 18.5 code, migrations, protected admission, UI, and local/linked verification are complete. Edge Function deployment, signaling/TURN runtime, security remediation, and real-user launch evidence remain open. |
 | [Phase 19 / R1.5 — Support and launch operations](phases/phase-19-support-tickets-and-launch-operations.md) | Planned — implementation blocked | Depends on Phase 15–18 as-built evidence plus support, operations, retention, privacy, finance, and provider decisions. |
 | [Phase 20 / R1.5 — Integrated verification and controlled release](phases/phase-20-integrated-launch-verification-and-controlled-release.md) | Planned — blocked on all prior gates | Depends on all prior phase audits, production-baseline controls, named approvals, and company-owner go/no-go. |
 

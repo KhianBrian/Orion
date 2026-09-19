@@ -19,6 +19,11 @@
     "status": "Planned — blocked",
     "summary": "Pending Phase 17 payment state, Workspace/provider validation, privacy/vendor approval, and clinical timing decisions."
   },
+  "18.5": {
+    "title": "Direct WebRTC + TURN synthetic implementation",
+    "status": "Implemented — linked database verified; launch-readiness in progress",
+    "summary": "Phase 18.5 code, migrations, protected admission, UI, and local/linked verification are complete. Edge Function deployment, signaling/TURN runtime, security remediation, and real-user launch evidence remain open."
+  },
   "19": {
     "title": "Support tickets and launch operations",
     "status": "Planned — implementation blocked",
