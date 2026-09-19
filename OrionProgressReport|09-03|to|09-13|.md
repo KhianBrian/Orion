@@ -274,7 +274,7 @@ They do not confirm that Orion is ready for real patients or real clinical activ
 | Secure production baseline | Partially completed | Finish access, deployment, monitoring, recovery, and operational ownership. |
 | Minor eligibility and guardian consent | Waiting for owner decisions after meeting | Non-blocking for unrelated phases. Consent flow, age/identity verification, evidence, review handling, and approved wording remain open before implementation. |
 | PayMaya payment booking | Waiting on PayMaya API | Provider integration material and payment, refund, chargeback, retention, and reconciliation policies remain open before implementation. |
-| Google Meet and real timing | Planned — blocked | Pending Phase 17 payment state, Workspace/provider validation, privacy/vendor approval, and clinical timing decisions. |
+| Google Meet and real timing | Implemented — test path; real-user launch blocked | Real Google Meet test path, per-psychiatrist Gmail OAuth connection, protected admission, 15/45/15 timing, and admin kill switch are implemented. Payment-authorised booking, production provider validation, privacy/vendor approval, clinical edge decisions, and real-user activation remain blocked. |
 | Final launch verification | Planned, not started | Complete all earlier work, approvals, and the owner go/no-go decision. |
 
 Phase 10 meeting-specific work was superseded by the updated launch direction. Reusable meeting
