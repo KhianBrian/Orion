@@ -7,11 +7,11 @@ without relying on conversation memory.
 ## Read in this order
 
 1. [Phase status registry](phase-status.json) for the canonical numbered-phase status.
-2. [Implementation status](implementation-status.md) and [delivery plan](delivery-plan.md) for the
-   dependency order and next authorized work.
+2. [Phase packet](phase-packets/README.md) for the current state, handoff, and one recommended next
+   action when the phase has a packet.
 3. The linked phase plan for requirements, boundaries, and gates.
-4. [Active work](active-work/README.md) for the current worktree, environment, command evidence,
-   decisions, and handoff state.
+4. [Implementation status](implementation-status.md) and [delivery plan](delivery-plan.md) for the
+   dependency order and next authorized work.
 5. [AI delivery workflow](ai-delivery-workflow.md) for implementation, verification, integration,
    and publishing.
 6. [AI coordination process](ai-agent-coordination.md) when more than one human or AI agent is
@@ -22,12 +22,12 @@ without relying on conversation memory.
 
 - Phase plans and policy/architecture documents define what may be built.
 - `phase-status.json` defines the current status label for numbered phases.
-- An active-work record defines the current state of an in-progress task and is updated as work
-  happens; it does not authorize work outside the linked phase plan.
+- A phase packet defines the current state of an in-progress phase and is updated at material
+  checkpoints and before handoff; it does not authorize work outside the linked phase plan.
 - Audit entries preserve completed evidence and must not be rewritten to hide history. Correct an
   inaccurate audit with a dated correction or an explicit current-state addendum.
 - Conversation messages are context, not the durable source of truth.
 
-Every completed phase or significant workstream must leave all three durable records: the governing
-plan, the active-work record, and the dated audit entry. Status-indexed Markdown must be synchronized
-from `phase-status.json` before handoff.
+Every completed phase or significant workstream must leave three durable records: the governing
+plan, the phase packet, and the dated audit entry. Status-indexed Markdown must be synchronized from
+`phase-status.json` before handoff.

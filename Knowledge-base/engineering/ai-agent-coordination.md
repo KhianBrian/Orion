@@ -7,7 +7,7 @@ database, credential, deployment, merge, or production actions.
 ## Before acting
 
 1. Read `AGENTS.md`, `Orion_React_App/agent.md`, the engineering README, the applicable phase plan,
-   and the active-work record.
+   and the phase packet when one exists.
 2. Inspect the current branch, worktree, status, recent commits, applied migration state, and
    deployed-function state when relevant.
 3. State the intended scope and identify the files, environment, and external systems involved.
@@ -15,7 +15,7 @@ database, credential, deployment, merge, or production actions.
 
 ## Evidence labels
 
-Use these labels in active-work updates and handoffs:
+Use these labels in phase-packet updates and handoffs:
 
 - **Observed** — directly read from a file, command, database, or deployed service.
 - **Verified** — observed after a fresh check with a recorded command and result.
@@ -37,8 +37,12 @@ Every handoff must identify:
 - remote actions performed or explicitly not performed;
 - open risks, blockers, and the single recommended next action.
 
-The handoff belongs in the relevant `engineering/active-work/` file. Keep the audit trail dated and
-append-only; do not use it as a live task list.
+The handoff belongs in the relevant phase packet. Keep the audit trail dated and append-only; do not
+use it as a live task list.
+
+The phase packet is the first resume point and the sole live work record for a phase. It must name
+the single recommended next action and link to audit evidence; it must not become a second
+implementation log.
 
 ## Integration ownership
 

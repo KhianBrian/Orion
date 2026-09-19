@@ -4,7 +4,7 @@ Read this file before planning, modifying, reviewing, testing, or releasing the 
 
 The authoritative rules live in [`../Knowledge-base`](../Knowledge-base/README.md). Orion is planned for a controlled real-market pilot with real clients and psychiatrists. The current source is a prototype; mocked auth, local persistence, public Jitsi, and hardcoded appointment data are not production patterns.
 
-For Claude/Codex coordination, also read [`../Knowledge-base/engineering/ai-agent-coordination.md`](../Knowledge-base/engineering/ai-agent-coordination.md). Phase 16 and later remain planning-gated until the applicable decisions, prerequisites, and implementation authorization are documented and approved. Phase 18.5's implementation authorization is recorded in its phase plan and active-work record; real-user launch remains separately gated.
+For Claude/Codex coordination, also read [`../Knowledge-base/engineering/ai-agent-coordination.md`](../Knowledge-base/engineering/ai-agent-coordination.md). Phase 16 and later remain planning-gated until the applicable decisions, prerequisites, and implementation authorization are documented and approved. Phase 18.5's implementation authorization is recorded in its phase plan and phase packet; real-user launch remains separately gated.
 
 ## Required reading by task
 

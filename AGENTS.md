@@ -6,8 +6,12 @@ For Claude/Codex coordination, follow [`Knowledge-base/engineering/ai-agent-coor
 
 Phase 16 and later are planning-gated by default. Do not begin implementation until the applicable
 decisions, prerequisites, and implementation authorization are documented in the phase plan and
-active-work record. Phase 18.5's implementation authorization is recorded in those documents; its
+phase packet. Phase 18.5's implementation authorization is recorded in those documents; its
 real-user launch remains separately gated.
+
+For active or recently changed phases, use the matching `Knowledge-base/engineering/phase-packets/`
+packet as the first resume and handoff point. Packets link to authority and evidence; they do not
+replace phase plans or append-only audits.
 
 ## Phase-status synchronization
 
