@@ -34,7 +34,7 @@ const problems = [];
 const managedPhaseFloor = 15;
 const phaseDirectory = path.join(repoRoot, 'Knowledge-base/engineering/phases');
 const phaseFiles = fs.readdirSync(phaseDirectory)
-  .map((name) => name.match(/^phase-(\d+)-.+\.md$/)?.[1])
+  .map((name) => name.match(/^phase-(\d+(?:\.\d+)?)-.+\.md$/)?.[1])
   .filter(Boolean)
   .filter((phase) => Number(phase) >= managedPhaseFloor);
 
@@ -51,6 +51,7 @@ function phaseForLine(line, kind) {
       '16': 'Minor eligibility and guardian consent',
       '17': 'PayMaya payment booking',
       '18': 'Google Meet and real timing',
+      '18.5': 'Direct WebRTC + TURN synthetic implementation',
     };
     if (line.includes(`phase-${phase}-`) || (kind === 'progress-report' && progressLabels[phase] && line.includes(progressLabels[phase]))) {
       return { phase, value };

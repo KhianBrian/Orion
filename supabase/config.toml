@@ -7,6 +7,12 @@ project_id = "Orion"
 [functions.get-demo-meeting-access]
 verify_jwt = true
 
+[functions.video-session-access]
+verify_jwt = true
+
+[functions.video-control]
+verify_jwt = true
+
 [api]
 enabled = true
 # Port to use for the API URL.

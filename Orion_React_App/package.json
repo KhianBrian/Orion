@@ -9,6 +9,8 @@
     "lint": "eslint .",
     "prelint": "npm run phase-status:sync && npm run phase-status:check",
     "test:unit": "node --test tests/unit/*.test.js",
+    "test:db:phase185": "node scripts/test-phase185-db.mjs",
+    "test:load:phase185": "node tools/direct-webrtc-load.mjs",
     "check:env-examples": "node scripts/check-env-examples.mjs",
     "phase-status:sync": "node scripts/sync-phase-status.mjs --fix",
     "phase-status:check": "node scripts/sync-phase-status.mjs --check",
@@ -25,7 +27,8 @@
     "test:auth:no-email": "node --env-file=.env scripts/test-phase3-auth-no-email.mjs",
     "seed:human-checks": "node --env-file=.env scripts/seed-human-checks.mjs",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:report": "playwright show-report test-artifacts/playwright/report"
+    "test:e2e:report": "playwright show-report test-artifacts/playwright/report",
+    "signaling:synthetic": "node tools/direct-webrtc-signaling.mjs"
   },
   "dependencies": {
     "@casl/ability": "6.8.1",

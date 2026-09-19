@@ -10,6 +10,7 @@ This is the authoritative foundation for Orion. Orion is being prepared for a co
 | [Architecture](architecture/) | System design, data/RBAC, threats, video, and access auditing. | Changing data, auth, video, APIs, security, or integrations. |
 | [Governance](governance/) | Privacy, data classification, consent, retention, and approval ownership. | Handling real client/clinician data, vendors, notices, or requests. |
 | [Engineering](engineering/README.md) | Engineering entry point for code conventions, QA, test-data policy, ordered delivery, and current status. | Coding, reviewing, testing, releasing, or choosing next work. |
+| [Active work](engineering/active-work/README.md) | Living records for current work, including exact environment state, commands, evidence, decisions, and next actions. | Resuming an interrupted task or handing work between humans and AI. |
 | [Claude/Codex coordination](engineering/ai-agent-coordination.md) | Append-only, evidence-labelled coordination between Claude Code and Codex. | Using a second agent for planning, investigation, implementation review, or verification. |
 | [Implementation status](engineering/implementation-status.md) | Current phase-by-phase execution tracker, next steps, and blockers. | Finding where Orion implementation stopped or what should happen next. |
 | [Supabase integration](engineering/supabase.md) | Orion's scoped non-production Supabase connection, migrations, and operational guardrails. | Configuring or changing Orion's Supabase project. |

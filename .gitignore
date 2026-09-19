@@ -40,12 +40,5 @@ tmp/
 # Private local Claude/Codex coordination board; never commit live messages
 /agent-coordination/
 
-# Local Knowledge Base; keep authority notes outside Git commits except for
-# the reviewed Phase 18.5 planning document.
-/Knowledge-base/*
-!/Knowledge-base/engineering/
-/Knowledge-base/engineering/*
-!/Knowledge-base/engineering/phase-status.json
-!/Knowledge-base/engineering/phases/
-/Knowledge-base/engineering/phases/*
-!/Knowledge-base/engineering/phases/phase-18.5-direct-webrtc-turn-planning.md
+# The Knowledge Base is canonical repository documentation and is tracked.
+# Keep only the private coordination board outside Git.

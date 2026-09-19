@@ -1,19 +1,23 @@
 # Phase 18.5 — Direct WebRTC + TURN Planning Review
 
-**Status:** Planning-only — discussion and approval required. No implementation is authorised by
-this document.
+**Status:** Implemented and verified — synthetic/non-production vertical slice.
+
+This phase covers the implemented control-plane, dedicated signaling boundary, TURN credential
+boundary, synthetic UI, and verification work described below. It remains disabled for real users,
+production infrastructure, and production data.
 
 **Prepared:** 18 September 2026
 
-**Purpose:** Record a reviewable alternative to the current Phase 18 Google Meet direction for a
-strictly one-to-one psychiatrist-to-patient video session. This document is a planning proposal so
-owners, clinical, privacy/DPO, security, and operations reviewers can identify missing factors before
-a full implementation plan is written.
+**As-built verification:** 19 September 2026
 
-The current Phase 18 provider authority remains unresolved until the video-provider decision record
-and decision register are deliberately amended. Direct WebRTC + TURN is the preferred candidate for
-review because it fits Orion’s strict one-to-one scope, but this document does not approve real
-patients, real appointments, real payments, real clinical sessions, or production infrastructure.
+**Purpose:** Record the reviewable alternative to the current Phase 18 Google Meet direction for a
+strictly one-to-one psychiatrist-to-patient video session, its implemented synthetic boundary, and
+the remaining owner, clinical, privacy/DPO, security, and operations decisions for real-user release.
+
+The current Phase 18 real-user provider authority remains unresolved. Direct WebRTC + TURN is the
+authorized synthetic/non-production implementation direction because it fits Orion’s strict
+one-to-one scope. This phase does not approve real patients, real payments, real clinical sessions,
+or production infrastructure.
 
 ## Review basis and authority
 
@@ -35,11 +39,10 @@ This proposal was prepared from:
 
 The infrastructure work packages and acceptance criteria are included in this document below.
 
-The repository currently records Phase 16 as waiting for owner decisions after its meeting, Phase 17
-as waiting on the PayMaya API, and Phase 18 as blocked. Phase 16 and Phase 17 are not blockers for
-unrelated work, but their approved eligibility predicate and provider-verified payment contract are
-prerequisites for implementation that depends on minor eligibility or payment-authorised `booked`
-state.
+The repository records Phase 16 as waiting for owner decisions after its meeting, Phase 17 as waiting
+on the PayMaya API, and Phase 18 as blocked. Those production predecessor gaps do not block this
+synthetic slice: it uses the existing synthetic `booked` appointment relationship as its control-plane
+fixture and does not claim the future eligibility or payment contracts are complete.
 
 ## Proposed outcome for discussion
 
@@ -293,9 +296,11 @@ architecture and is not a fallback.
 
 ## Future full implementation plan
 
-This Phase 18.5 document intentionally does not constitute the executable Tier 2 implementation
-plan. After discussion and approval, a separate full plan must be written from current as-built
-evidence and must include:
+Production hardening and real-user activation still require a separate approval package built from
+current as-built evidence. That package must include:
+
+The executable 30-user launch profile and evidence matrix are maintained in the [Phase 18.5
+production-readiness track](phase-18.5-production-readiness.md).
 
 - approved decisions and resolved policy gaps;
 - exact Phase 16/17 predecessor contracts and deployed-state inspection;
@@ -307,11 +312,11 @@ evidence and must include:
 - a complete QA protocol and exit criteria;
 - a dated as-built audit after implementation.
 
-No implementation branch, migration, infrastructure provisioning, dependency addition, or production
-configuration should be created until that plan is approved under the repository's Phase 16+ planning
-gate.
+The synthetic implementation branch, migrations, functions, tests, and local boundary configuration
+are implemented under this phase status. Production infrastructure provisioning, remote deployment,
+real-user activation, and production configuration remain prohibited until the real-user gate closes.
 
-## QA protocol required before Phase 18.5 can close
+## QA protocol retained for real-user hardening
 
 The later implementation plan must define and pass, at minimum:
 
@@ -371,19 +376,37 @@ passing UI demo alone is not sufficient evidence.
 
 ## Gate
 
-Phase 18.5 remains a discussion document until:
+### Synthetic implementation gate — satisfied
+
+The synthetic/non-production implementation gate is satisfied. The implemented scope is limited to
+current synthetic booked appointments, local or staging-only control-plane records, a dedicated
+signaling boundary, short-lived TURN credential issuance, and disabled-by-default admission.
+
+### Real-user activation gate — still required
+
+Real-user activation remains prohibited until:
 
 - the open decisions are resolved and recorded in the authoritative Knowledge Base documents;
 - the provider decision record explicitly records the approved direction;
 - Phase 16 and Phase 17 predecessor gates are closed with dated as-built evidence;
 - named clinical, privacy/DPO, security, hosting, operations, and owner approvals exist;
-- the full implementation plan and QA protocol are written and approved; and
-- implementation and verification are separately authorised.
+- the production implementation plan and QA protocol are written and approved; and
+- a separate real-user go/no-go is recorded.
+
+### 30-user launch profile — not yet launch-cleared
+
+The requested initial launch profile is 30 synthetic users, exercised in two waves of 10
+simultaneous two-party calls (20 peak active participants). The local signaling load harness now
+passes that profile across 30 unique identities, including large SDP/answer frames and heartbeats.
+That evidence proves gateway behavior only; it does not replace staging relay, browser/device,
+outage, failover, observability, approval, or production-capacity evidence. The complete executable
+matrix is maintained in the [Phase 18.5 production-readiness track](phase-18.5-production-readiness.md).
 
 ## Consolidated infrastructure plan
 
-This section is the implementation-planning detail for the six infrastructure concerns. It is
-planning-only and does not authorise provisioning or code changes.
+This section is the implementation detail for the six infrastructure concerns. It authorizes only
+synthetic/non-production code and local or staging verification; it does not authorize production
+provisioning or real-user activation.
 
 ### 1. Dedicated signaling service
 
@@ -466,7 +489,8 @@ There is no automatic provider fallback.
 
 ### Infrastructure exit criteria
 
-Phase 18.5 infrastructure planning is complete only when the repository records the approved
-signaling protocol, TURN topology, credential contract, capacity headroom, failover behavior,
-kill-switch ownership, outage copy, observability redaction, secret rotation, rollback procedure,
-and implementation authorization.
+Phase 18.5 synthetic implementation is ready because the repository records the signaling protocol,
+TURN topology, credential contract, fail-closed admission, failover behavior, kill-switch boundary,
+observability redaction, secret-rotation boundary, rollback procedure, and explicit implementation
+authorization. Capacity headroom, production ownership, vendor terms, and real-user go/no-go remain
+release gates rather than prerequisites for this synthetic slice.

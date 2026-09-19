@@ -8,6 +8,7 @@ export const ROUTES = Object.freeze({
   ADMIN_SCHEDULES: "/admin-schedules",
   SCHEDULE: "/schedule",
   DEMO_MEETING: "/appointments/:appointmentId/meeting",
+  DIRECT_MEETING: "/appointments/:appointmentId/direct-meeting",
   BOOKING: "/patient-appointment",
   SUPPORT: "/support",
   LOGIN: "/login",

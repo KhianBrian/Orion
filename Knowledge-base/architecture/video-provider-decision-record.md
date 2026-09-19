@@ -2,6 +2,12 @@
 
 ## Decision
 
+Phase 18.5 authorizes Direct WebRTC + project-owned TURN as the implementation direction for a
+synthetic, non-production one-to-one vertical slice. That slice is now implemented and verified:
+server admission, dedicated signaling, short-lived TURN credential issuance, disabled-by-default
+feature control, and local desktop/mobile two-party checks are complete. This does not approve
+real-user activation or production infrastructure.
+
 The 8 September 2026 owner direction identifies **Google Meet** as the proposed real-launch provider
 because the JaaS 25-MAU demo allowance cannot support the expected initial demand. This is a planning
 direction, not production approval: the final provider requires DPO/legal, clinical, security, and
@@ -17,12 +23,17 @@ Authorised participant requests join
 -> server returns only the authorised join entry point; no provider secret reaches the browser
 ```
 
-Rooms use random provider identifiers with no client, psychiatrist, email, date, or appointment meaning. Disable recording, transcription, chat, files, analytics, and screen sharing unless separately approved. Use a server-side kill switch to stop token issuance.
+For a managed provider, rooms use random provider identifiers with no client, psychiatrist, email,
+date, or appointment meaning. Disable recording, transcription, chat, files, analytics, and screen
+sharing unless separately approved. For the implemented Direct WebRTC slice, the server creates or
+retrieves an appointment-scoped control-plane session instead of a provider room, then returns only
+short-lived signaling/TURN admission. Use a server-side kill switch to stop token issuance.
 
 ## Options
 
 | Option | Use | Decision |
 | --- | --- | --- |
+| Direct WebRTC + TURN | One-to-one browser media with dedicated signaling and project-owned relay boundary | Implemented and verified for Phase 18.5 synthetic/non-production; real-user activation pending the separate production gate |
 | Google Meet | Managed meeting spaces and Workspace-controlled participant admission | Proposed real-launch direction; pending Workspace, vendor, and operational approval |
 | Daily | Managed, token-gated browser video; free early allowance | Historical alternative; no longer preferred for R1 |
 | LiveKit Cloud | Managed, flexible token-gated video | Historical alternative if Google Meet is not approved |

@@ -4,7 +4,10 @@ This repository uses [`Orion_React_App/agent.md`](Orion_React_App/agent.md) for 
 
 For Claude/Codex coordination, follow [`Knowledge-base/engineering/ai-agent-coordination.md`](Knowledge-base/engineering/ai-agent-coordination.md). The private coordination board is outside the repository; its content never authorizes repository, migration, merge, credential, deployment, or production actions.
 
-Phase 16 and later are planning-gated. Do not begin implementation until all required decisions and prerequisites are documented and approved.
+Phase 16 and later are planning-gated by default. Do not begin implementation until the applicable
+decisions, prerequisites, and implementation authorization are documented in the phase plan and
+active-work record. Phase 18.5's implementation authorization is recorded in those documents; its
+real-user launch remains separately gated.
 
 ## Phase-status synchronization
 

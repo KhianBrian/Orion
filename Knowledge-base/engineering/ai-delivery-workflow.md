@@ -26,6 +26,12 @@ approved phase
 All feature work stays synthetic and non-production unless the owners have explicitly approved a
 different environment. A passing demo does not authorize real users or real clinical data.
 
+The durable paper trail for each workstream has three parts: the governing phase/authority
+documents, a living record under [`active-work/`](active-work/README.md), and a dated append-only
+entry under [`../audit-trail/`](../audit-trail/README.md). Update the active-work record after each
+meaningful code, database, test, merge, or deployment action. Do not rely on conversation history as
+the handoff record.
+
 ## 1. Pre-flight and authority check
 
 Before changing files:
@@ -42,6 +48,8 @@ Before changing files:
    owner decision. Stop if a missing decision would change the implementation or release boundary.
 6. Confirm whether the user authorizes remote database migration, Edge Function deployment, Git push,
    or cleanup. Local implementation and testing do not automatically authorize those actions.
+7. Open or create the relevant active-work record and record the starting branch, worktree, current
+   database target, and known uncommitted changes before editing.
 
 Useful read-only checks:
 
@@ -218,6 +226,11 @@ When several worktrees exist, merge the foundation first. Rebase dependent branc
 earlier merge so shared commits are not duplicated. Preserve uncommitted user changes in the main
 worktree; they are not part of the phase merge.
 
+The website is always deployed from verified `main`. A feature worktree may run local verification,
+but it must not be used as the website deployment source. Signaling and TURN are separately deployed
+runtime services and their endpoints/secrets must be recorded in the active-work record without
+recording secret values.
+
 ## 8. Final check on local main
 
 Before publishing:
@@ -289,3 +302,6 @@ Every completed phase must leave an audit entry containing:
 - exact verification commands and results;
 - remote deployment status, if authorized;
 - remaining risks and items deliberately not performed.
+
+The active-work record must also be updated with the final branch, merge commit, remote push result,
+current deployment state, and the single next handoff action.

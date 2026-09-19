@@ -1,5 +1,13 @@
 # Environments, Release, and Secrets
 
+## Current workstream environment
+
+For the current Phase 18.5 workstream, the existing linked Supabase project is the only database
+target. This is an explicit project constraint, not a claim that the project has completed launch
+readiness. The website is deployed from verified `main`; the signaling gateway and TURN relay are
+separate runtime services. Their endpoints may be public configuration, but their shared secrets
+must remain only in server-side secret stores and Supabase Edge Function secrets.
+
 ## Environment separation
 
 Use distinct local, test, staging, and production projects/accounts. Production never receives fixtures, test accounts, copied authentication state, or debug configuration. A named owner controls each environment and production access is least-privilege. MFA is deferred for the current launch and tracked as future Phase 12 hardening.
