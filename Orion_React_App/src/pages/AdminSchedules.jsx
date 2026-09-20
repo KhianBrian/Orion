@@ -5,7 +5,7 @@ import { manageSchedule } from "../features/appointments/mutations";
 import { useAuth } from "../features/auth/authContext";
 import "./PatientAppointment.css";
 
-const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 async function loadSchedules() {
   const { data, error } = await manageSchedule({ action: "admin-list" });

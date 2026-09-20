@@ -28,7 +28,8 @@ const [patient, psychiatrist, admin] = await Promise.all([
 ]);
 const psychiatristRow = await required(service.from("psychiatrists").select("id, profile_id").eq("profile_id", psychiatrist.userId).single(), "load psychiatrist");
 const rules = await required(service.from("psychiatrist_schedule_rules").select("weekday, starts_local, ends_local").eq("psychiatrist_id", psychiatristRow.id), "load default weekday rules");
-assert.equal(rules.length, 5, "each active psychiatrist receives five default weekday rules");
+assert.equal(rules.length, 7, "each active psychiatrist receives seven default weekday rules");
+assert.deepEqual(new Set(rules.map((rule) => rule.weekday)), new Set([1, 2, 3, 4, 5, 6, 7]));
 assert.ok(rules.every((rule) => rule.starts_local.startsWith("08:00") && rule.ends_local.startsWith("17:00")));
 
 const directSlots = await patient.client.from("availability_slots").select("id").limit(1);

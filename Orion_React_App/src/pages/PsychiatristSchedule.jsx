@@ -7,7 +7,7 @@ import { GoogleMeetConnectionCard } from "../features/appointments/components/Go
 import { useAuth } from "../features/auth/authContext";
 import "./PatientAppointment.css";
 
-const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const manilaDate = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila", year: "numeric", month: "2-digit", day: "2-digit" });
 
 async function loadSchedule() {
