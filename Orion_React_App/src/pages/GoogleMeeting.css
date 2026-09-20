@@ -5,6 +5,9 @@
 .google-meeting-card h2, .google-meeting-card p { margin: 0; }
 .google-meeting-card .ui-button { justify-self: start; text-decoration: none; }
 .google-meeting-card .schedule-message.info { background: #eef8fc; border: 1px solid #8ab6cc; border-radius: .5rem; color: #17435e; line-height: 1.45; padding: .9rem 1rem; }
+.google-meeting-guide { display: grid; gap: .5rem; margin: 0; }
+.google-meeting-guide img { display: block; width: 100%; height: auto; border: 1px solid var(--color-border); border-radius: .5rem; }
+.google-meeting-guide figcaption { color: var(--color-muted); font-size: .95rem; line-height: 1.45; }
 .google-meeting-note { color: var(--color-muted); font-size: .95rem; }
 @media (max-width: 600px) {
   .google-meeting-page { padding: 1rem; }

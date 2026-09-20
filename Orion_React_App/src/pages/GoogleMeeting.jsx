@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import googleMeetSignInGuide from "../assets/google-meet-sign-in-guide.png";
 import "./GoogleMeeting.css";
 
 async function functionErrorCode(error) {
@@ -64,6 +65,10 @@ export default function GoogleMeeting() {
       <h2 id="google-meeting-ready-title">Your call is ready</h2>
       <p>Open Google Meet in a new tab. Keep this Orion page available if you need to return to your appointment.</p>
       {access.participantRole === "psychiatrist" && <div className="schedule-message info"><strong>Important for psychiatrists:</strong> open Google Meet while signed in to the same Google account connected to Orion. If Google asks for your name or shows “Ask to join,” you are entering as a guest. Switch to the connected host account first so you can admit the patient.</div>}
+      {access.participantRole === "psychiatrist" && <figure className="google-meeting-guide">
+        <img src={googleMeetSignInGuide} alt="Google Meet pre-join screen with a red arrow pointing to Sign in in the upper-right corner" />
+        <figcaption>If you see this screen, click <strong>Sign in</strong> and use the same Google account connected to Orion.</figcaption>
+      </figure>}
       <a className="ui-button ui-button--primary" href={access.meetingUri} target="_blank" rel="noreferrer">Open Google Meet</a>
       <p className="google-meeting-note">Only the assigned patient and psychiatrist can request this entry from Orion during the appointment window.</p>
     </section>}
