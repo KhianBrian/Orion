@@ -63,6 +63,7 @@ export default function GoogleMeeting() {
     {state === "ready" && access && <section className="google-meeting-card" aria-labelledby="google-meeting-ready-title">
       <h2 id="google-meeting-ready-title">Your call is ready</h2>
       <p>Open Google Meet in a new tab. Keep this Orion page available if you need to return to your appointment.</p>
+      {access.participantRole === "psychiatrist" && <div className="schedule-message info"><strong>Important for psychiatrists:</strong> open Google Meet while signed in to the same Google account connected to Orion. If Google asks for your name or shows “Ask to join,” you are entering as a guest. Switch to the connected host account first so you can admit the patient.</div>}
       <a className="ui-button ui-button--primary" href={access.meetingUri} target="_blank" rel="noreferrer">Open Google Meet</a>
       <p className="google-meeting-note">Only the assigned patient and psychiatrist can request this entry from Orion during the appointment window.</p>
     </section>}
