@@ -9,6 +9,21 @@ import { callerId, corsHeaders, jsonPayload, response, serviceClient, uuidPatter
 const denial = "google_meet_access_denied";
 const unavailable = "google_meet_unavailable";
 
+function errorSummary(error: unknown) {
+  const value = error && typeof error === "object" ? error as Record<string, unknown> : {};
+  return {
+    name: typeof value.name === "string" ? value.name.slice(0, 80) : "unknown_error",
+    message: typeof value.message === "string" ? value.message.slice(0, 200) : "unknown_error",
+    code: typeof value.code === "string" ? value.code.slice(0, 40) : undefined,
+    providerStatus: typeof value.providerStatus === "number" ? value.providerStatus : undefined,
+    providerError: typeof value.providerError === "string" ? value.providerError.slice(0, 80) : undefined,
+  };
+}
+
+function logFailure(stage: string, appointmentId: string, details: Record<string, unknown> = {}) {
+  console.error("google_meet_access_failed", { stage, appointmentId, ...details });
+}
+
 function audit(client: ReturnType<typeof serviceClient>, actorId: string | null, appointmentId: string | null, outcome: "success" | "denied", reasonCode: string) {
   return client.from("audit_events").insert({
     actor_id: actorId,
@@ -38,6 +53,7 @@ Deno.serve(async (request) => {
   });
   const admission = data?.[0];
   if (error || !admission) {
+    logFailure("admission", appointmentId, { error: errorSummary(error), returnedAdmission: Boolean(admission) });
     const isDenied = error?.message.includes("google_meet_access_denied");
     return response({ error: isDenied ? denial : unavailable }, isDenied ? 403 : 503);
   }
@@ -54,7 +70,11 @@ Deno.serve(async (request) => {
     }, 200);
   }
 
-  if (!hasOAuthConfig(googleMeetConfig())) {
+  const config = googleMeetConfig();
+  if (!hasOAuthConfig(config)) {
+    logFailure("configuration", appointmentId, {
+      missing: Object.entries(config).filter(([, value]) => !value).map(([key]) => key),
+    });
     await audit(client, actorId, appointmentId, "denied", "provider_unavailable");
     return response({ error: unavailable }, 503);
   }
@@ -65,6 +85,7 @@ Deno.serve(async (request) => {
     .is("revoked_at", null)
     .maybeSingle();
   if (connectionError || !connection?.refresh_token) {
+    logFailure("host_connection", appointmentId, { error: errorSummary(connectionError), hasRefreshToken: Boolean(connection?.refresh_token) });
     await audit(client, actorId, appointmentId, "denied", "host_not_connected");
     return response({ error: unavailable }, 503);
   }
@@ -77,6 +98,7 @@ Deno.serve(async (request) => {
   });
   const claimed = claim?.[0];
   if (claimError || !claimed) {
+    logFailure("claim", appointmentId, { error: errorSummary(claimError), returnedClaim: Boolean(claimed) });
     await audit(client, actorId, appointmentId, "denied", "provider_busy");
     return response({ error: unavailable }, 503);
   }
@@ -84,16 +106,17 @@ Deno.serve(async (request) => {
     if (claimed.meeting_status === "active" && claimed.meeting_uri) {
       return response({ mode: "google-meet", appointmentId, meetingUri: claimed.meeting_uri, startsAt: admission.starts_at, endsAt: admission.ends_at, participantRole: admission.participant_role }, 200);
     }
+    logFailure("claim_busy", appointmentId, { meetingStatus: claimed.meeting_status });
     await audit(client, actorId, appointmentId, "denied", "provider_busy");
     return response({ error: unavailable }, 503);
   }
 
   try {
-    const config = googleMeetConfig();
     let accessToken: string;
     try {
       accessToken = await refreshGoogleAccessToken(config, connection.refresh_token);
-    } catch {
+    } catch (error) {
+      logFailure("token_refresh", appointmentId, { error: errorSummary(error) });
       await client.from("google_meet_connections").delete().eq("profile_id", admission.host_profile_id);
       await audit(client, actorId, appointmentId, "denied", "host_google_authorization_revoked");
       throw new Error("google_authorization_revoked");
@@ -105,7 +128,14 @@ Deno.serve(async (request) => {
       provider_space_name: space.name,
       provider_meeting_uri: space.meetingUri,
     });
-    if (completeError || !completed?.[0]?.meeting_uri) throw new Error("google_meet_space_save_failed");
+    if (completeError || !completed?.[0]?.meeting_uri) {
+      logFailure("complete_space", appointmentId, {
+        error: errorSummary(completeError),
+        hasProviderUri: Boolean(space.meetingUri),
+        hasCompletedUri: Boolean(completed?.[0]?.meeting_uri),
+      });
+      throw new Error("google_meet_space_save_failed");
+    }
     await audit(client, actorId, appointmentId, "success", "granted_created");
     return response({
       mode: "google-meet",
@@ -115,11 +145,13 @@ Deno.serve(async (request) => {
       endsAt: admission.ends_at,
       participantRole: admission.participant_role,
     }, 200);
-  } catch {
-    await client.rpc("fail_google_meet_space", {
+  } catch (error) {
+    logFailure("provider", appointmentId, { error: errorSummary(error) });
+    const { error: failError } = await client.rpc("fail_google_meet_space", {
       target_appointment_id: appointmentId,
       requested_claim_token: claimToken,
     });
+    if (failError) logFailure("mark_failed", appointmentId, { error: errorSummary(failError) });
     await audit(client, actorId, appointmentId, "denied", "provider_unavailable");
     return response({ error: unavailable }, 503);
   }

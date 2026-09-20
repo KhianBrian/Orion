@@ -124,7 +124,12 @@ export async function refreshGoogleAccessToken(config: ReturnType<typeof googleM
     body,
   });
   const payload = await response.json();
-  if (!response.ok || typeof payload.access_token !== "string") throw new Error("google_token_refresh_failed");
+  if (!response.ok || typeof payload.access_token !== "string") {
+    throw Object.assign(new Error("google_token_refresh_failed"), {
+      providerStatus: response.status,
+      providerError: typeof payload.error === "string" ? payload.error : undefined,
+    });
+  }
   return payload.access_token as string;
 }
 
@@ -140,7 +145,10 @@ export async function createGoogleMeetSpace(accessToken: string) {
   });
   const payload = await response.json();
   if (!response.ok || typeof payload.name !== "string" || typeof payload.meetingUri !== "string") {
-    throw new Error("google_meet_space_create_failed");
+    throw Object.assign(new Error("google_meet_space_create_failed"), {
+      providerStatus: response.status,
+      providerError: typeof payload.error?.status === "string" ? payload.error.status : undefined,
+    });
   }
   return { name: payload.name as string, meetingUri: payload.meetingUri as string };
 }
