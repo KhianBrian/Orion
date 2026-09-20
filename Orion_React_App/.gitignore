@@ -31,3 +31,4 @@ test-results/
 *.sln
 *.sw?
 .vercel
+.env*
