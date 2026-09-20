@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { BackButton } from "../components/ui/BackButton";
 import { Button } from "../components/ui/Button";
 import { StatusMessage } from "../components/ui/StatusMessage";
 import { useAuth } from "../features/auth/authContext";
@@ -33,6 +33,6 @@ export default function ForgotPassword() {
     </form>
     {error && <StatusMessage tone="error">{error}</StatusMessage>}
     {sent && <StatusMessage tone="success">If an account exists for that email, recovery instructions have been sent.</StatusMessage>}
-    <p className="auth-secondary-link"><Link to="/login">Return to sign in</Link></p>
+    <div className="auth-secondary-link"><BackButton label="Return to sign in" to="/login" /></div>
   </AuthCard>;
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { BackButton } from "../components/ui/BackButton";
 import { supabase } from "../lib/supabase";
 import googleMeetSignInGuide from "../assets/google-meet-sign-in-guide.png";
 import "./GoogleMeeting.css";
@@ -68,12 +69,12 @@ export default function GoogleMeeting() {
         <h1>Join your secure call</h1>
         <p>Orion checked your appointment and the current server time before providing the meeting entry.</p>
       </div>
-      <button className="secondary-action-button" onClick={leave}>Return to appointments</button>
+      <BackButton label="Return to appointments" onClick={leave} />
     </div>
     {state === "loading" && <p role="status">Checking your appointment access…</p>}
-    {state === "denied" && <div className="schedule-message error"><h2>Call unavailable</h2><p>This call is not available for your account or at this time.</p><button onClick={leave}>Return to appointments</button></div>}
-    {state === "expired" && <div className="schedule-message error" role="alert"><h2>Google Meet window closed</h2><p>The one-hour Google Meet access window for this appointment has ended. Your appointment was not changed.</p><button onClick={leave}>Return to appointments</button></div>}
-    {state === "unavailable" && <div className="schedule-message error"><h2>Google Meet is unavailable</h2><p>The call could not be prepared. Your appointment was not changed. Please return to your appointments.</p><button onClick={leave}>Return to appointments</button></div>}
+    {state === "denied" && <div className="schedule-message error"><h2>Call unavailable</h2><p>This call is not available for your account or at this time.</p><BackButton label="Return to appointments" onClick={leave} /></div>}
+    {state === "expired" && <div className="schedule-message error" role="alert"><h2>Google Meet window closed</h2><p>The one-hour Google Meet access window for this appointment has ended. Your appointment was not changed.</p><BackButton label="Return to appointments" onClick={leave} /></div>}
+    {state === "unavailable" && <div className="schedule-message error"><h2>Google Meet is unavailable</h2><p>The call could not be prepared. Your appointment was not changed. Please return to your appointments.</p><BackButton label="Return to appointments" onClick={leave} /></div>}
     {state === "ready" && access && <section className="google-meeting-card" aria-labelledby="google-meeting-ready-title">
       <h2 id="google-meeting-ready-title">Your call is ready</h2>
       <p>Open Google Meet in a new tab. Keep this Orion page available if you need to return to your appointment.</p>

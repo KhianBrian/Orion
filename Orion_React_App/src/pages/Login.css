@@ -112,9 +112,12 @@
 .login-card .ui-button--primary:hover:not(:disabled) { box-shadow: 0 10px 22px rgb(18 48 74 / .25); }
 .login-card .ui-button--quiet { background: var(--color-ghostwhite); border: 1px solid #9bb1bf; color: var(--color-navy); margin-top: .85rem; }
 .login-card .ui-button--quiet:hover:not(:disabled) { background: #e4eef3; border-color: var(--color-cyan); }
-.auth-secondary-link { color: var(--color-muted); font-size: .95rem; margin: 1rem 0 0; text-align: center; }
+.auth-secondary-link { align-items: center; color: var(--color-muted); display: flex; font-size: .95rem; justify-content: center; margin: 1rem 0 0; text-align: center; }
 .auth-secondary-link a { color: var(--color-navy); font-weight: 700; text-decoration: none; }
 .auth-secondary-link a:hover { color: var(--color-bronze); text-decoration: underline; text-underline-offset: 3px; }
+.auth-secondary-link .back-button,
+.auth-secondary-link .back-button:hover,
+.auth-secondary-link .back-button:focus-visible { color: var(--color-navy); text-decoration: none; }
 .ui-status { line-height: 1.45; }
 #confirmationCode { font-size: 1.35rem; font-weight: 700; letter-spacing: .3em; text-align: center; }
 

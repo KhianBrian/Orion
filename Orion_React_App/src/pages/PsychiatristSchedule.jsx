@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { BackButton } from "../components/ui/BackButton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, ButtonLink } from "../components/ui/Button";
+import { Button } from "../components/ui/Button";
 import { StatusMessage } from "../components/ui/StatusMessage";
 import { appointmentErrorCode, manageSchedule } from "../features/appointments/mutations";
 import { GoogleMeetConnectionCard } from "../features/appointments/components/GoogleMeetConnectionCard";
@@ -54,7 +55,7 @@ export default function PsychiatristSchedule() {
   };
 
   return <section className="scheduling-page">
-    <div className="scheduling-header"><div><p className="eyebrow">Clinician schedule</p><h1>My availability</h1><p>Manage one recurring weekly period inside 8:00 AM–5:00 PM Asia/Manila. Booked appointments are never moved automatically.</p></div><ButtonLink variant="secondary" to="/appointments">My appointments</ButtonLink></div>
+    <div className="scheduling-header"><div><p className="eyebrow">Clinician schedule</p><h1>My availability</h1><p>Manage one recurring weekly period inside 8:00 AM–5:00 PM Asia/Manila. Booked appointments are never moved automatically.</p></div><BackButton label="My appointments" to="/appointments" /></div>
     {message && <StatusMessage tone={message.tone}>{message.text}</StatusMessage>}
     {query.isPending && <StatusMessage>Loading your schedule…</StatusMessage>}
     {query.error && <StatusMessage tone="error">Your schedule could not be loaded. Try refreshing the page.</StatusMessage>}

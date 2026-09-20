@@ -11,6 +11,7 @@ import {
 import { useAuth } from "../features/auth/authContext";
 import { supabase } from "../lib/supabase";
 import "./PatientAppointment.css";
+import { BackButton } from "../components/ui/BackButton";
 import { Button, ButtonLink } from "../components/ui/Button";
 import { Dialog } from "../components/ui/Dialog";
 import { StatusMessage } from "../components/ui/StatusMessage";
@@ -137,7 +138,7 @@ export default function PatientAppointment() {
   };
 
   return <section className="scheduling-page">
-    <div className="scheduling-header"><div><h1>{rescheduleAppointmentId ? "Request a new appointment time" : "Book an appointment"}</h1><p>Choose a psychiatrist, then a Manila date, then an available 45-minute time.</p></div><ButtonLink variant="secondary" to="/appointments">My appointments</ButtonLink></div>
+    <div className="scheduling-header"><div><h1>{rescheduleAppointmentId ? "Request a new appointment time" : "Book an appointment"}</h1><p>Choose a psychiatrist, then a Manila date, then an available 45-minute time.</p></div><BackButton label="My appointments" to="/appointments" /></div>
     {rescheduleAppointmentId && <StatusMessage>Choose an open time with the same psychiatrist. Your current appointment remains booked until the psychiatrist approves this request.</StatusMessage>}
     {bookingConfirmation && <section className="booking-success" aria-labelledby="booking-success-title"><span className="booking-success__mark" aria-hidden="true">✓</span><div><p className="booking-success__eyebrow">Appointment confirmed</p><h2 id="booking-success-title">You’re all set.</h2><p>Your appointment with <strong>{psychiatristName(bookingConfirmation)}</strong> is reserved for {manilaDateTime.format(new Date(bookingConfirmation.starts_at))}.</p></div><ButtonLink to="/appointments">View my appointments</ButtonLink></section>}
     {message && <StatusMessage tone={message.kind === "success" ? "success" : "error"}>{message.text}</StatusMessage>}

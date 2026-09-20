@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { Button, ButtonLink } from "../components/ui/Button";
+import { BackButton } from "../components/ui/BackButton";
+import { Button } from "../components/ui/Button";
 import { StatusMessage } from "../components/ui/StatusMessage";
 import { manageSchedule } from "../features/appointments/mutations";
 import { useAuth } from "../features/auth/authContext";
@@ -20,7 +21,7 @@ export default function AdminSchedules() {
   const psychiatrists = [...new Map(schedule.map((item) => [item.psychiatrist_id, { id: item.psychiatrist_id, name: item.psychiatrist_display_name }])).values()];
 
   return <section className="scheduling-page">
-    <div className="scheduling-header"><div><p className="eyebrow">Administrator access</p><h1>Psychiatrist schedules</h1><p>Read-only schedule visibility. Psychiatrists manage their own normal-hour schedules; outside-hours availability requires approval.</p></div><ButtonLink variant="secondary" to="/admin-appointments">Appointment operations</ButtonLink></div>
+    <div className="scheduling-header"><div><p className="eyebrow">Administrator access</p><h1>Psychiatrist schedules</h1><p>Read-only schedule visibility. Psychiatrists manage their own normal-hour schedules; outside-hours availability requires approval.</p></div><BackButton label="Appointment operations" to="/admin-appointments" /></div>
     <StatusMessage tone="info">Booked appointments are protected from silent movement or deletion. Conflicting schedule changes are blocked for the psychiatrist to resolve.</StatusMessage>
     {query.isPending && <StatusMessage>Loading psychiatrist schedules…</StatusMessage>}
     {query.error && <StatusMessage tone="error">Psychiatrist schedules could not be loaded.</StatusMessage>}

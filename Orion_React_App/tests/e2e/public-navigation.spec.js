@@ -46,7 +46,7 @@ test.describe("public navigation", () => {
   });
 
   test("the signed-out navigation contains only approved public destinations", async ({ page }) => {
-    for (const [path, heading] of [["/contact", "We are here to help"], ["/services", "Guidance for your next step"], ["/blog", "Experiences and reflections"]]) {
+    for (const [path, heading] of [["/contact", "We are here to help"], ["/services", "Well-being & Counseling"], ["/blog", "Experiences and reflections"]]) {
       await page.goto(path);
       await expect(page.getByRole("heading", { name: heading })).toBeVisible();
     }

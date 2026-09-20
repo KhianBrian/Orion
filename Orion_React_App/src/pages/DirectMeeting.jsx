@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { BackButton } from "../components/ui/BackButton";
 import { supabase } from "../lib/supabase";
 import {
   isOfferCollision,
@@ -345,16 +346,16 @@ export default function DirectMeeting() {
     <div className="synthetic-banner" role="note">Synthetic non-production video boundary. No recording, chat, or public room.</div>
     <div className="direct-meeting-header">
       <div><p className="eyebrow">Direct WebRTC appointment</p><h1>Secure call</h1><p>Only the assigned patient and psychiatrist can join during the server-authorized window.</p></div>
-      <button className="secondary-action-button" onClick={leave}>Leave call</button>
+      <BackButton label="Leave call" onClick={leave} />
     </div>
     {state === "loading" && <p role="status">Requesting secure session access…</p>}
-    {state === "denied" && <div className="schedule-message error"><h2>Call unavailable</h2><p>This call is not available for your account or at this time.</p><button onClick={leave}>Return to appointments</button></div>}
-    {state === "unavailable" && <div className="schedule-message error"><h2>Call unavailable</h2><p>The direct video boundary is not configured in this environment.</p><button onClick={leave}>Return to appointments</button></div>}
+    {state === "denied" && <div className="schedule-message error"><h2>Call unavailable</h2><p>This call is not available for your account or at this time.</p><BackButton label="Return to appointments" onClick={leave} /></div>}
+    {state === "unavailable" && <div className="schedule-message error"><h2>Call unavailable</h2><p>The direct video boundary is not configured in this environment.</p><BackButton label="Return to appointments" onClick={leave} /></div>}
     {state === "preflight" && <section className="direct-meeting-preflight" aria-labelledby="direct-preflight-title"><h2 id="direct-preflight-title">Ready to join</h2><p>Choose Continue to request camera and microphone access. Capture does not start before this action.</p><button onClick={startCall}>Continue with camera and microphone</button></section>}
     {["connecting", "connected", "failed"].includes(state) && <section className="direct-meeting-frame" aria-live="polite">
       <div className="direct-meeting-videos"><video ref={localVideo} autoPlay muted playsInline aria-label="Your camera" /><video ref={remoteVideo} autoPlay playsInline aria-label="Other participant camera" /></div>
       <p role="status">{state === "connecting" ? message || "Connecting securely…" : state === "connected" ? "Connected directly or through the approved relay." : message || "The secure call ended or could not connect."}</p>
-      {state === "failed" && <button onClick={leave}>Return to appointments</button>}
+      {state === "failed" && <BackButton label="Return to appointments" onClick={leave} />}
     </section>}
   </main>;
 }
