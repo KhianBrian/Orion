@@ -16,6 +16,12 @@ Deno.serve(async (request) => {
     if (error) return response({ error: "schedule_not_permitted" }, 403);
     return response({ schedule: data ?? [] }, 200);
   }
+  if (payload.action === "save-weekly-rule" && typeof payload.startsLocal === "string" && typeof payload.endsLocal === "string"
+      && timePattern.test(payload.startsLocal) && timePattern.test(payload.endsLocal)) {
+    const { data, error } = await client.rpc("save_weekly_schedule_period", { target_starts_local: payload.startsLocal, target_ends_local: payload.endsLocal, actor_profile_id: actorId });
+    if (error) return response({ error: error.message.includes("schedule_conflict") ? "schedule_conflict" : "invalid_schedule" }, 400);
+    return response({ schedule: data }, 200);
+  }
   if (payload.action === "admin-list") {
     const { data, error } = await client.rpc("get_admin_schedule_overview", { actor_profile_id: actorId });
     if (error) return response({ error: "schedule_not_permitted" }, 403);

@@ -66,6 +66,7 @@
 .schedule-form { align-items: end; display: grid; gap: .85rem; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .schedule-form label { color: var(--color-navy); display: grid; font-weight: 700; gap: .35rem; }
 .schedule-form input, .schedule-form select { border: 1px solid var(--color-border); border-radius: var(--radius-sm); font: inherit; min-height: 2.75rem; padding: .6rem; }
+.schedule-form__value { align-items: center; border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; min-height: 2.75rem; padding: .6rem; }
 .schedule-form .ui-button { min-height: 2.75rem; }
 .schedule-record-list { display: grid; gap: .55rem; margin-top: 1.25rem; }
 .schedule-record-list h3 { color: var(--color-navy); font-size: 1rem; margin: 0; }
