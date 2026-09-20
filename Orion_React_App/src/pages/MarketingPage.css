@@ -1,0 +1,38 @@
+.marketing-page { margin: 0 auto; max-width: 62rem; padding: 5rem 1.5rem; }
+.marketing-page h1 { color: var(--color-navy); font-family: var(--font-secondary); font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.05; margin: .4rem 0 1rem; }
+.marketing-lead { color: var(--color-muted); font-size: 1.2rem; max-width: 44rem; }
+.marketing-details { display: grid; gap: .75rem; margin: 2rem 0; }
+.marketing-details > div { background: #fff; border: 1px solid var(--color-border); border-radius: 1rem; padding: 1rem 1.25rem; }
+.counseling-page { background: linear-gradient(115deg, #f5d9fa 0%, #e6a5c9 100%); color: #071674; min-height: 100%; overflow: hidden; padding-bottom: 4rem; }
+.counseling-intro { margin: 0 auto; max-width: 62rem; padding: clamp(4.5rem, 10vw, 7.5rem) 1.5rem clamp(3.5rem, 8vw, 6rem); text-align: center; }
+.counseling-kicker, .counseling-panel__eyebrow { color: #7d2e77; font-size: .78rem; font-weight: 800; letter-spacing: .16em; margin: 0 0 .8rem; text-transform: uppercase; }
+.counseling-intro h1 { color: #081a91; font-family: var(--font-secondary); font-size: clamp(2.7rem, 7vw, 5.4rem); font-weight: 800; letter-spacing: -.055em; line-height: 1; margin: 0; }
+.counseling-intro__tagline { color: #111; font-size: clamp(1.2rem, 2.5vw, 1.8rem); font-weight: 800; font-style: italic; margin: 1.5rem 0 .35rem; }
+.counseling-intro__subline { color: #111; font-size: 1rem; font-style: italic; margin: 0; }
+.counseling-panel, .counseling-benefits { margin: 0 auto; max-width: 75rem; }
+.counseling-panel { align-items: center; display: grid; gap: clamp(2rem, 6vw, 5.5rem); margin-bottom: 2rem; padding: clamp(2rem, 5vw, 4.5rem); }
+.counseling-panel--listen { background: linear-gradient(125deg, #f1c7f0, #e9a1c7); border-radius: 2.8rem 2.8rem 2.8rem 0; grid-template-columns: minmax(0, 1.2fr) minmax(14rem, .8fr); }
+.counseling-panel--approach { background: rgb(249 198 225 / .68); border-radius: 2.8rem 0 2.8rem 2.8rem; grid-template-columns: minmax(14rem, .75fr) minmax(0, 1.25fr); }
+.counseling-panel h2, .counseling-benefits h2 { color: #071674; font-family: var(--font-secondary); font-size: clamp(2rem, 4vw, 3.3rem); letter-spacing: -.04em; line-height: 1.05; margin: 0 0 1.25rem; }
+.counseling-panel p:not(.counseling-panel__eyebrow) { color: #131313; font-size: clamp(1rem, 1.7vw, 1.2rem); line-height: 1.65; margin: 0 0 1rem; }
+.counseling-panel img { border-radius: 2rem; display: block; max-height: 20rem; object-fit: cover; width: 100%; }
+.counseling-benefits { padding: 3rem clamp(1.5rem, 5vw, 4rem) 1rem; }
+.counseling-benefits__lead { color: #191119; font-size: clamp(1rem, 1.8vw, 1.2rem); line-height: 1.65; margin: 0 0 2rem; max-width: 68rem; }
+.counseling-benefits__grid { display: grid; gap: 1rem; }
+.benefit-card { border-radius: 2rem; color: #fff; padding: clamp(1.25rem, 3vw, 2rem); }
+.benefit-card--1, .benefit-card--3, .benefit-card--5 { background: rgb(156 76 123 / .72); }
+.benefit-card--2, .benefit-card--4 { background: rgb(186 30 99 / .78); }
+.benefit-card h3 { font-size: clamp(1.1rem, 2vw, 1.35rem); margin: 0 0 .45rem; }
+.benefit-card p { font-size: 1rem; line-height: 1.5; margin: .25rem 0 0; }
+.counseling-benefits__summary { color: #071674; font-size: clamp(1.15rem, 2vw, 1.45rem); font-weight: 800; line-height: 1.45; margin: 2rem 0 0; }
+.counseling-cta { margin: 2rem auto 0; max-width: 62rem; padding: 3rem 1.5rem 1rem; text-align: center; }
+.counseling-cta h2 { color: #071674; font-family: var(--font-secondary); font-size: clamp(2rem, 4vw, 3rem); line-height: 1.05; margin: 0; }
+.counseling-cta p { color: #171117; font-size: 1.1rem; margin: .8rem 0 0; }
+.counseling-cta a { background: #071674; border-radius: .3rem; color: #fff; display: inline-flex; font-weight: 800; gap: .25rem; margin-top: 1.4rem; padding: .8rem 1.4rem; text-decoration: none; transition: transform var(--transition-fast), box-shadow var(--transition-fast); }
+.counseling-cta a:hover { box-shadow: 0 .6rem 1.2rem rgb(7 22 116 / .2); transform: translateY(-2px); }
+@media (max-width: 700px) {
+  .counseling-panel--listen, .counseling-panel--approach { border-radius: 1.8rem; grid-template-columns: 1fr; }
+  .counseling-panel--approach img { order: -1; }
+  .counseling-panel img { max-height: 16rem; }
+  .counseling-benefits { padding-inline: 1.5rem; }
+}
