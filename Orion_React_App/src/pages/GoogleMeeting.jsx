@@ -22,6 +22,13 @@ export default function GoogleMeeting() {
   const [access, setAccess] = useState(null);
 
   useEffect(() => {
+    if (state !== "ready" || !access?.endsAt) return undefined;
+    const remaining = new Date(access.endsAt).getTime() - Date.now();
+    const timeout = window.setTimeout(() => setState("expired"), Math.max(0, remaining) + 1);
+    return () => window.clearTimeout(timeout);
+  }, [access, state]);
+
+  useEffect(() => {
     let active = true;
     const loadAccess = async () => {
       if (!supabase) {
@@ -33,11 +40,16 @@ export default function GoogleMeeting() {
       });
       if (!active) return;
       if (error) {
-        setState((await functionErrorCode(error)) === "google_meet_access_denied" ? "denied" : "unavailable");
+        const errorCode = await functionErrorCode(error);
+        setState(errorCode === "google_meet_window_expired" ? "expired" : errorCode === "google_meet_access_denied" ? "denied" : "unavailable");
         return;
       }
       if (data?.mode !== "google-meet" || !data.meetingUri) {
         setState("unavailable");
+        return;
+      }
+      if (!data.endsAt || new Date(data.endsAt).getTime() <= Date.now()) {
+        setState("expired");
         return;
       }
       setAccess(data);
@@ -60,6 +72,7 @@ export default function GoogleMeeting() {
     </div>
     {state === "loading" && <p role="status">Checking your appointment access…</p>}
     {state === "denied" && <div className="schedule-message error"><h2>Call unavailable</h2><p>This call is not available for your account or at this time.</p><button onClick={leave}>Return to appointments</button></div>}
+    {state === "expired" && <div className="schedule-message error" role="alert"><h2>Google Meet window closed</h2><p>The one-hour Google Meet access window for this appointment has ended. Your appointment was not changed.</p><button onClick={leave}>Return to appointments</button></div>}
     {state === "unavailable" && <div className="schedule-message error"><h2>Google Meet is unavailable</h2><p>The call could not be prepared. Your appointment was not changed. Please return to your appointments.</p><button onClick={leave}>Return to appointments</button></div>}
     {state === "ready" && access && <section className="google-meeting-card" aria-labelledby="google-meeting-ready-title">
       <h2 id="google-meeting-ready-title">Your call is ready</h2>

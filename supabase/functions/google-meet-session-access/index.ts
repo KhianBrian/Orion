@@ -7,6 +7,7 @@ import {
 import { callerId, corsHeaders, jsonPayload, response, serviceClient, uuidPattern } from "../_shared/orion.ts";
 
 const denial = "google_meet_access_denied";
+const windowExpired = "google_meet_window_expired";
 const unavailable = "google_meet_unavailable";
 
 function errorSummary(error: unknown) {
@@ -54,6 +55,7 @@ Deno.serve(async (request) => {
   const admission = data?.[0];
   if (error || !admission) {
     logFailure("admission", appointmentId, { error: errorSummary(error), returnedAdmission: Boolean(admission) });
+    if (error?.message.includes(windowExpired)) return response({ error: windowExpired }, 403);
     const isDenied = error?.message.includes("google_meet_access_denied");
     return response({ error: isDenied ? denial : unavailable }, isDenied ? 403 : 503);
   }

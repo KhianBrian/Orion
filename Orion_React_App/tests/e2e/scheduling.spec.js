@@ -174,8 +174,37 @@ test.describe("database-backed scheduling", () => {
     await page.goto("/appointments/00000000-0000-4000-8000-000000000000/google-meeting");
     await expect(page.getByText("Orion checked your appointment and the current server time before providing the meeting entry.")).toBeVisible();
     await expect(page.getByRole("button", { name: "Return to appointments" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Google Meet is unavailable" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Call unavailable" })).toBeVisible();
     await expect(page.getByTestId("authenticated-shell")).toHaveCount(0);
+  });
+
+  test("an appointment past its end shows the expired Google Meet window state", async ({ page }, testInfo) => {
+    test.setTimeout(60_000);
+    const users = syntheticUsers[testInfo.project.name];
+    let slot;
+    try {
+      slot = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name, 6 * 24);
+      await signIn(page, users.patient.email, users.patient.password);
+      await page.getByRole("main").getByRole("link", { name: "Book an appointment" }).click();
+      const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName, slot);
+      await psychiatristSlot.getByRole("button", { name: "Choose this time" }).click();
+      await page.getByRole("button", { name: "Confirm booking" }).click();
+      await expect(page.getByRole("heading", { name: "You’re all set." })).toBeVisible();
+
+      const appointment = await required(service.from("appointments").select("id").eq("slot_id", slot.id).single(), "load booked appointment for expired meeting window test");
+      const pastStart = new Date("2000-01-01T00:00:00.000Z");
+      await required(
+        service.from("appointments").update({ starts_at: pastStart.toISOString(), ends_at: new Date(pastStart.getTime() + 45 * 60 * 1000).toISOString() }).eq("id", appointment.id),
+        "move booked appointment past its meeting window",
+      );
+
+      await page.goto(`/appointments/${appointment.id}/google-meeting`);
+      await expect(page.getByRole("heading", { name: "Google Meet window closed" })).toBeVisible();
+      await expect(page.getByRole("alert")).toContainText("one-hour Google Meet access window");
+      await expect(page.getByRole("link", { name: "Open Google Meet" })).toHaveCount(0);
+    } finally {
+      await removeIsolatedSlot(slot);
+    }
   });
 
   test("a patient books a slot and the assigned psychiatrist can view appointments", async ({ page }, testInfo) => {
