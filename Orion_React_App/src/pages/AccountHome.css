@@ -1,0 +1,104 @@
+.account-home { background: #f3f6f8; color: var(--color-black); min-height: calc(100vh - 8.5rem); padding: clamp(2rem, 5vw, 4.5rem) max(1.25rem, calc((100% - 76rem) / 2)); }
+.account-home__hero { align-items: flex-start; background: linear-gradient(118deg, #e9f3f8 0%, #d7e8e4 100%); border: 1px solid rgb(18 48 74 / .08); border-radius: 2rem; display: flex; gap: 2rem; justify-content: space-between; overflow: hidden; padding: clamp(2rem, 5vw, 4.5rem); position: relative; }
+.account-home__hero::after { background: radial-gradient(circle, rgb(30 155 136 / .2), transparent 68%); content: ""; height: 28rem; pointer-events: none; position: absolute; right: -9rem; top: -15rem; width: 28rem; }
+.account-home__hero > div { max-width: 53rem; position: relative; z-index: 1; }
+.account-home__kicker { color: #147868; font-size: .76rem; font-weight: 800; letter-spacing: .16em; margin: 0 0 .7rem; text-transform: uppercase; }
+.account-home h1 { color: var(--color-navy); font-family: var(--font-secondary); font-size: clamp(2.4rem, 6vw, 4.9rem); letter-spacing: -.055em; line-height: 1; margin: 0; }
+.account-home__intro { color: var(--color-muted); font-size: clamp(1.1rem, 2vw, 1.45rem); line-height: 1.5; margin: 1.25rem 0 0; max-width: 47rem; }
+.account-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
+.account-action--primary { box-shadow: 0 .6rem 1.1rem rgb(18 48 74 / .18); }
+.account-action--secondary { background: #fff; border: 1px solid var(--color-border); color: var(--color-navy); }
+.account-action--secondary:hover { background: #edf5f6; }
+.account-support-link { align-items: flex-start; background: #9d3168 !important; border: 0; box-shadow: 0 .8rem 1.5rem rgb(157 49 104 / .2); color: #fff !important; display: flex; flex-direction: column; min-width: 10rem; position: relative; z-index: 1; }
+.account-support-link:hover { background: #7e2352 !important; transform: translateY(-2px); }
+.account-support-link__label { color: #ffd7e9; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; }
+.account-role-dashboard { display: grid; gap: 1.25rem; margin-top: clamp(2rem, 5vw, 4rem); }
+.account-widget { background: #f8faf9; border: 1px solid #dce4e5; border-radius: 1.15rem; padding: clamp(1.5rem, 3vw, 2.75rem); }
+.account-widget--next { background: #d6e6e3; border-color: #9cbdb8; box-shadow: 0 .9rem 2.2rem rgb(18 48 74 / .07); }
+.account-widget--preparation { background: #f1eaf4; border-color: #d8c5df; padding: clamp(1.5rem, 3vw, 2.75rem); }
+.account-widget__header { align-items: flex-start; display: flex; gap: 1rem; justify-content: space-between; }
+.account-widget h2 { color: var(--color-navy); font-family: var(--font-secondary); font-size: clamp(1.6rem, 3vw, 2.4rem); letter-spacing: -.04em; line-height: 1.05; margin: 0; }
+.account-widget__status, .account-widget__count { border-left: 2px solid var(--color-cyan); color: #147868; font-size: .8rem; font-weight: 800; padding: .15rem 0 .15rem .7rem; white-space: nowrap; }
+.account-widget__count { border-left-color: var(--color-bronze); color: var(--color-navy); }
+.account-widget__icon { color: var(--color-bronze); font-size: 1.5rem; }
+.account-widget__state, .account-widget__empty { color: var(--color-muted); padding: 1.5rem 0 .25rem; }
+.account-widget__empty p { margin: 0 0 .75rem; }
+.next-appointment { align-items: center; border-top: 1px solid var(--color-border); display: grid; gap: 1.25rem; grid-template-columns: minmax(11rem, .7fr) minmax(0, 1fr) auto; margin-top: 1.5rem; padding-top: 1.5rem; }
+.next-appointment__date { border-right: 1px solid var(--color-border); display: grid; gap: .2rem; padding-right: 1.25rem; }
+.next-appointment__date strong { color: var(--color-navy); font-size: 1.15rem; }
+.next-appointment__date span, .next-appointment p { color: var(--color-muted); font-size: .95rem; margin: 0; }
+.next-appointment h3 { color: var(--color-navy); font-family: var(--font-secondary); font-size: 1.45rem; margin: 0 0 .25rem; }
+.prior-session-list { display: grid; gap: .65rem; margin-top: 1.25rem; }
+.prior-session { align-items: center; background: #f7f9fa; border: 1px solid var(--color-border); border-radius: .8rem; display: flex; gap: 1rem; justify-content: space-between; padding: .8rem 1rem; }
+.prior-session > div { display: grid; gap: .1rem; }
+.prior-session strong { color: var(--color-navy); }
+.prior-session span { color: var(--color-muted); font-size: .92rem; }
+.prior-session__muted { color: var(--color-muted); font-size: .88rem; }
+.preparation-list { color: var(--color-muted); display: grid; gap: .55rem; line-height: 1.5; margin: 1.25rem 0 0; padding-left: 1.3rem; }
+.psychiatrist-calendar { border-top: 4px solid #4968d8; }
+.psychiatrist-timeline { display: grid; gap: 0; margin-top: 1.5rem; }
+.psychiatrist-session { display: grid; grid-template-columns: 5rem 1.25rem minmax(0, 1fr); min-height: 5.5rem; }
+.psychiatrist-session__time { color: var(--color-navy); display: grid; align-content: start; gap: .15rem; padding-top: .2rem; }
+.psychiatrist-session__time strong { font-size: 1rem; }
+.psychiatrist-session__time span { color: var(--color-muted); font-size: .8rem; }
+.psychiatrist-session__line { border-left: 2px solid #a9b9ec; position: relative; }
+.psychiatrist-session__line::before { background: #4968d8; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 0 1px #4968d8; content: ""; height: .65rem; left: -.43rem; position: absolute; top: .25rem; width: .65rem; }
+.psychiatrist-session__body { background: #eef1ff; border-radius: .8rem; margin: 0 0 .75rem 1rem; padding: .75rem 1rem; }
+.psychiatrist-session__body h3 { color: var(--color-navy); font-family: var(--font-secondary); font-size: 1.1rem; margin: 0; }
+.psychiatrist-session__body p { color: var(--color-muted); font-size: .9rem; margin: .15rem 0; }
+.psychiatrist-session__status { color: #4968d8; font-size: .78rem; font-weight: 800; }
+.psychiatrist-summary { background: linear-gradient(135deg, #eef1ff, #fff); border-top: 4px solid #4968d8; }
+.account-summary-grid { display: grid; gap: 1rem; grid-template-columns: repeat(3, 1fr); margin: 1.5rem 0; }
+.account-summary-grid div { border-right: 1px solid rgb(73 104 216 / .25); display: grid; gap: .15rem; }
+.account-summary-grid div:last-child { border-right: 0; }
+.account-summary-grid strong { color: var(--color-navy); font-size: 2rem; line-height: 1; }
+.account-summary-grid span { color: var(--color-muted); font-size: .85rem; }
+.admin-summary-grid { display: grid; gap: 1rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.admin-stat { background: #fff; border: 1px solid var(--color-border); border-radius: 1.25rem; display: grid; gap: .6rem; padding: 1.35rem; }
+.admin-stat > span { color: var(--color-muted); font-size: .9rem; }
+.admin-stat strong { color: var(--color-navy); font-family: var(--font-secondary); font-size: 2.7rem; line-height: 1; }
+.admin-stat--blue { border-top: 4px solid #4968d8; }.admin-stat--rose { border-top: 4px solid #9d3168; }.admin-stat--green { border-top: 4px solid var(--color-cyan); }
+.admin-stat .ui-button { justify-self: start; padding-left: 0; }
+.admin-alerts { border-top: 4px solid var(--color-bronze); }
+.admin-activity-list { display: grid; gap: .9rem; list-style: none; margin: 1.5rem 0 0; padding: 0; }
+.admin-activity-list li { align-items: center; background: #f7f9fa; border-radius: .75rem; color: var(--color-muted); display: flex; gap: .65rem; padding: .9rem 1rem; }
+.admin-activity-list strong { color: var(--color-navy); }
+.admin-activity-list__dot { border-radius: 50%; flex: 0 0 auto; height: .65rem; width: .65rem; }.admin-activity-list__dot--blue { background: #4968d8; }.admin-activity-list__dot--rose { background: #9d3168; }.admin-activity-list__dot--green { background: var(--color-cyan); }
+.session-note-body { background: var(--color-gray-light); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: .8rem; white-space: pre-wrap; }
+.account-home--patient .account-role-dashboard { gap: 1.5rem; grid-template-columns: minmax(0, 1.45fr) minmax(16rem, .55fr); }
+.account-home--patient { background: #e8eff1; }
+.account-home--patient .account-widget--next { grid-column: 1 / -1; border-left: 0; }
+.account-home--patient .account-widget--record { background: #f8f4ec; border-color: #dfd0b8; grid-column: 1; }
+.account-home--patient .account-widget--preparation { align-self: start; grid-column: 2; margin-top: 0; }
+.account-widget__lede { color: var(--color-muted); font-size: .95rem; line-height: 1.5; margin: .55rem 0 0; max-width: 37rem; }
+.prior-session-list { border-top: 1px solid var(--color-border); gap: 0; margin-top: 1.5rem; }
+.prior-session { align-items: center; background: transparent; border: 0; border-bottom: 1px solid var(--color-border); border-radius: 0; display: grid; gap: 1rem; grid-template-columns: 2.4rem minmax(0, 1fr) auto; padding: 1rem 0; }
+.prior-session:last-child { border-bottom: 0; }
+.prior-session__marker { color: var(--color-bronze); font-family: var(--font-secondary); font-size: .8rem; font-weight: 800; letter-spacing: .08em; }
+.prior-session__details { display: grid; gap: .25rem; }
+.prior-session__details span { color: var(--color-muted); font-size: .92rem; }
+.prior-session > .ui-button { color: var(--color-navy); font-size: .88rem; font-weight: 800; }
+.prior-session > .ui-button:hover { color: #147868; }
+.note-index-warning { align-items: center; background: #fff8e9; border: 1px solid #e4c57b; border-radius: .65rem; color: #725315; display: flex; font-size: .88rem; gap: .75rem; justify-content: space-between; margin-top: 1.25rem; padding: .7rem .85rem; }
+.note-index-warning .ui-button { color: #725315; font-size: .82rem; padding: .2rem 0; }
+.session-note-meta { border-bottom: 1px solid var(--color-border); display: grid; gap: .2rem; margin-bottom: 1rem; padding-bottom: .85rem; }
+.session-note-meta strong { color: var(--color-navy); font-family: var(--font-secondary); }
+.session-note-meta span { color: var(--color-muted); font-size: .9rem; }
+.account-home--patient .account-widget__header h2 { font-size: clamp(2rem, 4vw, 3.1rem); }
+.account-home--patient .account-widget--preparation h2 { font-size: clamp(1.7rem, 3vw, 2.5rem); }
+.account-home--patient .account-widget--preparation .account-widget__icon { color: var(--color-bronze); }
+@media (max-width: 800px) {
+  .account-home__hero { flex-direction: column; }
+  .account-support-link { align-self: flex-start; }
+  .next-appointment { grid-template-columns: 1fr; }
+  .next-appointment__date { border-bottom: 1px solid var(--color-border); border-right: 0; padding: 0 0 .85rem; }
+  .admin-summary-grid { grid-template-columns: 1fr; }
+  .account-home--patient .account-role-dashboard { grid-template-columns: 1fr; }
+  .account-home--patient .account-widget--record, .account-home--patient .account-widget--preparation { grid-column: 1; }
+}
+@media (max-width: 600px) {
+  .prior-session { align-items: flex-start; flex-direction: column; }
+  .account-summary-grid { gap: .5rem; }
+  .account-summary-grid strong { font-size: 1.7rem; }
+  .psychiatrist-session { grid-template-columns: 4.2rem 1rem minmax(0, 1fr); }
+}

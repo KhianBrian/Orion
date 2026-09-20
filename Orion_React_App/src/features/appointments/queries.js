@@ -19,6 +19,12 @@ export async function fetchAdminAppointments() {
   return data || [];
 }
 
+export async function fetchAdminSchedules() {
+  const { data, error } = await supabase.functions.invoke("manage-schedule", { body: { action: "admin-list" } });
+  if (error) throw error;
+  return data?.schedule || [];
+}
+
 export async function fetchRescheduleRequests() {
   const { data, error } = await supabase.functions.invoke("review-appointment-reschedule", { body: { action: "list" } });
   if (error) throw error;
