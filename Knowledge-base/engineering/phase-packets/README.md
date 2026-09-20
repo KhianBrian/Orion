@@ -43,5 +43,5 @@ handoff; do not update it for routine exploration or every command.
 
 | Phase | Packet | State |
 | --- | --- | --- |
-| 18 | [Google Meet and session timing](phase-18-google-meet-session-timing.md) | Real Google Meet test path implemented; real-user launch remains blocked |
+| 18 | [Google Meet and session timing](phase-18-google-meet-session-timing.md) | Complete — implementation verified; real-user activation remains separately gated |
 | 18.5 | [Direct WebRTC + TURN](phase-18.5-direct-webrtc-turn.md) | Implemented synthetic slice; runtime launch remains gated |

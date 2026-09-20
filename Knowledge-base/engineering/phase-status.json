@@ -16,8 +16,8 @@
   },
   "18": {
     "title": "Google Meet and session timing",
-    "status": "Implemented — test path; real-user launch blocked",
-    "summary": "Real Google Meet test path, per-psychiatrist Gmail OAuth connection, protected admission, 15/45/15 timing, and admin kill switch are implemented. Payment-authorised booking, production provider validation, privacy/vendor approval, clinical edge decisions, and real-user activation remain blocked."
+    "status": "Complete — implementation verified; activation separately gated",
+    "summary": "Google Meet implementation is complete and verified: per-psychiatrist Gmail OAuth, server-authoritative booked/relationship admission, the one-hour join window, meeting creation/reuse, kill switch, safe failure logging and UI, expired-window handling, host guidance, and authenticated desktop/mobile checks. Phase 17 owns payment-authorized booking; real-user activation remains a separate production Google, privacy, clinical, security, operations, and release decision."
   },
   "18.5": {
     "title": "Direct WebRTC + TURN synthetic implementation",

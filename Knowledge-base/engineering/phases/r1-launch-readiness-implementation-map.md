@@ -93,7 +93,7 @@ explicit prerequisite increment under its owning authority and give it separate 
 | Phase 2 — Data/RBAC | The three-role schema, general consent records, session notes, audited note reads, and full RLS matrix are not built. | R1.2 may add current-authority eligibility/guardian schema; R1.4 consumes the note contract. Neither silently closes Phase 2. |
 | Phase 3 — Identity | The synthetic three-role Auth/CASL slice exists, but public registration, approval, recovery, and approved consent capture are not built. | R1.2 re-grounds and delivers the current eligibility identity path; Phase 3 history remains separately assessed. |
 | Phase 4 — Scheduling | Synthetic booking/cancellation exists, but full cancellation/reschedule/no-show/notes workflow is not built. | R1.3 replaces the future real booking behavior with payment authorisation while retaining approved cancellation and concurrency rules. |
-| Phase 5 — Video | JaaS exists only for the synthetic demo; production provider work is blocked. | R1.4 creates a separate approved Google Meet boundary and does not promote or overwrite D5 evidence. |
+| Phase 5 — Video | JaaS exists only for the synthetic demo; its baseline production-provider gate remains open. | Phase 18 records the completed Google Meet boundary and does not promote or overwrite D5 evidence; production activation remains separately gated. |
 | Phase 6 — Operations | Production support, retention, incidents, access review, recovery, and release exercises are not implemented. | R1.5 extends and consumes this work; it does not claim Phase 6 closure without Phase 6 evidence. |
 | Phase 4 — Outcomes | Completion/no-show/reschedule/correction behavior is part of the Phase 4 contract. | R1.4/R1.5 preserve manual outcomes and hand timing/provider facts back to Phase 4. |
 
@@ -108,7 +108,7 @@ function-only audited read/write/release controls, and patient/psychiatrist UI.
 | [Phase 15 — Data, consent, and audit foundation](phase-15-data-consent-and-audit-foundation.md) | R1.1 | Provider-neutral objects, role/action matrix, active-state compatibility, RLS/functions, typed audit, and tests. | Complete ✅; Implemented and verified in synthetic non-production; governance and production gates remain separate. |
 | [Phase 16 — Identity and minor eligibility](phase-16-identity-and-minor-eligibility.md) | R1.2 | A server-held patient eligibility state and approved consent-review path that fails closed before booking/admission. | Waiting for owner decisions after meeting; Non-blocking for unrelated phases. Consent flow, age/identity verification, evidence, review handling, and approved wording remain open before implementation. |
 | [Phase 17 — PayMaya payment-authorised booking](phase-17-paymaya-payment-authorised-booking.md) | R1.3 | One booking path creates a reserved `payment_pending` appointment and confirms it only through a verified provider event. | Waiting on PayMaya API; Provider integration material and payment, refund, chargeback, retention, and reconciliation policies remain open before implementation. |
-| [Phase 18 — Google Meet and session timing](phase-18-google-meet-and-session-timing.md) | R1.4 | Approved provider admission consumes `booked` and database-authoritative 15/45/15 boundaries. | Implemented — test path; real-user launch blocked; Real Google Meet test path, per-psychiatrist Gmail OAuth connection, protected admission, 15/45/15 timing, and admin kill switch are implemented. Payment-authorised booking, production provider validation, privacy/vendor approval, clinical edge decisions, and real-user activation remain blocked. |
+| [Phase 18 — Google Meet and session timing](phase-18-google-meet-and-session-timing.md) | R1.4 | Approved provider admission consumes `booked` and database-authoritative 15/45/15 boundaries. | Complete — implementation verified; activation separately gated; Google Meet implementation is complete and verified: per-psychiatrist Gmail OAuth, server-authoritative booked/relationship admission, the one-hour join window, meeting creation/reuse, kill switch, safe failure logging and UI, expired-window handling, host guidance, and authenticated desktop/mobile checks. Phase 17 owns payment-authorized booking; real-user activation remains a separate production Google, privacy, clinical, security, operations, and release decision. |
 | [Phase 18.5 — Direct WebRTC + TURN synthetic implementation](phase-18.5-direct-webrtc-turn-planning.md) | Synthetic video boundary | Direct WebRTC/TURN admission, dedicated signaling, short-lived relay credentials, kill switches, and two-party verification. | Implemented — linked database verified; launch-readiness in progress; Phase 18.5 code, migrations, protected admission, UI, and local/linked verification are merged in main. A controlled Open Relay showcase integration using Supabase Realtime is planned; partner/owner selection between Google Meet and a real-user Direct WebRTC provider remains open. No runtime, Edge Function, or real-user deployment has occurred. |
 | [Phase 19 — Support tickets and launch operations](phase-19-support-tickets-and-launch-operations.md) | R1.5 | Patient tickets, audited operations, approved exceptions, kill switches, retention processes, and runbooks. | Planned — implementation blocked; Depends on Phase 15–18 as-built evidence plus support, operations, retention, privacy, finance, and provider decisions. |
 | [Phase 20 — Integrated launch verification and controlled release](phase-20-integrated-launch-verification-and-controlled-release.md) | R1.5 | Integrated evidence, restore/rollback exercises, named approvals, and controlled release decision. | Planned — blocked on all prior gates; Depends on all prior phase audits, production-baseline controls, named approvals, and company-owner go/no-go. |
@@ -372,87 +372,51 @@ R1.5 consumes operational exceptions and reconciliation evidence.
 
 ## Phase 18 / R1.4 — Google Meet, admission timing, and note-window integration
 
-### Outcome
+**Status:** Complete — implementation verified; real-user activation remains separately gated.
 
-An eligible assigned patient or approved assigned psychiatrist can enter only an approved Google Meet
-session for a `booked` appointment during the database-authoritative early-join/session window. The
-scheduled end and subsequent note-writing display window do not create automatic clinical outcomes or
-note transitions.
+### Completed outcome
 
-### Decisions and inputs required before implementation
+An assigned patient or active assigned psychiatrist can request the appointment's Google Meet entry
+only when the appointment is `booked` and database time is inside `[starts_at - 15 minutes, ends_at)`.
+The database is authoritative; the browser only refreshes the Join action. The scheduled end and
+following note display window do not create automatic clinical outcomes or note transitions.
 
-| Authority | Required decision/input |
-| --- | --- |
-| Google Workspace/vendor | Organisation/domain, edition, host identity, meeting creation, participant invitation/admission, early entry, participant removal/end-session, event/reconciliation data, quotas, outage behavior, and API documentation. |
-| DPO/legal/security | Vendor and transfer approval, provider data flow, secret/auth model, retention/deletion, subprocessors, breach support, and permitted provider features. |
-| Clinical lead | Confirmation of 15/45/15, early end, late/no note, no-show edges, patient visibility, completion authority, and correction interaction. |
-| Company owners/operations | Outage/fallback position, host/end-session responsibility, stop authority, support communication, and service commitment. |
+### Completed implementation
 
-Google Meet remains proposed, not approved. JaaS behavior and JWT claims are not a Google Meet API
-specification.
+- Per-psychiatrist Gmail OAuth stores refresh authorization on the server and never exposes the
+  client secret or refresh token to the browser.
+- The Google Meet adapter creates or reuses one appointment-scoped meeting after the server verifies
+  booking state, assigned-user relationship, feature control, and the time window.
+- Assigned patients and active assigned psychiatrists are admitted; unrelated, invalid, cancelled,
+  failed, non-booked, and out-of-window requests are denied.
+- The Join action and Google Meeting page include ready, denied, provider-unavailable, return, and
+  expired-window states. A stale page loses its entry action at `ends_at`; the appointment is not
+  changed.
+- Provider failures are logged with safe structured context. There is no fallback to JaaS, Jitsi,
+  Direct WebRTC, or an unrestricted copied link.
+- Active JaaS/Jitsi runtime use was removed from the Phase 18 path. Direct WebRTC remains a separate
+  Phase 18.5 synthetic/non-production implementation.
+- The psychiatrist host guidance is recorded in the UI and supporting image asset: use the connected
+  Google account when entering Meet so the psychiatrist is the host who can admit the patient.
 
-### Database and server changes to plan and implement
+### Verification completed
 
-- Add or finalize one database admission-decision function using `now()`, R1.2 eligibility,
-  R1.3 `booked`, patient/psychiatrist relationship, clinician approval, and
-  `[starts_at - 15 minutes, ends_at)`.
-- Return decision codes and boundary timestamps needed by clients; do not persist duplicate derived
-  join/note timestamps.
-- Keep `appointments.video_room_id` and `get-demo-meeting-access` confined to synthetic JaaS
-  compatibility; create a separate approved provider abstraction/resource model.
-- Create/retrieve one provider meeting only after `booked` and only through the approved server
-  context. No provider secret or reusable unrestricted entry point reaches the browser.
-- Add provider event/reconciliation fields only after Workspace material establishes their need.
-- Do not add `meeting_ended_at` unless a trustworthy provider fact and approved early-end consequence
-  require it. If added, it records history and does not silently move scheduled note/outcome rules.
-- Before R1.4 can complete, verify whether the Phase 2/4 session-note schema, protected functions, and
-  UI actually exist. If absent, schedule that baseline prerequisite with its own migration, RLS/test
-  gate, and as-built audit; do not hide it inside a Google Meet completion claim.
-- Preserve the Phase 2 session-note contract: function-only audited reads, psychiatrist authorship,
-  patient after manual release, explicit admin support/default-admin denial, and immutable amendments.
-- Add no automatic completion, no-show, note lock, note release, or note publication job.
+- Authenticated scheduling E2E: 16 passed across desktop Chromium and mobile Chrome.
+- Unit tests: 9 passed; lint passed; production build passed; `git diff --check` passed.
+- Database migration and `google-meet-session-access` Edge Function are deployed to the linked test
+  project and migration history is synchronized.
+- Vercel production deployment is Ready at `https://orioninterface.vercel.app`; the live bundle
+  contains the one-hour window and expired-window UI.
+- Manual two-party video/audio testing passed, including host admission and patient guest entry.
+- Full evidence: [Phase 18 as-built audit](../../audit-trail/2026-09-20-phase-18-google-meet-test-path-audit.md).
 
-### React changes to plan and implement
+### Boundaries and handoff
 
-- Replace the demo-specific meeting route only for the real-launch provider boundary while retaining
-  the labelled JaaS synthetic path as historical/demo behavior.
-- Render Join from server state for eligible assigned users on `booked` only; client time schedules a
-  refresh but never grants access.
-- Add approved preflight, provider-unavailable, admission-waiting/denied, session-ended, and return
-  states without revealing meeting identifiers.
-- Display the post-session note-writing window from server-returned scheduled boundaries.
-- Keep note authoring and manual release independent from the 15-minute display window.
-
-### Expected current files affected
-
-- New forward provider/admission/note migrations only where the final R1.4 contract requires them.
-- A new Google Meet Edge Function/adapter boundary; do not repurpose
-  `supabase/functions/get-demo-meeting-access/index.ts` as if its JaaS claims apply.
-- `Orion_React_App/src/pages/DemoMeeting.jsx` remains demo-specific; R1.4 adds an approved real-meeting
-  surface and updates appointment Join behavior.
-- `src/lib/appointmentTiming.js` and `src/lib/meetingWindowClock.js` remain display helpers; server
-  decision tests prove they are not authorization.
-- Appointment/note features, route constants/configuration, unit/admission/RLS/provider/Playwright
-  tests, and R1.4/provider/operations documentation.
-
-### Verification gate
-
-- Patient and assigned psychiatrist allow; unrelated patient/psychiatrist, admin support, admin,
-  guardian, unauthenticated, unapproved clinician, and ineligible patient deny.
-- `payment_pending`, cancelled, failed, completed/no-show where policy excludes, and non-booked states
-  deny admission.
-- One millisecond before/at early-open and before/at scheduled end behave exactly from database time.
-- Copied provider entry data does not bypass Orion/Workspace admission.
-- Provider outage follows the approved behavior without falling back to public Jitsi or weakening
-  privacy.
-- Scheduled end and `end + 15 minutes` cause no automatic appointment outcome, note lock, or release.
-- Existing D5 JaaS synthetic access matrix stays green and remains clearly non-production.
-
-### Handoff to R1.5 and Phase 4
-
-R1.4 records exact provider resources, admission rules, event data, kill-switch behavior, and timing
-facts. R1.5 builds the outage/support process from those facts. Phase 4 continues to own human-recorded
-appointment outcomes, no-show, rescheduling, and outcome correction.
+Payment-authorized booking remains Phase 17 work. Production Google/Workspace, privacy/vendor,
+clinical, security, operations, and integrated-release approvals remain separate activation gates;
+they do not reopen or invalidate this implementation completion. Phase 19 consumes the failure and
+support states, while Phase 4 retains ownership of human-recorded outcomes, no-show, rescheduling,
+and outcome correction.
 
 ## Phase 19–20 / R1.5 — Support, operations, verification, and controlled launch
 
@@ -557,10 +521,10 @@ The grouped sequence is intentionally incremental rather than one large R1 migra
    attempts/events, protected transitions, and safe projections; keep payment initiation disabled.
 5. **Phase 17 provider/application.** Add the official PayMaya adapter, webhook, return/status,
    pending UI, synthetic provider tests, and as-built audit.
-6. **Phase 18 admission/provider.** Add database-time admission and only approved provider resource
-   fields; no duplicate derived timestamps.
-7. **Phase 18 application.** Add Google Meet admission, scheduled end, note-window display,
-   synthetic/manual provider checks, and as-built audit.
+6. **Phase 18 admission/provider.** Completed database-time admission and approved Google Meet
+   resource boundary; no duplicate derived timestamps.
+7. **Phase 18 application.** Completed Google Meet admission, scheduled end, note-window display,
+   manual provider checks, and the as-built audit.
 8. **Phase 19 tickets.** Add approved ticket fields, audited patient/operator functions, UI, rate
    limits, and synthetic isolation/redaction tests.
 9. **Phase 19 operations.** Add approved reconciliation, retention/data rights, runbooks, access
