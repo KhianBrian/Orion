@@ -2,18 +2,20 @@
 
 ## Decision
 
-Phase 18.5 authorizes Direct WebRTC + project-owned TURN as the implementation direction for a
-synthetic, non-production one-to-one vertical slice. That slice is now implemented and verified:
-server admission, dedicated signaling, short-lived TURN credential issuance, disabled-by-default
-feature control, and local desktop/mobile two-party checks are complete. This does not approve
-real-user activation or production infrastructure.
-
-The 8 September 2026 owner direction identified **Google Meet** as the Phase 18 provider because
-the JaaS 25-MAU demo allowance cannot support the expected initial demand. The Google Meet
-implementation is complete and verified for the test path. Direct WebRTC + TURN remains a separate
-Phase 18.5 synthetic/non-production alternative. Neither path is approved for real-user activation
-until DPO/legal, clinical, security, and operations approval covers contract, data flow, data
+**Google Meet is the chosen video provider for Orion.** The 8 September 2026 owner direction
+identified Google Meet as the Phase 18 provider because the JaaS 25-MAU demo allowance cannot
+support the expected initial demand, and on 16 October 2026 the owner confirmed that Direct
+WebRTC + TURN will not be pursued. The Google Meet implementation is complete and verified for the
+test path. Choosing the provider does not approve real-user activation: that still requires
+DPO/legal, clinical, security, and operations approval covering contract, data flow, data
 locations, subprocessors, retention, support, and incident handling.
+
+Phase 18.5 Direct WebRTC + project-owned TURN was implemented and verified as a synthetic,
+non-production vertical slice (server admission, dedicated signaling, short-lived TURN credential
+issuance, disabled-by-default feature control, and local desktop/mobile two-party checks). It is
+now **shelved**: the code remains merged in `main` but is disabled and not linked from the UI, and
+no launch-readiness, Open Relay showcase, or real-user work will follow. It is not an approved
+alternative.
 
 ## Required integration pattern
 
@@ -26,17 +28,17 @@ Authorised participant requests join
 
 For a managed provider, rooms use random provider identifiers with no client, psychiatrist, email,
 date, or appointment meaning. Disable recording, transcription, chat, files, analytics, and screen
-sharing unless separately approved. For the implemented Direct WebRTC slice, the server creates or
-retrieves an appointment-scoped control-plane session instead of a provider room, then returns only
-short-lived signaling/TURN admission. Use a server-side kill switch to stop token issuance.
+sharing unless separately approved. Use a server-side kill switch to stop token issuance. (The shelved Direct WebRTC slice used an
+appointment-scoped control-plane session and short-lived signaling/TURN admission instead of a
+provider room.)
 
 ## Options
 
 | Option | Use | Decision |
 | --- | --- | --- |
-| Direct WebRTC + Open Relay showcase path | One-to-one browser media using Supabase Realtime for connection messages and Open Relay's 20 GB free backup route | Planned Phase 18.5 controlled showcase integration; no deployment, no real-user approval, and no permanent-provider decision |
-| Direct WebRTC + project-owned TURN | One-to-one browser media with dedicated signaling and project-owned relay boundary | Implemented on `main` for Phase 18.5 synthetic/non-production; remains the real-user Direct WebRTC alternative if separately approved |
-| Google Meet | Managed meeting spaces and Workspace-controlled participant admission | Phase 18 implementation complete and verified; production Workspace, vendor, and operational approval remain required for real-user activation |
+| Direct WebRTC + Open Relay showcase path | One-to-one browser media using Supabase Realtime for connection messages and Open Relay's 20 GB free backup route | Shelved (16 October 2026); never built or deployed, and will not be pursued |
+| Direct WebRTC + project-owned TURN | One-to-one browser media with dedicated signaling and project-owned relay boundary | Shelved (16 October 2026); synthetic code remains on `main`, disabled and unlinked from the UI, and is not a real-user alternative |
+| Google Meet | Managed meeting spaces and Workspace-controlled participant admission | **Chosen provider.** Phase 18 implementation complete and verified; production Workspace, vendor, and operational approval remain required for real-user activation |
 | Daily | Managed, token-gated browser video; free early allowance | Historical alternative; no longer preferred for R1 |
 | LiveKit Cloud | Managed, flexible token-gated video | Historical alternative if Google Meet is not approved |
 | Twilio Video | Mature managed option with usage billing | Consider if contract/region requirements fit |

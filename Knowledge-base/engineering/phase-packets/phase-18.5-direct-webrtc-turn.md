@@ -3,8 +3,8 @@
 **Packet purpose:** Resume Phase 18.5 without reconstructing implementation and launch context from
 conversation history.
 **Last updated:** 2026-09-19
-**Status:** Implemented on `main` — controlled Open Relay showcase integration planned; runtime and
-real-user launch remain gated.
+**Status:** Shelved (16 October 2026) — implemented on `main` but not proceeding; the Open Relay
+showcase and real-user launch will not be pursued. Google Meet is the real-user provider.
 **Recommended next action:** Implement and verify the non-production Open Relay showcase path with
 synthetic accounts. The separate partner/owner real-user provider decision remains open. Vercel can
 host the frontend, but it does not replace the video fallback service.

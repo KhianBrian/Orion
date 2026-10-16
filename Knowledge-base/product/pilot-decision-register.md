@@ -1,5 +1,23 @@
 # Pilot Decision Register
 
+## Amendment — 16 October 2026: Support ticket handling
+
+The company owners decided who handles support tickets, and that ticket status is controlled only
+from the administrative side.
+
+| Area | Direction now recorded | Engineering consequence | Still requiring an owner, clinical, legal, or vendor decision |
+| --- | --- | --- | --- |
+| Ticket handler | A support ticket is handled by whichever developer is vacant (available) when it arrives. | The queue needs a way for an available handler to take a ticket and for the team to see who has it. Orion has no developer role or availability concept; developers use the existing `admin` role. | Confirmed 16 October 2026: developers use `admin` accounts. Support hours, response-time wording, and escalation contacts: owners stated they do not need to be decided. |
+| Ticket status | Statuses are changeable only from the admin side. Patients and psychiatrists can read a ticket's status but never change it. | Status changes become protected server commands that check the actor is an admin and enforce an allowed-transition list. Replying never changes status by itself. | Final status list and reopen rule (a proposal is in Phase 19). |
+| Ticket visibility | Every admin can see every support ticket in the queue. | The admin queue lists all tickets; the handler field shows who has each one. Visibility is limited to tickets and their messages, not patient profiles, appointments, payments, meetings, or notes. | None. |
+| Ticket attachments | Support tickets accept file attachments. | Keep the private attachment feature as built (up to 3 files, 10 MB each; PNG, JPEG, PDF, or text; private storage with expiring download links). The earlier no-file-uploads line applies to the clinical data boundary, not to support tickets. | Retention and disposal of attachments follow the DPO and legal retention decision. |
+| Ticket lifecycle | Approved: statuses `submitted`, `in_progress`, `awaiting_requester`, `resolved`, `closed`, changed only by an admin. A handler takes a ticket with a Take-ticket action. | Server-enforced transitions, atomic take, and an append-only status and assignment history. | None. |
+| Ticket notifications | The ticket sender and the admin side are notified when a message is received. | In-app notifications only (navigation badge and per-ticket marker), carrying no message content. Email and other channels stay deferred with the support email. | Confirmed 16 October 2026: in-app only; email stays deferred. |
+| Support role | No separate support role is created (consistent with the earlier decision that admin handles operational support). | Do not add a new role; keep least privilege inside `admin`. | None. |
+
+This amendment records an owner direction only. It does not unblock Phase 19 implementation, which
+still needs the decisions listed in the Phase 19 plan.
+
 ## Amendment — 13 September 2026: MFA deferral
 
 For the current launch, MFA is not a requirement. Phase 12 remains documented as a future privileged-

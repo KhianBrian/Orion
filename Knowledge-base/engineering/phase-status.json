@@ -21,8 +21,8 @@
   },
   "18.5": {
     "title": "Direct WebRTC + TURN synthetic implementation",
-    "status": "Implemented — linked database verified; launch-readiness in progress",
-    "summary": "Phase 18.5 code, migrations, protected admission, UI, and local/linked verification are merged in main. A controlled Open Relay showcase integration using Supabase Realtime is planned; partner/owner selection between Google Meet and a real-user Direct WebRTC provider remains open. No runtime, Edge Function, or real-user deployment has occurred."
+    "status": "Shelved — not proceeding; Google Meet is the real-user provider",
+    "summary": "Owner direction (16 October 2026): Direct WebRTC + TURN will not be taken to launch. The synthetic code remains merged in main but stays disabled and unlinked from the UI, and no launch-readiness, showcase, or real-user work will follow. Google Meet (Phase 18) is the real-user provider path; its production activation remains separately gated."
   },
   "19": {
     "title": "Support tickets and launch operations",

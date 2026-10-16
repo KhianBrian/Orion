@@ -1,6 +1,6 @@
 # Phase 18.5 launch-readiness track
 
-**Status:** In progress — current linked database verified; runtime and release evidence required.
+**Status:** Shelved — not proceeding (owner direction, 16 October 2026). Google Meet is the real-user provider; no launch-readiness evidence will be gathered.
 **Launch profile:** 30 synthetic users, 10 simultaneous two-party calls (20 active participants),
 at least two waves so all 30 identities exercise the boundary.
 

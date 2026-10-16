@@ -1,6 +1,6 @@
 # Phase 18.5 — Direct WebRTC + TURN Planning Review
 
-**Status:** Implemented and verified — synthetic/non-production vertical slice.
+**Status:** Implemented and verified — synthetic/non-production slice; shelved on 16 October 2026 and not proceeding to launch.
 
 This phase covers the implemented control-plane, dedicated signaling boundary, TURN credential
 boundary, synthetic UI, and verification work described below. It remains disabled for real users,
