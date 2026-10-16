@@ -382,4 +382,63 @@ test.describe("database-backed scheduling", () => {
       }
     });
   }
+  test("a psychiatrist approving a reschedule that another booking overtook sees a clear message", async ({ page }, testInfo) => {
+    test.setTimeout(90_000);
+    const users = syntheticUsers[testInfo.project.name];
+    const otherProject = testInfo.project.name === "chromium" ? "mobile-chrome" : "chromium";
+    const authUsers = await required(service.auth.admin.listUsers({ page: 1, perPage: 1000 }), "load synthetic users for the reschedule race");
+    const requester = authUsers.users.find((user) => user.email === users.patient.email);
+    const rival = authUsers.users.find((user) => user.email === syntheticUsers[otherProject].patient.email);
+    if (!requester || !rival) throw new Error("the synthetic patients for the reschedule race are missing");
+    let original;
+    let requestedSlotId;
+    let rivalSlotId;
+    let requestId;
+    try {
+      original = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name, 8 * 24, 1);
+      const originalRow = await required(service.from("availability_slots").select("psychiatrist_id, starts_at").eq("id", original.id).single(), "load the original slot");
+      const addSlot = async (minutesFromOriginal) => {
+        const startsAt = new Date(new Date(originalRow.starts_at).getTime() + minutesFromOriginal * 60 * 1000);
+        const created = await required(service.from("availability_slots").insert({
+          psychiatrist_id: originalRow.psychiatrist_id,
+          starts_at: startsAt.toISOString(),
+          ends_at: new Date(startsAt.getTime() + 45 * 60 * 1000).toISOString(),
+          status: "open",
+        }).select("id").single(), "create a slot for the reschedule race");
+        return created.id;
+      };
+      await required(service.rpc("book_appointment_for_patient", {
+        requested_slot_id: original.id, request_id: crypto.randomUUID(), actor_profile_id: requester.id,
+      }), "the patient books the original appointment");
+      const originalAppointment = await required(service.from("appointments").select("id").eq("slot_id", original.id).single(), "load the original appointment");
+      requestedSlotId = await addSlot(60);
+      const asked = await required(service.rpc("request_appointment_reschedule", {
+        target_appointment_id: originalAppointment.id, requested_slot_id: requestedSlotId, request_id: crypto.randomUUID(), actor_profile_id: requester.id,
+      }), "the patient asks to reschedule");
+      requestId = asked[0].reschedule_request_id;
+
+      // Another patient takes an overlapping time while the request waits.
+      rivalSlotId = await addSlot(45);
+      await required(service.rpc("book_appointment_for_patient", {
+        requested_slot_id: rivalSlotId, request_id: crypto.randomUUID(), actor_profile_id: rival.id,
+      }), "the rival patient books an overlapping time");
+
+      await signIn(page, users.psychiatrist.email, users.psychiatrist.password);
+      await page.getByRole("main").getByRole("link", { name: "My appointments" }).click();
+      await expect(page.getByRole("heading", { name: "Reschedule requests" })).toBeVisible();
+      await page.getByRole("button", { name: "Approve request" }).click();
+      await expect(page.getByText("That time is no longer available, so the reschedule was not approved.")).toBeVisible();
+
+      const unchanged = await required(service.from("appointments").select("status").eq("id", originalAppointment.id).single(), "reload the original appointment");
+      expect(unchanged.status).toBe("booked");
+    } finally {
+      if (requestId) {
+        await service.from("audit_events").delete().eq("target_id", requestId);
+        await service.from("reschedule_requests").delete().eq("id", requestId);
+      }
+      if (rivalSlotId) await removeIsolatedSlot({ id: rivalSlotId });
+      if (requestedSlotId) await removeIsolatedSlot({ id: requestedSlotId });
+      await removeIsolatedSlot(original);
+    }
+  });
 });

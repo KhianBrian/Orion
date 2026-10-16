@@ -36,6 +36,7 @@ try {
   const createdPatientTicket = await required(db.rpc("create_support_ticket", {
     actor_profile_id: patient.id,
     request_id: patientRequestId,
+    ticket_category_code: "technical_issue",
     message_body: patientSentinel,
   }), "create patient support ticket");
   patientTicketId = createdPatientTicket[0].ticket_id;
@@ -44,6 +45,7 @@ try {
   const retry = await required(db.rpc("create_support_ticket", {
     actor_profile_id: patient.id,
     request_id: patientRequestId,
+    ticket_category_code: "technical_issue",
     message_body: "A retry must not create a second ticket",
   }), "retry patient support ticket");
   assert.equal(retry[0].ticket_id, patientTicketId);
@@ -83,6 +85,7 @@ try {
   const createdPsychiatristTicket = await required(db.rpc("create_support_ticket", {
     actor_profile_id: psychiatrist.id,
     request_id: psychiatristRequestId,
+    ticket_category_code: "technical_issue",
     message_body: psychiatristSentinel,
   }), "create psychiatrist support ticket");
   psychiatristTicketId = createdPsychiatristTicket[0].ticket_id;

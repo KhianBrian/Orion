@@ -25,9 +25,13 @@ same instant, the database correctly admitted one, but the loser received a raw 
   Only the exception clause changed.
 - The booking page message is now "That time was just booked by someone else. Please choose another
   time." and the availability list refreshes.
-- Not changed: the reschedule approval path (`review_appointment_reschedule`) uses the same
-  unique-violation-only pattern and would show the same generic failure to the approving psychiatrist
-  on an overlap.
+- The reschedule approval path (`review_appointment_reschedule`) had the same unique-violation-only
+  pattern: if another patient booked an overlapping time while a request was waiting, the approving
+  psychiatrist's approval was refused with a raw constraint error. The approval screen also showed
+  nothing at all when an approval failed. Migration `20261017090100_reschedule_overlap_reports_slot_unavailable.sql`
+  maps the overlap to `slot_unavailable`, and the screen now says the time is no longer available,
+  that the original appointment is unchanged, and to decline or ask the patient to choose another time.
+  The approval rolls back as a whole, so the patient's original appointment stays booked.
 
 ## Verification
 
@@ -40,3 +44,16 @@ same instant, the database correctly admitted one, but the loser received a raw 
 - The test data was removed after each run.
 - Weekend booking depends on each psychiatrist's schedule. The demo psychiatrists are currently set to
   all seven days by the temporary Phase 18 test-path schedule, so weekends are bookable in the demo.
+
+## Reschedule verification
+
+- `npm run test:db:reschedule-conflict` failed before the migration (raw exclusion error) and passed
+  after: the approval is refused with `slot_unavailable`, the original appointment and slot stay booked,
+  the request stays pending, and the psychiatrist can still decline it.
+- The browser test where a rival books an overlapping time while a request waits failed before the
+  migration and passed after, on desktop and mobile.
+- After both fixes: lint, unit tests (18 of 18), every database test script, scheduling browser tests
+  (22 of 22), support (8 of 8), and accessibility, public-navigation, back-button, and performance
+  (64) all passed. The Phase 15 database script had a stale support-ticket call from before the
+  September topics change; it now passes the category.
+- Not run: the Direct WebRTC browser spec (that feature is shelved) and the production build.

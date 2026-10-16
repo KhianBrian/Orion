@@ -20,6 +20,7 @@
     "test:db:booking": "node scripts/test-booking-db.mjs",
     "test:db:cancellation": "node scripts/test-cancellation-db.mjs",
     "test:db:booking-conflict": "node scripts/test-booking-conflict-db.mjs",
+    "test:db:reschedule-conflict": "node scripts/test-reschedule-conflict-db.mjs",
     "test:db:rls": "node scripts/test-rls-db.mjs",
     "test:db:phase2": "node scripts/test-phase2-db.mjs",
     "test:db:phase4": "node scripts/test-phase4-db.mjs",
