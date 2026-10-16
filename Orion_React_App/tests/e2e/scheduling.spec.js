@@ -159,7 +159,8 @@ test.describe("database-backed scheduling", () => {
       await page.goto(route);
       await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
       await expect(page.getByRole("link", { name: "Account", exact: true })).toBeVisible();
-      await expect(page.getByRole("link", { name: "Sign in" })).toHaveCount(0);
+      // The page body keeps a "Sign in to Orion" call to action, so check only the account menu.
+      await expect(page.getByRole("navigation", { name: "Account navigation" }).getByRole("link", { name: "Sign in" })).toHaveCount(0);
     }
 
     await page.getByRole("link", { name: "Account", exact: true }).click();

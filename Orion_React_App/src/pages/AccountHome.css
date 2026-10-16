@@ -18,7 +18,7 @@
 .account-widget--preparation { background: #f1eaf4; border-color: #d8c5df; padding: clamp(1.5rem, 3vw, 2.75rem); }
 .account-widget__header { align-items: flex-start; display: flex; gap: 1rem; justify-content: space-between; }
 .account-widget h2 { color: var(--color-navy); font-family: var(--font-secondary); font-size: clamp(1.6rem, 3vw, 2.4rem); letter-spacing: -.04em; line-height: 1.05; margin: 0; }
-.account-widget__status, .account-widget__count { border-left: 2px solid var(--color-cyan); color: #147868; font-size: .8rem; font-weight: 800; padding: .15rem 0 .15rem .7rem; white-space: nowrap; }
+.account-widget__status, .account-widget__count { border-left: 2px solid var(--color-cyan); color: #0e5f51; font-size: .8rem; font-weight: 800; padding: .15rem 0 .15rem .7rem; white-space: nowrap; }
 .account-widget__count { border-left-color: var(--color-bronze); color: var(--color-navy); }
 .account-widget__icon { color: var(--color-bronze); font-size: 1.5rem; }
 .account-widget__state, .account-widget__empty { color: var(--color-muted); padding: 1.5rem 0 .25rem; }

@@ -48,8 +48,14 @@ revokes that. Edits were already blocked by the trigger.
 - A mobile layout bug already in `main` was fixed: the support page showed two columns on phones and
   overflowed the screen.
 - `tests/e2e/scheduling.spec.js` "a signed-in account remains signed in across every restored public
-  route" fails identically on unmodified `main` (a public page shows a "Sign in" link). Not caused by
-  this work and not fixed here.
+  route" failed identically on unmodified `main`: the test matched the "Sign in to Orion" call to
+  action in the page body. It now checks only the account menu and passes on desktop and mobile. That
+  exposed a contrast failure on the account page's "Open" label (4.15:1), also already in `main`, now
+  darkened to pass. The new notification badge also measured 4.16:1 and was darkened before it could
+  ship. The remaining failure in that file, "a patient can cancel a booked appointment", is caused by
+  demo data: the demo psychiatrists have no open time in the two-week booking horizon.
+- After these changes the support, accessibility, public-navigation, back-button, and performance
+  specs passed (72 tests) and the unit tests passed (18 of 18).
 - Running the whole authenticated suite in parallel produced one support failure that did not repeat
   when the support tests ran alone; the suites share demo accounts. Not investigated further.
 - `npm run build` was not run in this pass.
