@@ -34,7 +34,7 @@ async function required(query, label) {
   return data;
 }
 
-async function createIsolatedSlot(psychiatristEmail, projectName, hoursAhead = 75 * 24) {
+async function createIsolatedSlot(psychiatristEmail, projectName, hoursAhead = 75 * 24, hourOffset = 0) {
   const { data: users, error: usersError } = await service.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (usersError) throw new Error(`load synthetic users: ${usersError.message}`);
   const psychiatristUser = users.users.find((user) => user.email === psychiatristEmail);
@@ -47,8 +47,15 @@ async function createIsolatedSlot(psychiatristEmail, projectName, hoursAhead = 7
   const candidate = new Date(Date.now() + Math.min(hoursAhead, 10 * 24) * 60 * 60 * 1000);
   const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Manila", year: "numeric", month: "numeric", day: "numeric" }).formatToParts(candidate).filter((part) => part.type !== "literal").map((part) => [part.type, Number(part.value)]));
   const localDate = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
-  while ([0, 6].includes(localDate.getUTCDay())) localDate.setUTCDate(localDate.getUTCDate() + 1);
-  const localHour = projectName === "chromium" ? 9 : 11;
+  // A slot inside the next 24 hours must keep its real day: skipping a weekend would push it past the
+  // cancellation window the test is about. Every demo psychiatrist is scheduled on all seven days.
+  const nearTerm = hoursAhead < 24;
+  while (!nearTerm && [0, 6].includes(localDate.getUTCDay())) localDate.setUTCDate(localDate.getUTCDate() + 1);
+  // The suite-wide slot uses the base hour. A test that may land on the same day (weekends roll to
+  // Monday) passes an offset so its slot never overlaps a slot that is already booked.
+  const localHour = (projectName === "chromium" ? 9 : 11) + hourOffset;
+  const firstStart = Date.UTC(localDate.getUTCFullYear(), localDate.getUTCMonth(), localDate.getUTCDate(), localHour, 0, 1) - (8 * 60 * 60 * 1000);
+  if (nearTerm && firstStart < Date.now() + 60 * 60 * 1000) localDate.setUTCDate(localDate.getUTCDate() + 1);
   for (let attempt = 0; attempt < 12; attempt += 1) {
     const startsAt = new Date(Date.UTC(localDate.getUTCFullYear(), localDate.getUTCMonth(), localDate.getUTCDate(), localHour, attempt * 15, 1) - (8 * 60 * 60 * 1000));
     const id = crypto.randomUUID();
@@ -234,7 +241,7 @@ test.describe("database-backed scheduling", () => {
     const users = syntheticUsers[testInfo.project.name];
     let slot;
     try {
-      slot = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name, 8 * 24);
+      slot = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name, 8 * 24, 3);
       await signIn(page, users.patient.email, users.patient.password);
       await page.getByRole("main").getByRole("link", { name: "Book an appointment" }).click();
       const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName, slot);

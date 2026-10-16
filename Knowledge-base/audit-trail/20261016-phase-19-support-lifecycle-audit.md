@@ -57,13 +57,18 @@ revokes that. Edits were already blocked by the trigger.
   action in the page body. It now checks only the account menu and passes on desktop and mobile. That
   exposed a contrast failure on the account page's "Open" label (4.15:1), also already in `main`, now
   darkened to pass. The new notification badge also measured 4.16:1 and was darkened before it could
-  ship. The remaining failure in that
-  file, "a patient can cancel a booked appointment", reports "No available time found". Its first
-  suspected cause was demo data: the demo psychiatrists' open slots had run out because slots are only
-  generated for 14 days after a schedule is saved. Re-saving each psychiatrist's existing 08:00-17:00
-  hours regenerated 476 open slots each, after a leftover synthetic appointment outside published hours
-  was cancelled through the psychiatrist cancellation command. The test still fails with the same
-  message, so the cause is not yet found. Not caused by this work.
+  ship. A second, separate failure in that
+  file, "a patient can cancel a booked appointment" ("No available time found"), was first suspected to
+  be demo data. Re-saving each demo psychiatrist's 08:00-17:00 hours regenerated 476 open slots each
+  (slots are only generated for 14 days after a schedule is saved), and a leftover synthetic
+  appointment outside published hours was cancelled through the psychiatrist cancellation command, but
+  the test still failed. The real cause was the weekday: the suite-wide slot lands on Monday 26 October
+  (10 days ahead, rolled past the weekend), and the cancellation test asked for "8 days ahead", which
+  on a Friday is a Saturday that also rolls to the same Monday and hour. Its slot overlapped the
+  already-booked one and the booking page hid it. The test now uses its own hour. A third failure,
+  "a cancellation inside 24 hours is denied", had the same weekend roll-over: 12 hours ahead from a
+  Friday evening became Monday, outside the 24-hour window, so the cancellation correctly succeeded.
+  Near-term test slots now keep their real day. All 16 scheduling tests pass on desktop and mobile.
 - After ownership was removed: lint passed, unit tests 18 of 18, the database checks passed, the support
   spec passed 8 of 8, and the accessibility, public-navigation, back-button, and performance specs
   passed (64 tests). The demo project has migrations through `20261016090300` and the matching function.
