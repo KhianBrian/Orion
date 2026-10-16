@@ -51,7 +51,6 @@ test("sensitive topics are flagged for care", () => {
 });
 
 test("lifecycle errors map to generic, content-free messages", () => {
-  assert.match(supportLifecycleErrorMessage({ code: "support_ticket_already_taken" }), /already taken/);
   assert.match(supportLifecycleErrorMessage({ code: "support_ticket_closed" }), /closed/);
   assert.match(supportLifecycleErrorMessage({ code: "support_ticket_transition_not_allowed" }), /not allowed/);
   assert.match(supportLifecycleErrorMessage({ code: "anything_else" }), /could not be updated/);

@@ -3,7 +3,6 @@ import { supabase } from "../../lib/supabase";
 export const supportTicketsQueryKey = (accountId) => ["support-tickets", accountId];
 export const supportTicketQueryKey = (accountId, ticketId) => ["support-ticket", accountId, ticketId];
 export const supportNotificationsQueryKey = (accountId) => ["support-notifications", accountId];
-export const supportHandlersQueryKey = (accountId) => ["support-handlers", accountId];
 
 // A failed function call carries its generic error code in the response body. Attach it so callers
 // can show a specific message without ever seeing ticket content.
@@ -63,14 +62,9 @@ export async function sendSupportTicketMessage({ ticketId, body }) {
 
 export async function fetchSupportNotifications() {
   const data = await invoke({ action: "notifications" });
-  return { unreadTickets: data?.unreadTickets ?? 0, unassignedTickets: data?.unassignedTickets ?? 0, attentionTickets: data?.attentionTickets ?? 0 };
+  return { unreadTickets: data?.unreadTickets ?? 0 };
 }
 
-export async function fetchSupportHandlers() {
-  const data = await invoke({ action: "handlers" });
-  return data?.handlers ?? [];
-}
-
-export async function runSupportLifecycleAction({ action, ticketId, assigneeId, status, reasonCode }) {
-  return invoke({ action, ticketId, assigneeId, status, reasonCode });
+export async function setSupportTicketStatus({ ticketId, status, reasonCode }) {
+  return invoke({ action: "set-status", ticketId, status, reasonCode });
 }

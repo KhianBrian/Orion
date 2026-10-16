@@ -110,7 +110,7 @@ test.describe("administrative support tickets", () => {
     await patientPage.close();
     await assertNoSeriousViolations(page);
   });
-  test("an administrator takes a ticket and changes its status while the requester only reads it", async ({ page, browser }, testInfo) => {
+  test("an administrator changes a ticket status while the requester only reads it", async ({ page, browser }, testInfo) => {
     test.setTimeout(120_000);
     await signIn(page, { email: "admin@demo.orion.invalid", password: process.env.DEMO_SHARED_PASSWORD || process.env.DEMO_ADMIN_PASSWORD });
     await page.goto("/support");
@@ -118,10 +118,14 @@ test.describe("administrative support tickets", () => {
     await page.locator(".support-ticket-row").filter({ hasText: `Requester: ${patientName}` }).last().click();
     await expect(page.getByText(sentinel)).toBeVisible();
 
-    await page.getByRole("button", { name: "Take ticket" }).click();
+    // Tickets have no owner: there is nothing to take, release, or reassign.
+    await expect(page.getByRole("button", { name: "Take ticket" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Release ticket" })).toHaveCount(0);
+    await expect(page.getByLabel("Reassign to")).toHaveCount(0);
+    await page.getByLabel("Change status").selectOption("in_progress");
+    await page.getByRole("button", { name: "Update status" }).click();
     await expect(page.getByText("The ticket was updated.")).toBeVisible();
     await expect(page.locator(".support-admin__summary")).toContainText("In progress");
-    await expect(page.getByRole("button", { name: "Release ticket" })).toBeVisible();
 
     const followUp = `Synthetic follow-up ${crypto.randomUUID()}`;
     await page.getByLabel("Reply to this ticket").fill(followUp);
@@ -139,8 +143,7 @@ test.describe("administrative support tickets", () => {
     await patientPage.locator(".support-ticket-row").first().click();
     await expect(patientPage.getByText(followUp)).toBeVisible();
     await expect(patientPage.locator(".support-thread__status")).toContainText("Resolved");
-    await expect(patientPage.getByRole("button", { name: "Take ticket" })).toHaveCount(0);
-    await expect(patientPage.getByLabel("Change status")).toHaveCount(0);
+        await expect(patientPage.getByLabel("Change status")).toHaveCount(0);
     await expect(patientPage.getByTestId("support-notification-badge")).toHaveCount(0);
 
     // A closed ticket accepts no replies from either side.

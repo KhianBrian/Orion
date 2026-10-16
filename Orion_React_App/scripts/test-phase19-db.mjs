@@ -21,15 +21,15 @@ const adminList = (actor) => required(db.rpc("get_admin_support_tickets", { acto
 const myList = (actor) => required(db.rpc("get_my_support_tickets", { actor_profile_id: actor }), "own ticket list");
 const find = (tickets, id) => tickets.find((ticket) => ticket.ticket_id === id);
 const counts = async (actor) => (await required(db.rpc("get_support_notification_counts", { actor_profile_id: actor }), "notification counts"))[0];
-const lifecycle = (name, args) => db.rpc(name, args);
+const setStatus = (ticketId, actor, status, reason = null) => db.rpc("set_support_ticket_status", {
+  target_ticket_id: ticketId, actor_profile_id: actor, new_status: status, change_reason_code: reason,
+});
 
-const [patient, psychiatrist] = await Promise.all([
+const [patient, psychiatrist, admin] = await Promise.all([
   required(db.from("profiles").select("id").eq("role", "patient").order("created_at").limit(1).single(), "load synthetic patient"),
   required(db.from("profiles").select("id").eq("role", "psychiatrist").order("created_at").limit(1).single(), "load synthetic psychiatrist"),
+  required(db.from("profiles").select("id").eq("role", "admin").order("created_at").limit(1).single(), "load synthetic admin"),
 ]);
-const admins = await required(db.from("profiles").select("id, full_name").eq("role", "admin").order("created_at"), "load synthetic admins");
-assert.ok(admins.length >= 1, "at least one synthetic admin is required");
-const [admin, secondAdmin] = admins;
 
 const created = [];
 async function newTicket(requester, label) {
@@ -47,57 +47,37 @@ const reply = (ticketId, actor, body = "Synthetic phase 19 reply") => db.rpc("se
 });
 
 try {
-  // New tickets start submitted and unassigned.
+  // A new ticket starts submitted. Tickets have no owner: no assignment column or command exists.
   const countsBefore = await counts(admin.id);
   const ticketId = await newTicket(patient, "lifecycle");
-  const countsAfter = await counts(admin.id);
-  assert.equal(countsAfter.unread_tickets, countsBefore.unread_tickets + 1);
-  assert.equal(countsAfter.unassigned_tickets, countsBefore.unassigned_tickets + 1);
-  assert.equal(countsAfter.attention_tickets, countsBefore.attention_tickets + 1, "a ticket that is both unread and unassigned counts once");
   const initial = find(await adminList(admin.id), ticketId);
   assert.equal(initial.status_code, "submitted");
-  assert.equal(initial.assigned_to, null);
-  assert.ok((await counts(admin.id)).unassigned_tickets >= 1, "admin sees the unassigned ticket in the count");
-  assert.equal((await counts(patient.id)).unassigned_tickets, 0, "requesters never see the unassigned count");
+  assert.ok(!("assigned_to" in initial), "the admin queue carries no owner field");
+  assert.equal((await counts(admin.id)).unread_tickets, countsBefore.unread_tickets + 1, "admins are notified of a new ticket");
+  assert.deepEqual(Object.keys(await counts(admin.id)), ["unread_tickets"], "notification data is a single number");
+  for (const removed of ["take_support_ticket", "release_support_ticket", "reassign_support_ticket", "list_support_handlers"]) {
+    const { error } = await db.rpc(removed, { actor_profile_id: admin.id, target_ticket_id: ticketId });
+    assert.ok(error, `${removed} no longer exists`);
+  }
 
-  // Only an admin may use any lifecycle command; patients and psychiatrists are refused.
+  // Only an admin may change status; patients and psychiatrists are refused and nothing changes.
   for (const requester of [patient, psychiatrist]) {
-    await rejected(lifecycle("take_support_ticket", { target_ticket_id: ticketId, actor_profile_id: requester.id }), "support_ticket_not_permitted", "requester take");
-    await rejected(lifecycle("release_support_ticket", { target_ticket_id: ticketId, actor_profile_id: requester.id }), "support_ticket_not_permitted", "requester release");
-    await rejected(lifecycle("set_support_ticket_status", { target_ticket_id: ticketId, actor_profile_id: requester.id, new_status: "closed", change_reason_code: null }), "support_ticket_not_permitted", "requester status change");
-    await rejected(lifecycle("list_support_handlers", { actor_profile_id: requester.id }), "support_ticket_not_permitted", "requester handler list");
-    await rejected(lifecycle("get_admin_support_tickets", { actor_profile_id: requester.id }), "support_ticket_not_permitted", "requester admin queue");
+    await rejected(setStatus(ticketId, requester.id, "closed"), "support_ticket_not_permitted", "requester status change");
+    await rejected(db.rpc("get_admin_support_tickets", { actor_profile_id: requester.id }), "support_ticket_not_permitted", "requester admin queue");
   }
   assert.equal(find(await adminList(admin.id), ticketId).status_code, "submitted", "refused commands changed nothing");
 
-  // Another requester's ticket cannot be read or answered by a different requester.
+  // Another requester's ticket cannot be read or answered.
   await rejected(db.rpc("read_my_support_ticket", { target_ticket_id: ticketId, actor_profile_id: psychiatrist.id }), "support_ticket_not_permitted", "psychiatrist reads a patient's ticket");
   await rejected(reply(ticketId, psychiatrist.id), "support_ticket_not_permitted", "psychiatrist replies to a patient's ticket");
 
-  // Take: claims the ticket and starts work. Taking again is a no-op.
-  const [taken] = await required(lifecycle("take_support_ticket", { target_ticket_id: ticketId, actor_profile_id: admin.id }), "take ticket");
-  assert.equal(taken.out_status, "in_progress");
-  assert.equal(taken.out_assigned_to, admin.id);
-  await required(lifecycle("take_support_ticket", { target_ticket_id: ticketId, actor_profile_id: admin.id }), "take ticket again");
-  const afterTake = find(await adminList(admin.id), ticketId);
-  assert.equal(afterTake.assigned_to, admin.id);
-  assert.equal(afterTake.assigned_to_display_name, admins[0].full_name);
-  assert.equal(find(await myList(patient.id), ticketId).status_code, "in_progress", "requester can read the status");
-
-  if (secondAdmin) {
-    await rejected(lifecycle("take_support_ticket", { target_ticket_id: ticketId, actor_profile_id: secondAdmin.id }), "support_ticket_already_taken", "second admin take");
-    const [moved] = await required(lifecycle("reassign_support_ticket", { target_ticket_id: ticketId, actor_profile_id: secondAdmin.id, new_assignee_id: secondAdmin.id }), "reassign ticket");
-    assert.equal(moved.out_assigned_to, secondAdmin.id);
-    await required(lifecycle("reassign_support_ticket", { target_ticket_id: ticketId, actor_profile_id: admin.id, new_assignee_id: admin.id }), "reassign back");
-  } else {
-    console.log("note: only one synthetic admin exists, so already-taken and reassignment between admins were not exercised");
-  }
-  await rejected(lifecycle("reassign_support_ticket", { target_ticket_id: ticketId, actor_profile_id: admin.id, new_assignee_id: patient.id }), "support_ticket_not_permitted", "reassign to a non-admin");
-
-  // Status moves: allowed ones work, disallowed ones are refused, bad reasons are refused.
-  await required(lifecycle("set_support_ticket_status", { target_ticket_id: ticketId, actor_profile_id: admin.id, new_status: "awaiting_requester", change_reason_code: null }), "awaiting requester");
-  await rejected(lifecycle("set_support_ticket_status", { target_ticket_id: ticketId, actor_profile_id: admin.id, new_status: "closed", change_reason_code: "not_a_reason" }), "support_ticket_invalid_request", "bad reason code");
-  await required(lifecycle("set_support_ticket_status", { target_ticket_id: ticketId, actor_profile_id: admin.id, new_status: "resolved", change_reason_code: "requester_confirmed" }), "resolve");
+  // Allowed and disallowed status moves; bad reason codes are refused.
+  await required(setStatus(ticketId, admin.id, "in_progress"), "start work");
+  assert.equal(find(await myList(patient.id), ticketId).status_code, "in_progress", "the requester can read the status");
+  await rejected(setStatus(ticketId, admin.id, "submitted"), "support_ticket_transition_not_allowed", "back to submitted");
+  await required(setStatus(ticketId, admin.id, "awaiting_requester"), "awaiting requester");
+  await rejected(setStatus(ticketId, admin.id, "closed", "not_a_reason"), "support_ticket_invalid_request", "bad reason code");
+  await required(setStatus(ticketId, admin.id, "resolved", "requester_confirmed"), "resolve");
 
   // A requester reply on a resolved ticket is stored, does not change status, and flags the queue.
   await required(reply(ticketId, patient.id, "Synthetic reply after resolution"), "requester reply after resolution");
@@ -105,50 +85,37 @@ try {
   assert.equal(afterReply.status_code, "resolved", "a reply never changes status");
   assert.equal(afterReply.reply_after_resolution, true);
 
-  // Reopen, then close: a closed ticket accepts no replies or takes, and can be reopened.
-  await required(lifecycle("set_support_ticket_status", { target_ticket_id: ticketId, actor_profile_id: admin.id, new_status: "in_progress", change_reason_code: null }), "reopen");
-  await required(lifecycle("set_support_ticket_status", { target_ticket_id: ticketId, actor_profile_id: admin.id, new_status: "closed", change_reason_code: "other" }), "close");
+  // Reopen, then close: a closed ticket accepts no replies from anyone and can be reopened.
+  await required(setStatus(ticketId, admin.id, "in_progress"), "reopen");
+  await required(setStatus(ticketId, admin.id, "closed", "other"), "close");
   await rejected(reply(ticketId, patient.id), "support_ticket_closed", "requester reply on closed ticket");
   await rejected(reply(ticketId, admin.id), "support_ticket_closed", "admin reply on closed ticket");
-  await rejected(lifecycle("release_support_ticket", { target_ticket_id: ticketId, actor_profile_id: admin.id }), "support_ticket_closed", "release closed ticket");
-  const [reopened] = await required(lifecycle("set_support_ticket_status", { target_ticket_id: ticketId, actor_profile_id: secondAdmin?.id ?? admin.id, new_status: "in_progress", change_reason_code: null }), "reopen closed ticket");
-  assert.equal(reopened.out_assigned_to, secondAdmin?.id ?? admin.id, "the reopening admin becomes the handler");
+  await required(setStatus(ticketId, admin.id, "in_progress"), "reopen closed ticket");
 
-  // Disallowed jump, and release behavior.
+  // A disallowed jump from the start.
   const secondId = await newTicket(patient, "transitions");
-  await rejected(lifecycle("set_support_ticket_status", { target_ticket_id: secondId, actor_profile_id: admin.id, new_status: "resolved", change_reason_code: null }), "support_ticket_transition_not_allowed", "submitted straight to resolved");
-  await required(lifecycle("take_support_ticket", { target_ticket_id: secondId, actor_profile_id: admin.id }), "take second");
-  await rejected(lifecycle("set_support_ticket_status", { target_ticket_id: secondId, actor_profile_id: admin.id, new_status: "submitted", change_reason_code: null }), "support_ticket_transition_not_allowed", "set back to submitted");
-  const [released] = await required(lifecycle("release_support_ticket", { target_ticket_id: secondId, actor_profile_id: admin.id }), "release in-progress ticket");
-  assert.equal(released.out_status, "submitted");
-  assert.equal(released.out_assigned_to, null);
-  await required(lifecycle("take_support_ticket", { target_ticket_id: secondId, actor_profile_id: admin.id }), "take again");
-  await required(lifecycle("set_support_ticket_status", { target_ticket_id: secondId, actor_profile_id: admin.id, new_status: "awaiting_requester", change_reason_code: null }), "awaiting");
-  const unassignedBeforeRelease = (await counts(admin.id)).unassigned_tickets;
-  const [releasedAwaiting] = await required(lifecycle("release_support_ticket", { target_ticket_id: secondId, actor_profile_id: admin.id }), "release awaiting ticket");
-  assert.equal(releasedAwaiting.out_status, "awaiting_requester", "release keeps a non-working status");
-  assert.equal((await counts(admin.id)).unassigned_tickets, unassignedBeforeRelease + 1, "an unowned awaiting ticket is counted as unassigned");
+  await rejected(setStatus(secondId, admin.id, "resolved"), "support_ticket_transition_not_allowed", "submitted straight to resolved");
+  await required(setStatus(secondId, admin.id, "closed", "duplicate"), "close without starting work");
 
-  // Notifications are counts only and clear once the ticket is read.
+  // Notifications are a count and clear once the ticket is read, for both sides.
   const thirdId = await newTicket(patient, "notifications");
   const before = (await counts(patient.id)).unread_tickets;
   await required(reply(thirdId, admin.id, "Synthetic admin reply"), "admin reply");
   assert.equal((await counts(patient.id)).unread_tickets, before + 1, "requester is notified of the admin reply");
   assert.equal(find(await myList(patient.id), thirdId).has_unread_reply, true);
   await required(db.rpc("read_my_support_ticket", { target_ticket_id: thirdId, actor_profile_id: patient.id }), "requester reads ticket");
-  assert.equal((await counts(patient.id)).unread_tickets, before, "reading clears the notification");
+  assert.equal((await counts(patient.id)).unread_tickets, before, "reading clears the requester's notification");
   const adminBefore = (await counts(admin.id)).unread_tickets;
   await required(reply(thirdId, patient.id, "Synthetic requester reply"), "requester reply");
-  assert.equal((await counts(admin.id)).unread_tickets, adminBefore + 1, "admin side is notified of the requester reply");
-  assert.deepEqual(Object.keys((await required(db.rpc("get_support_notification_counts", { actor_profile_id: admin.id }), "count shape"))[0]).sort(), ["attention_tickets", "unassigned_tickets", "unread_tickets"], "notification data carries counts only");
+  assert.equal((await counts(admin.id)).unread_tickets, adminBefore + 1, "the admin side is notified of the requester reply");
+  assert.equal(find(await adminList(admin.id), thirdId).has_unread_reply, true);
 
-  // History is append-only and holds no message content.
+  // History records status changes only, is append-only, and holds no message content.
   const history = await required(db.from("support_ticket_history").select("*").eq("ticket_id", ticketId).order("created_at"), "load history");
-  assert.ok(history.length >= 6, "every change was recorded");
-  assert.ok(history.every((row) => !("body" in row) && !("category_code" in row)), "history carries no content");
-  // The service role holds no update or delete privilege on history, so the database refuses both
-  // before the append-only trigger (a second guard for owner roles) is reached.
-  const { error: updateError } = await db.from("support_ticket_history").update({ change_code: "taken" }).eq("id", history[0].id);
+  assert.ok(history.length >= 6, "every status change was recorded");
+  assert.ok(history.every((row) => row.change_code === "status_changed"));
+  assert.ok(history.every((row) => !("body" in row) && !("category_code" in row) && !("to_assignee" in row)), "history carries no content or owner");
+  const { error: updateError } = await db.from("support_ticket_history").update({ reason_code: "other" }).eq("id", history[0].id);
   assert.match(updateError?.message ?? "", /permission denied|support_ticket_history_is_append_only/, "history rows cannot be edited");
   const { error: deleteError } = await db.from("support_ticket_history").delete().eq("id", history[0].id);
   assert.match(deleteError?.message ?? "", /permission denied/, "history rows cannot be deleted directly");

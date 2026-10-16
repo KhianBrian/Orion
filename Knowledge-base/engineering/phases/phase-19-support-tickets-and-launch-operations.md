@@ -4,8 +4,8 @@
 Phase 15 ticket contract and the Phase 16–18 as-built behavior.
 
 **Status:** Blocked — Phase 15–18 as-built evidence plus support hours, escalation, retention,
-privacy, and exception-handling decisions are required before implementation. The ticket handler,
-admin-only status control, admin visibility, and attachments were decided on 16 October 2026
+privacy, and exception-handling decisions are required before implementation. Ticket ownership
+(none), admin-only status control, admin visibility, and attachments were decided on 16 October 2026
 (see below).
 
 ## Outcome
@@ -41,7 +41,7 @@ authorise support access.
 ## Scope
 
 - Patient-owned administrative tickets and messages through protected functions.
-- Minimal approved operations queue, assignment, reply, status, and reopen behavior.
+- Minimal approved operations queue, reply, status, and reopen behavior. No ticket ownership.
 - Approved payment reconciliation and Google Meet incident operations using prior-phase commands.
 - Independent kill switches, privacy-safe observability, rate limits, and abuse handling.
 - Approved retention, export, correction, deletion/disposal, and legal-hold processes.
@@ -61,15 +61,17 @@ authorise support access.
 
 ## Owner decisions recorded 16 October 2026
 
-- **Handler:** a ticket is handled by whichever developer is vacant (available) at the time.
+- **Ownership:** none. A ticket is not owned or assigned. Every admin sees every ticket, replies to it,
+  and resolves it. (A same-day earlier direction, that the available developer handles a ticket,
+  was withdrawn by the owners.)
 - **Status control:** ticket statuses are changeable only from the admin side. Requesters read the
   status and cannot change it.
 - **Role:** no separate support role. Developers use the existing `admin` role (confirmed).
 - **Visibility:** every admin can see every ticket in the queue. This is limited to tickets and their
   messages and attachments.
 - **Attachments:** support tickets accept file attachments, as built.
-- **Status lifecycle and assignment:** the five-status lifecycle (`submitted`, `in_progress`,
-  `awaiting_requester`, `resolved`, `closed`) and the Take-ticket assignment flow below are approved.
+- **Status lifecycle:** the five-status lifecycle (`submitted`, `in_progress`,
+  `awaiting_requester`, `resolved`, `closed`) below is approved.
 - **Notifications:** a ticket sender and the admin side are notified when a message is received.
   See "Notifications" below.
 - **Support hours, response-time wording, and escalation contacts:** the owners stated these do not
@@ -81,43 +83,35 @@ authorise implementation: the gate below still applies.
 
 ## Approved design (16 October 2026) and proposed operations plan
 
-### Status lifecycle and assignment (approved; replaces the single `submitted` status)
+### Status lifecycle (approved; replaces the single `submitted` status)
 
 | Status | Meaning | Who sets it |
 | --- | --- | --- |
-| `submitted` | New, unassigned. Set automatically on creation. | System |
-| `in_progress` | A handler has taken the ticket. | Admin |
-| `awaiting_requester` | Handler asked the requester something. | Admin |
-| `resolved` | Handler believes it is answered. | Admin |
+| `submitted` | New. Set automatically on creation. | System |
+| `in_progress` | An admin has started work. | Admin |
+| `awaiting_requester` | An admin asked the requester something. | Admin |
+| `resolved` | An admin believes it is answered. | Admin |
 | `closed` | Finished; no further replies. | Admin |
 
-- Only an admin can change status. The server checks the actor's role and an allowed-transition list;
-  the browser never decides. Reopening is an admin moving a `resolved` or `closed` ticket back to
-  `in_progress`; the reopening admin becomes the handler. A ticket released while waiting on the
-  requester keeps its status and counts as unassigned. A requester reply on a resolved ticket is stored but does not change status; the
-  admin queue marks it so a handler notices.
-- **Assignment by taking the ticket:** an available handler presses "Take ticket", which atomically
-  records them as handler and sets `in_progress`. Two people cannot take the same ticket. A handler
-  can release it back to `submitted`, and any admin can reassign it. This fits "whoever is vacant"
-  without needing an availability schedule. An optional "I'm available" indicator and automatic
-  assignment can follow later if owners want it.
-- Every status or assignment change writes an append-only history row (ticket, actor, from, to,
-  database time, optional reason code), with no message content.
+- Only an admin can change status, and any admin can change any ticket. The server checks the actor's
+  role and an allowed-transition list; the browser never decides. Reopening is an admin moving a
+  `resolved` or `closed` ticket back to `in_progress`. A requester reply on a resolved ticket is stored
+  but does not change status; the admin queue marks it so an admin notices.
+- **No ownership.** There is no taking, releasing, reassigning, or handler field. Every admin sees every
+  ticket and may reply to it or change its status.
+- Every status change writes an append-only history row (ticket, actor, from, to, database time,
+  optional reason code) with no message content.
 
 ### Notifications (approved requirement; in-app only confirmed 16 October 2026)
 
-- **Who is notified:** an admin when a requester sends a new ticket or a reply, and the requester
+- **Who is notified:** every admin when a requester sends a new ticket or a reply, and the requester
   (patient or psychiatrist) when an admin replies.
-- **Channel:** in-app only. A badge on the Support navigation item counts tickets with unread
-  messages for the signed-in person, and each ticket row shows a "new message" marker (the existing
-  unread-reply marker is the starting point). For admins, the queue also surfaces new unassigned
-  tickets and tickets where a requester replied after the ticket was resolved.
+- **Channel:** in-app only. A badge on the Support navigation item counts tickets with an unread
+  message for the signed-in person, and each ticket row shows a "New reply" marker. For admins, the
+  queue also marks tickets where a requester replied after the ticket was resolved.
 - **Content:** notifications carry only the fact that something is new, never the message text,
   category, or attachment names. This follows the P19-2 rule that support content must not appear in
   notification metadata.
-- **Who sees what:** all admins see new-ticket notifications (every admin sees every ticket). Once a
-  ticket is taken, reply notifications go to the handler, and the queue keeps the marker visible to
-  other admins so a handler who is away does not leave a reply unseen.
 - **Freshness:** the badge refreshes when the person opens or refocuses the app and on a short
   interval; live push is not required.
 - **Not included:** email, SMS, or push notifications. The support email address and email
@@ -126,14 +120,14 @@ authorise implementation: the gate below still applies.
 
 ### Operations side, in recommended order
 
-1. **Lifecycle, assignment, and history** (above). This is the core of P19-1 and P19-4.
+1. **Lifecycle and history** (above). This is the core of P19-1 and P19-4.
 2. **Safeguards (P19-2, P19-5):** rate limits on creating tickets and replies, an abuse path (an admin
    closes the ticket with a reason code), a support kill switch reusing the existing
    `system_controls` pattern, and logs that carry counts and reason codes only.
 3. **Read-only incident view for meetings (P19-3):** show an admin the privacy-safe Google Meet
    failure records and the existing Meet kill switch. No meeting identifiers or entry links.
 4. **Concern markers:** tickets with the topics `clinician_or_user_concern` or `privacy_or_data` show a
-   visible marker in the queue so the handler treats them carefully. No named escalation contact is
+   visible marker in the queue so admins treat them carefully. No named escalation contact is
    required, per the owners.
 5. **Runbooks and drills (P19-5, P19-6):** written runbooks for ticket abuse, Meet outage, privacy
    request, and security incident, then a synthetic-data drill of each kill switch.
@@ -142,7 +136,7 @@ authorise implementation: the gate below still applies.
 
 ### Open questions
 
-- None from the 16 October 2026 review. The lifecycle, assignment, and notification design are
+- None from the 16 October 2026 review. The lifecycle and notification design are
   approved. The operations-side order (safeguards, incident view, runbooks) remains a proposal.
 
 ## Required decisions and material
@@ -172,7 +166,7 @@ authorise implementation: the gate below still applies.
 - Add only forward ticket fields/status changes required by the approved lifecycle.
 - Implement protected commands for patient create, own-list/detail, approved reply, close, and reopen
   behavior; derive patient ownership and actor server-side.
-- Implement operator queue/detail/assignment/reply/status commands returning the minimum approved
+- Implement operator queue/detail/reply/status commands returning the minimum approved
   projection.
 - Keep messages append-only where evidence requires it; prohibit direct table mutation and hard
   deletion outside the approved retention process.
@@ -205,7 +199,7 @@ authorise implementation: the gate below still applies.
 ### P19-4 — Patient and operations surfaces
 
 - Add patient ticket create/list/detail/status and only the approved reply/reopen actions.
-- Add the smallest approved operations queue, filters, detail, assignment, response, and state actions,
+- Add the smallest approved operations queue, filters, detail, response, and state actions,
   plus the in-app message notifications described above.
 - Add payment/meeting exception surfaces only for approved commands and projections from Phase 17/18.
 - Keep clinical notes, guardian evidence, raw provider data, broad profile browsing, and direct state

@@ -16,10 +16,6 @@ export function useSupportNotifications() {
     refetchInterval: refreshMilliseconds,
     refetchOnWindowFocus: true,
   });
-  // The database counts each ticket once, even when it is both unread and unassigned.
-  return {
-    unread: query.data?.unreadTickets ?? 0,
-    unassigned: profile?.role === "admin" ? query.data?.unassignedTickets ?? 0 : 0,
-    total: query.data?.attentionTickets ?? 0,
-  };
+  // A number of tickets with a message not yet read. No ticket text or category is involved.
+  return { unread: query.data?.unreadTickets ?? 0, total: query.data?.unreadTickets ?? 0 };
 }

@@ -33,12 +33,11 @@ export function supportStatusOptionLabel(from, to) {
   return supportStatusLabel(to);
 }
 
-// Topics that show a marker in the admin queue so the handler treats them with extra care.
+// Topics that show a marker in the admin queue so admins treat them with extra care.
 export const isSensitiveTopic = (categoryCode) => categoryCode === "clinician_or_user_concern" || categoryCode === "privacy_or_data";
 
 export function supportLifecycleErrorMessage(error) {
   const code = error?.context?.error ?? error?.code ?? "";
-  if (code === "support_ticket_already_taken") return "Another admin has already taken this ticket.";
   if (code === "support_ticket_closed") return "This ticket is closed. Reopen it to continue.";
   if (code === "support_ticket_transition_not_allowed") return "That status change is not allowed from the current status.";
   return "The ticket could not be updated. Please try again.";
