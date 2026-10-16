@@ -26,8 +26,8 @@
   },
   "19": {
     "title": "Support tickets and launch operations",
-    "status": "Planned — implementation blocked",
-    "summary": "Depends on Phase 15–18 as-built evidence plus support, operations, retention, privacy, finance, and provider decisions."
+    "status": "In progress — support ticket lifecycle slice built; remaining items blocked",
+    "summary": "First slice built on branch codex/phase-19-support-lifecycle and verified against the demo project: admin-only statuses, take/release/reassign, append-only history, and in-app notifications. Rate limits, kill switch, incident view, runbooks, retention, and payment exceptions remain blocked on Phase 17 and DPO/legal decisions."
   },
   "20": {
     "title": "Integrated launch verification and controlled release",

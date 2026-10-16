@@ -24,6 +24,19 @@ async function signedAttachments(client: ReturnType<typeof serviceClient>, ticke
   return attachments;
 }
 
+const ticketStatuses = ["in_progress", "awaiting_requester", "resolved", "closed"];
+const statusReasonCodes = ["abuse", "duplicate", "requester_confirmed", "other"];
+
+// Lifecycle commands return generic, content-free error codes.
+function lifecycleError(error: { message?: string } | null) {
+  const message = error?.message ?? "";
+  if (message.includes("support_ticket_already_taken")) return response({ error: "support_ticket_already_taken" }, 409);
+  if (message.includes("support_ticket_closed")) return response({ error: "support_ticket_closed" }, 409);
+  if (message.includes("support_ticket_transition_not_allowed")) return response({ error: "support_ticket_transition_not_allowed" }, 409);
+  if (message.includes("support_ticket_invalid_request")) return response({ error: "invalid_request" }, 400);
+  return response({ error: "support_ticket_not_permitted" }, 403);
+}
+
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (request.method !== "POST") return response({ error: "method_not_allowed" }, 405);
@@ -73,6 +86,51 @@ Deno.serve(async (request) => {
       return response({ tickets: data ?? [], role });
     }
     return response({ error: "support_ticket_not_permitted" }, 403);
+  }
+
+  if (payload.action === "notifications") {
+    if (!(["patient", "psychiatrist", "admin"] as string[]).includes(role ?? "")) return response({ error: "support_ticket_not_permitted" }, 403);
+    const { data, error } = await client.rpc("get_support_notification_counts", { actor_profile_id: actorId });
+    if (error) return response({ error: "support_ticket_not_permitted" }, 403);
+    return response({
+      unreadTickets: data?.[0]?.unread_tickets ?? 0,
+      unassignedTickets: data?.[0]?.unassigned_tickets ?? 0,
+      attentionTickets: data?.[0]?.attention_tickets ?? 0,
+    });
+  }
+
+  // Status and assignment are admin-only. The database re-checks the role and the allowed moves.
+  if (["take", "release", "reassign", "set-status", "handlers"].includes(payload.action)) {
+    if (role !== "admin") return response({ error: "support_ticket_not_permitted" }, 403);
+
+    if (payload.action === "handlers") {
+      const { data, error } = await client.rpc("list_support_handlers", { actor_profile_id: actorId });
+      if (error) return response({ error: "support_ticket_not_permitted" }, 403);
+      return response({ handlers: data ?? [] });
+    }
+
+    if (typeof payload.ticketId !== "string" || !uuidPattern.test(payload.ticketId)) return response({ error: "invalid_request" }, 400);
+    const base = { target_ticket_id: payload.ticketId, actor_profile_id: actorId };
+
+    if (payload.action === "take" || payload.action === "release") {
+      const { data, error } = await client.rpc(payload.action === "take" ? "take_support_ticket" : "release_support_ticket", base);
+      if (error) return lifecycleError(error);
+      return response({ ticket: data?.[0] ?? null });
+    }
+    if (payload.action === "reassign") {
+      if (typeof payload.assigneeId !== "string" || !uuidPattern.test(payload.assigneeId)) return response({ error: "invalid_request" }, 400);
+      const { data, error } = await client.rpc("reassign_support_ticket", { ...base, new_assignee_id: payload.assigneeId });
+      if (error) return lifecycleError(error);
+      return response({ ticket: data?.[0] ?? null });
+    }
+    if (typeof payload.status !== "string" || !ticketStatuses.includes(payload.status)
+      || (payload.reasonCode !== undefined && payload.reasonCode !== null
+        && (typeof payload.reasonCode !== "string" || !statusReasonCodes.includes(payload.reasonCode)))) {
+      return response({ error: "invalid_request" }, 400);
+    }
+    const { data, error } = await client.rpc("set_support_ticket_status", { ...base, new_status: payload.status, change_reason_code: payload.reasonCode ?? null });
+    if (error) return lifecycleError(error);
+    return response({ ticket: data?.[0] ?? null });
   }
 
   if (payload.action === "prepare-upload" && typeof payload.ticketId === "string"
@@ -143,7 +201,7 @@ Deno.serve(async (request) => {
       request_id: payload.idempotencyKey,
       message_body: payload.body,
     });
-    if (error) return response({ error: "support_ticket_not_permitted" }, 403);
+    if (error) return lifecycleError(error);
     return response({ message: data?.[0] ?? null }, 201);
   }
 

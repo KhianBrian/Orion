@@ -25,6 +25,7 @@ This folder contains dated records of completed audits and implementation passes
 | [2026-09-16 Phase 18 Google Meet Free-Gmail POC](2026-09-16-phase-18-google-meet-free-gmail-poc.md) | Non-production Google Meet API/OAuth feasibility evidence, including guest admission and conference-end recovery limits. |
 | [2026-09-19 Phase 18.5 Direct WebRTC + TURN](20260919-phase-18.5-direct-webrtc-turn-audit.md) | Direct WebRTC control plane, protected admission, signaling boundary, TURN credential boundary, UI, local/linked database verification, and remaining runtime launch gates. |
 | [2026-09-20 patient workspace and support reconciliation](2026-09-20-patient-support-reconciliation-audit.md) | Patient workspace/session-note presentation, topic-driven support intake, private support attachments, linked migration reconciliation, and verification limits. |
+| [2026-10-16 Phase 19 support lifecycle (first slice)](20261016-phase-19-support-lifecycle-audit.md) | Admin-only ticket statuses, take/release/reassign, append-only history, in-app notifications, review findings, and exact test evidence. |
 
 Read an audit when you need to understand why an existing UI or file looks the way it does, what was already verified, or which limitations remain open. When an audit conflicts with current product scope or architecture, the current parent document wins.
 

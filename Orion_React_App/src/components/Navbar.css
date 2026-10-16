@@ -39,3 +39,6 @@
   .app-brand { align-self: flex-start; }
   .app-navigation { padding-bottom: .25rem; }
 }
+
+.nav-badge { align-items: center; background: var(--color-bronze, #b9783a); border-radius: 999px; color: #fff; display: inline-flex; font-size: .75rem; font-weight: 800; justify-content: center; line-height: 1; margin-left: .4rem; min-width: 1.35rem; padding: .22rem .42rem; }
+.visually-hidden { border: 0; clip: rect(0 0 0 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; white-space: nowrap; width: 1px; }

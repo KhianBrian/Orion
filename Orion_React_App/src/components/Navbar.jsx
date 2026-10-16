@@ -1,11 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { getRoleNavigation, ROUTES } from "../constants/routes";
 import { useAuth } from "../features/auth/authContext";
+import { useSupportNotifications } from "../features/support/useSupportNotifications";
 import "./Navbar.css";
 
 const Navbar = ({ showSignIn = true }) => {
   const { ability, profile, signOut, status } = useAuth();
   const navigate = useNavigate();
+  const supportNotifications = useSupportNotifications();
   const accountLinks = getRoleNavigation(profile?.role).filter(({ subject }) => ability.can("visit", subject));
   const isSignedIn = status === "signedIn";
   const brandDestination = isSignedIn ? ROUTES.APP : "/home";
@@ -25,7 +27,7 @@ const Navbar = ({ showSignIn = true }) => {
       <nav aria-label={isSignedIn ? "Account navigation" : "Public navigation"} className="app-navigation">
         {isSignedIn ? <>
           <Link to={ROUTES.APP}>Account</Link>
-          {accountLinks.map(({ label, path }) => <Link key={path} to={path}>{label}</Link>)}
+          {accountLinks.map(({ label, path }) => <Link key={path} to={path}>{label}{path === ROUTES.SUPPORT && supportNotifications.total > 0 && <span className="nav-badge" data-testid="support-notification-badge">{supportNotifications.total}<span className="visually-hidden"> support updates waiting</span></span>}</Link>)}
           <button type="button" onClick={handleSignOut} className="app-sign-out">Sign out</button>
         </> : <>
           <Link to="/home">Home</Link>

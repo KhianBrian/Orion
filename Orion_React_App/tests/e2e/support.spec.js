@@ -62,9 +62,9 @@ test.describe("administrative support tickets", () => {
   test("a patient submits and reads an administrative ticket", async ({ page }, testInfo) => {
     await signIn(page, syntheticUsers[testInfo.project.name].patient);
     await page.goto("/support");
-    await expect(page.getByRole("heading", { name: "Support" })).toBeVisible();
-    await expect(page.getByText("Orion support is not an emergency service.")).toBeVisible();
-    await page.getByLabel("How can we help?").fill(sentinel);
+    await expect(page.getByRole("heading", { name: "Support", exact: true })).toBeVisible();
+    await expect(page.getByText("If there is immediate danger, contact local emergency services.")).toBeVisible();
+    await page.getByLabel("Tell us what happened").fill(sentinel);
     await page.getByRole("button", { name: "Submit ticket" }).click();
     await expect(page.getByText("Your support ticket was submitted.")).toBeVisible();
     const tickets = await required(service.from("support_tickets").select("id").eq("requester_id", patientId).order("created_at", { ascending: false }).limit(1), "load created support ticket");
@@ -77,8 +77,8 @@ test.describe("administrative support tickets", () => {
   test("a psychiatrist can submit and read a support issue", async ({ page }, testInfo) => {
     await signIn(page, syntheticUsers[testInfo.project.name].psychiatrist);
     await page.goto("/support");
-    await expect(page.getByRole("heading", { name: "Support" })).toBeVisible();
-    await page.getByLabel("How can we help?").fill(psychiatristSentinel);
+    await expect(page.getByRole("heading", { name: "Support", exact: true })).toBeVisible();
+    await page.getByLabel("Tell us what happened").fill(psychiatristSentinel);
     await page.getByRole("button", { name: "Submit ticket" }).click();
     await expect(page.getByText("Your support ticket was submitted.")).toBeVisible();
     const tickets = await required(service.from("support_tickets").select("id").eq("requester_id", psychiatristId).order("created_at", { ascending: false }).limit(1), "load created psychiatrist support ticket");
@@ -108,6 +108,56 @@ test.describe("administrative support tickets", () => {
     await patientPage.locator(".support-ticket-row").first().click();
     await expect(patientPage.getByText(adminReply)).toBeVisible();
     await patientPage.close();
+    await assertNoSeriousViolations(page);
+  });
+  test("an administrator takes a ticket and changes its status while the requester only reads it", async ({ page, browser }, testInfo) => {
+    test.setTimeout(120_000);
+    await signIn(page, { email: "admin@demo.orion.invalid", password: process.env.DEMO_SHARED_PASSWORD || process.env.DEMO_ADMIN_PASSWORD });
+    await page.goto("/support");
+    const patientName = testInfo.project.name === "chromium" ? "Alex Reyes" : "Sam Cruz";
+    await page.locator(".support-ticket-row").filter({ hasText: `Requester: ${patientName}` }).last().click();
+    await expect(page.getByText(sentinel)).toBeVisible();
+
+    await page.getByRole("button", { name: "Take ticket" }).click();
+    await expect(page.getByText("The ticket was updated.")).toBeVisible();
+    await expect(page.locator(".support-admin__summary")).toContainText("In progress");
+    await expect(page.getByRole("button", { name: "Release ticket" })).toBeVisible();
+
+    const followUp = `Synthetic follow-up ${crypto.randomUUID()}`;
+    await page.getByLabel("Reply to this ticket").fill(followUp);
+    await page.getByRole("button", { name: "Send reply" }).click();
+    await expect(page.getByText(followUp)).toBeVisible();
+    await page.getByLabel("Change status").selectOption("resolved");
+    await page.getByRole("button", { name: "Update status" }).click();
+    await expect(page.locator(".support-admin__summary")).toContainText("Resolved");
+
+    // The requester is notified in-app, reads the status, and has no handling controls.
+    const patientPage = await browser.newPage();
+    await signIn(patientPage, syntheticUsers[testInfo.project.name].patient);
+    await patientPage.goto("/support");
+    await expect(patientPage.getByTestId("support-notification-badge")).toBeVisible();
+    await patientPage.locator(".support-ticket-row").first().click();
+    await expect(patientPage.getByText(followUp)).toBeVisible();
+    await expect(patientPage.locator(".support-thread__status")).toContainText("Resolved");
+    await expect(patientPage.getByRole("button", { name: "Take ticket" })).toHaveCount(0);
+    await expect(patientPage.getByLabel("Change status")).toHaveCount(0);
+    await expect(patientPage.getByTestId("support-notification-badge")).toHaveCount(0);
+
+    // A closed ticket accepts no replies from either side.
+    await page.getByLabel("Change status").selectOption("closed");
+    await page.getByRole("button", { name: "Update status" }).click();
+    await expect(page.locator(".support-admin__summary")).toContainText("Closed");
+    await expect(page.getByLabel("Reply to this ticket")).toHaveCount(0);
+    await patientPage.reload();
+    await patientPage.locator(".support-ticket-row").first().click();
+    await expect(patientPage.getByText("This ticket is closed.")).toBeVisible();
+    await expect(patientPage.getByLabel("Reply to this ticket")).toHaveCount(0);
+    await patientPage.close();
+
+    // Reopening is an admin action only.
+    await page.getByLabel("Change status").selectOption("in_progress");
+    await page.getByRole("button", { name: "Update status" }).click();
+    await expect(page.locator(".support-admin__summary")).toContainText("In progress");
     await assertNoSeriousViolations(page);
   });
 });

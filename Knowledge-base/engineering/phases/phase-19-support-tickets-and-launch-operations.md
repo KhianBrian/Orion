@@ -93,7 +93,8 @@ authorise implementation: the gate below still applies.
 
 - Only an admin can change status. The server checks the actor's role and an allowed-transition list;
   the browser never decides. Reopening is an admin moving a `resolved` or `closed` ticket back to
-  `in_progress`. A requester reply on a resolved ticket is stored but does not change status; the
+  `in_progress`; the reopening admin becomes the handler. A ticket released while waiting on the
+  requester keeps its status and counts as unassigned. A requester reply on a resolved ticket is stored but does not change status; the
   admin queue marks it so a handler notices.
 - **Assignment by taking the ticket:** an available handler presses "Take ticket", which atomically
   records them as handler and sets `in_progress`. Two people cannot take the same ticket. A handler
