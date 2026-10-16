@@ -95,7 +95,7 @@ export default function PatientAppointment() {
     } catch (mutationError) {
       const code = await errorCode(mutationError);
       if (code === "slot_unavailable") {
-        setMessage({ kind: "conflict", text: "This slot is no longer available. Please choose another time." });
+        setMessage({ kind: "conflict", text: "That time was just booked by someone else. Please choose another time." });
         setSelectedSlot(null);
         setRequestId(null);
         await client.invalidateQueries({ queryKey: patientAvailabilityQueryKey(selectedPsychiatrist.id, selectedDate) });
@@ -114,7 +114,7 @@ export default function PatientAppointment() {
         await rescheduleMutation.mutateAsync({ appointmentId: rescheduleAppointmentId, slotId: selectedSlot.id, idempotencyKey: requestId });
       } catch (mutationError) {
         const code = await appointmentErrorCode(mutationError);
-        setMessage({ kind: "error", text: code === "slot_unavailable" ? "That time was just taken. Please choose another time." : "We could not request this change. Please try again." });
+        setMessage({ kind: "error", text: code === "slot_unavailable" ? "That time was just booked by someone else. Please choose another time." : "We could not request this change. Please try again." });
         setSelectedSlot(null);
         setRequestId(null);
         await client.invalidateQueries({ queryKey: patientAvailabilityQueryKey(selectedPsychiatrist.id, selectedDate) });

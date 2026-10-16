@@ -335,4 +335,51 @@ test.describe("database-backed scheduling", () => {
       await removeIsolatedSlot(slot);
     }
   });
+  for (const mode of ["the same slot", "an overlapping slot"]) {
+    test(`a patient who loses a race for ${mode} sees a clear message`, async ({ page }, testInfo) => {
+      test.setTimeout(90_000);
+      const users = syntheticUsers[testInfo.project.name];
+      const otherProject = testInfo.project.name === "chromium" ? "mobile-chrome" : "chromium";
+      const authUsers = await required(service.auth.admin.listUsers({ page: 1, perPage: 1000 }), "load synthetic users for the booking race");
+      const rival = authUsers.users.find((user) => user.email === syntheticUsers[otherProject].patient.email);
+      if (!rival) throw new Error("the rival synthetic patient is missing");
+      let slot;
+      let rivalSlotId;
+      try {
+        slot = await createIsolatedSlot(users.psychiatrist.email, testInfo.project.name, 8 * 24, 5);
+        await signIn(page, users.patient.email, users.patient.password);
+        await page.getByRole("main").getByRole("link", { name: "Book an appointment" }).click();
+        const psychiatristSlot = await chooseAvailableTime(page, users.psychiatrist.displayName, slot);
+        await psychiatristSlot.getByRole("button", { name: "Choose this time" }).click();
+        await expect(page.getByRole("button", { name: "Confirm booking" })).toBeVisible();
+
+        // While the confirmation dialog is open, a different patient books first.
+        rivalSlotId = slot.id;
+        if (mode === "an overlapping slot") {
+          const original = await required(service.from("availability_slots").select("psychiatrist_id, starts_at").eq("id", slot.id).single(), "load the slot being raced for");
+          // 15 minutes earlier, so the overlapping slot stays inside the 08:00-17:00 working hours.
+          const later = new Date(new Date(original.starts_at).getTime() - 15 * 60 * 1000);
+          const created = await required(service.from("availability_slots").insert({
+            psychiatrist_id: original.psychiatrist_id,
+            starts_at: later.toISOString(),
+            ends_at: new Date(later.getTime() + 45 * 60 * 1000).toISOString(),
+            status: "open",
+          }).select("id").single(), "create the overlapping slot");
+          rivalSlotId = created.id;
+        }
+        await required(service.rpc("book_appointment_for_patient", {
+          requested_slot_id: rivalSlotId, request_id: crypto.randomUUID(), actor_profile_id: rival.id,
+        }), "the rival patient books first");
+
+        await page.getByRole("button", { name: "Confirm booking" }).click();
+        await expect(page.getByText("That time was just booked by someone else. Please choose another time.")).toBeVisible();
+        await expect(page.getByRole("heading", { name: "You’re all set." })).toHaveCount(0);
+        const mine = await required(service.from("appointments").select("id").eq("slot_id", slot.id), "load appointments for the raced slot");
+        expect(mine.length).toBe(mode === "the same slot" ? 1 : 0);
+      } finally {
+        if (rivalSlotId && rivalSlotId !== slot?.id) await removeIsolatedSlot({ id: rivalSlotId });
+        await removeIsolatedSlot(slot);
+      }
+    });
+  }
 });

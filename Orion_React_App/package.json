@@ -19,6 +19,7 @@
     "test:e2e:authenticated": "RUN_SCHEDULING_E2E=1 playwright test tests/e2e/scheduling.spec.js",
     "test:db:booking": "node scripts/test-booking-db.mjs",
     "test:db:cancellation": "node scripts/test-cancellation-db.mjs",
+    "test:db:booking-conflict": "node scripts/test-booking-conflict-db.mjs",
     "test:db:rls": "node scripts/test-rls-db.mjs",
     "test:db:phase2": "node scripts/test-phase2-db.mjs",
     "test:db:phase4": "node scripts/test-phase4-db.mjs",
