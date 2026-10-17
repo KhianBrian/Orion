@@ -1,0 +1,3 @@
+/* Outcome buttons signal their result on hover/focus: green for completed, red for no-show. */
+.outcome-action--complete.ui-button:hover:not(:disabled), .outcome-action--complete.ui-button:focus-visible { background: var(--color-success); border-color: var(--color-success); color: #fff; }
+.outcome-action--no-show.ui-button:hover:not(:disabled), .outcome-action--no-show.ui-button:focus-visible { background: var(--color-danger); border-color: var(--color-danger); color: #fff; }
