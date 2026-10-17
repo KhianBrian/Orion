@@ -13,13 +13,13 @@ import AccountHome from "../pages/AccountHome";
 import Appointments from "../pages/Appointments";
 import PatientAppointment from "../pages/PatientAppointment";
 import AdminAppointments from "../pages/AdminAppointments";
-import PsychiatristSchedule from "../pages/PsychiatristSchedule";
 import AdminSchedules from "../pages/AdminSchedules";
 import SupportTickets from "../pages/SupportTickets";
 import { RequireAbility, RequireAuth } from "../features/auth/RouteGuards";
 import { AuthenticatedShell } from "../features/auth/AuthenticatedShell";
 import { ROUTES, SUBJECTS } from "../constants/routes";
 
+const PsychiatristSchedule = lazy(() => import("../pages/PsychiatristSchedule"));
 const GoogleMeeting = lazy(() => import("../pages/GoogleMeeting"));
 const DirectMeeting = lazy(() => import("../pages/DirectMeeting"));
 // Lazy-loaded: admin-only, not needed in the everyday patient/psychiatrist bundle.
