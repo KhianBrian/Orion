@@ -5,7 +5,7 @@ import { useAuth } from "../features/auth/authContext";
 import { Button, ButtonLink } from "../components/ui/Button";
 import { StatusMessage } from "../components/ui/StatusMessage";
 import { SessionNoteDialog } from "../features/appointments/components/SessionNoteDialog";
-import { appointmentQueryKey, fetchAdminAppointments, fetchAdminSchedules, fetchAppointments, fetchSessionNoteIndex, sessionNotesQueryKey } from "../features/appointments/queries";
+import { appointmentQueryKey, careJournalQueryKey, fetchAdminAppointments, fetchAdminSchedules, fetchAwaitingOutcomeOn, fetchCareJournal, fetchSessionNoteIndex, fetchUpcomingAppointments, sessionNotesQueryKey, todayAwaitingOutcomeQueryKey, upcomingAppointmentsQueryKey } from "../features/appointments/queries";
 import { fetchSupportTickets, supportTicketsQueryKey } from "../features/support/queries";
 import "./AccountHome.css";
 
@@ -28,23 +28,24 @@ function LoadingBlock({ label }) {
 
 function PatientDashboard({ profile }) {
   const [selectedNote, setSelectedNote] = useState(null);
-  const appointmentsQuery = useQuery({ queryKey: appointmentQueryKey(profile.id), queryFn: fetchAppointments });
+  const upcomingQuery = useQuery({ queryKey: upcomingAppointmentsQueryKey(profile.id), queryFn: fetchUpcomingAppointments });
+  const journalQuery = useQuery({ queryKey: careJournalQueryKey(profile.id), queryFn: fetchCareJournal });
   const notesQuery = useQuery({ queryKey: sessionNotesQueryKey(profile.id), queryFn: fetchSessionNoteIndex, retry: 1 });
-  const appointments = appointmentsQuery.data || [];
   const noteByAppointment = useMemo(() => new Map((notesQuery.data || []).map((note) => [note.appointment_id, note])), [notesQuery.data]);
-  const completedSessions = sortByStart(appointments.filter((appointment) => appointment.status === "completed" && new Date(appointment.ends_at) < new Date()));
-  const nextAppointment = sortByStart(appointments.filter((appointment) => appointment.status === "booked" && new Date(appointment.ends_at) >= new Date()))[0];
+  const completedSessions = journalQuery.data?.rows || [];
+  const completedTotal = journalQuery.data?.total || 0;
+  const nextAppointment = (upcomingQuery.data || []).find((appointment) => new Date(appointment.ends_at) >= new Date());
 
   return <div className="account-role-dashboard">
     <section className="account-widget account-widget--next" aria-labelledby="next-appointment-title">
       <div className="account-widget__header"><div><h2 id="next-appointment-title">Next appointment</h2></div><span className="account-widget__status">{nextAppointment ? "Confirmed" : "Open"}</span></div>
-      {appointmentsQuery.isPending ? <LoadingBlock label="Loading your appointments…" /> : appointmentsQuery.error ? <StatusMessage tone="error">We could not load your next appointment.</StatusMessage> : nextAppointment ? <div className="next-appointment"><div className="next-appointment__date"><strong>{manilaDate.format(new Date(nextAppointment.starts_at))}</strong><span>{manilaTime.format(new Date(nextAppointment.starts_at))}–{manilaTime.format(new Date(nextAppointment.ends_at))}</span></div><div><h3>{nextAppointment.counterpart_display_name || "Assigned psychiatrist"}</h3><p>45-minute session · Manila time</p></div><ButtonLink to="/appointments">View details <span aria-hidden="true">→</span></ButtonLink></div> : <div className="account-widget__empty"><p>You do not have an upcoming appointment yet.</p><ButtonLink to="/patient-appointment">Find a time that works <span aria-hidden="true">→</span></ButtonLink></div>}
+      {upcomingQuery.isPending ? <LoadingBlock label="Loading your appointments…" /> : upcomingQuery.error ? <StatusMessage tone="error">We could not load your next appointment.</StatusMessage> : nextAppointment ? <div className="next-appointment"><div className="next-appointment__date"><strong>{manilaDate.format(new Date(nextAppointment.starts_at))}</strong><span>{manilaTime.format(new Date(nextAppointment.starts_at))}–{manilaTime.format(new Date(nextAppointment.ends_at))}</span></div><div><h3>{nextAppointment.counterpart_display_name || "Assigned psychiatrist"}</h3><p>45-minute session · Manila time</p></div><ButtonLink to="/appointments">View details <span aria-hidden="true">→</span></ButtonLink></div> : <div className="account-widget__empty"><p>You do not have an upcoming appointment yet.</p><ButtonLink to="/patient-appointment">Find a time that works <span aria-hidden="true">→</span></ButtonLink></div>}
     </section>
     <section className="account-widget account-widget--record" aria-labelledby="prior-sessions-title">
-      <div className="account-widget__header"><div><h2 id="prior-sessions-title">Care journal</h2><p className="account-widget__lede">A private timeline of completed sessions and notes your psychiatrist has released to you.</p></div><span className="account-widget__count">{completedSessions.length} session{completedSessions.length === 1 ? "" : "s"}</span></div>
-      {appointmentsQuery.isPending ? <LoadingBlock label="Loading your session history…" /> : appointmentsQuery.error ? <StatusMessage tone="error">Session history could not be loaded. Please try again from Appointments.</StatusMessage> : completedSessions.length ? <>
+      <div className="account-widget__header"><div><h2 id="prior-sessions-title">Care journal</h2><p className="account-widget__lede">A private timeline of completed sessions and notes your psychiatrist has released to you.</p></div><span className="account-widget__count">{completedTotal} session{completedTotal === 1 ? "" : "s"}</span></div>
+      {journalQuery.isPending ? <LoadingBlock label="Loading your session history…" /> : journalQuery.error ? <StatusMessage tone="error">Session history could not be loaded. Please try again from Appointments.</StatusMessage> : completedSessions.length ? <>
         {notesQuery.error && <div className="note-index-warning" role="status"><span>Notes are temporarily unavailable.</span><Button variant="quiet" onClick={() => notesQuery.refetch()} busy={notesQuery.isFetching}>Try again</Button></div>}
-        <div className="prior-session-list">{completedSessions.slice(-4).reverse().map((session, index) => { const note = noteByAppointment.get(session.id); return <article className="prior-session" key={session.id}><div className="prior-session__marker" aria-hidden="true">{String(completedSessions.length - index).padStart(2, "0")}</div><div className="prior-session__details"><strong>{manilaDate.format(new Date(session.starts_at))}</strong><span>{manilaTime.format(new Date(session.starts_at))} · {session.counterpart_display_name || "Psychiatrist"}</span></div>{note ? <Button variant="quiet" onClick={() => setSelectedNote(session)}>Read note <span aria-hidden="true">→</span></Button> : <span className="prior-session__muted">{notesQuery.error ? "Note unavailable" : "No released note"}</span>}</article>; })}</div>
+        <div className="prior-session-list">{completedSessions.map((session, index) => { const note = noteByAppointment.get(session.id); return <article className="prior-session" key={session.id}><div className="prior-session__marker" aria-hidden="true">{String(completedTotal - index).padStart(2, "0")}</div><div className="prior-session__details"><strong>{manilaDate.format(new Date(session.starts_at))}</strong><span>{manilaTime.format(new Date(session.starts_at))} · {session.counterpart_display_name || "Psychiatrist"}</span></div>{note ? <Button variant="quiet" onClick={() => setSelectedNote(session)}>Read note <span aria-hidden="true">→</span></Button> : <span className="prior-session__muted">{notesQuery.error ? "Note unavailable" : "No released note"}</span>}</article>; })}</div>
       </> : <div className="account-widget__empty"><p>Completed sessions and released notes will appear here.</p><ButtonLink variant="quiet" to="/appointments">View appointment history <span aria-hidden="true">→</span></ButtonLink></div>}
     </section>
     <section className="account-widget account-widget--preparation" aria-labelledby="preparation-title"><div className="account-widget__header"><div><h2 id="preparation-title">A few useful reminders</h2></div><span aria-hidden="true" className="account-widget__icon">✦</span></div><ul className="preparation-list"><li>Check the appointment time in Manila time.</li><li>Choose a private, comfortable place for your session.</li><li>Use Support for account or scheduling questions.</li></ul></section>
@@ -53,9 +54,13 @@ function PatientDashboard({ profile }) {
 }
 
 function PsychiatristDashboard({ profile }) {
-  const query = useQuery({ queryKey: appointmentQueryKey(profile.id), queryFn: fetchAppointments });
-  const sessions = sortByStart((query.data || []).filter((appointment) => appointment.status === "booked" && isToday(appointment.starts_at)));
-  const upcoming = sortByStart((query.data || []).filter((appointment) => appointment.status === "booked" && new Date(appointment.ends_at) >= new Date()));
+  const today = manilaDay.format(new Date());
+  const upcomingQuery = useQuery({ queryKey: upcomingAppointmentsQueryKey(profile.id), queryFn: fetchUpcomingAppointments });
+  // Sessions that already ended today but are still waiting for an outcome stay on today's list, as before.
+  const endedQuery = useQuery({ queryKey: todayAwaitingOutcomeQueryKey(profile.id, today), queryFn: () => fetchAwaitingOutcomeOn(today) });
+  const query = { isPending: upcomingQuery.isPending || endedQuery.isPending, error: upcomingQuery.error || endedQuery.error };
+  const upcoming = sortByStart(upcomingQuery.data || []);
+  const sessions = sortByStart([...(endedQuery.data?.rows || []), ...upcoming.filter((appointment) => isToday(appointment.starts_at))]);
   const visibleSessions = sessions.length ? sessions : upcoming.slice(0, 4);
 
   return <div className="account-role-dashboard">

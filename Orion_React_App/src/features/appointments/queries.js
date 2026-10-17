@@ -4,6 +4,8 @@ export const appointmentQueryKey = (accountId) => ["appointments", accountId];
 export const upcomingAppointmentsQueryKey = (accountId) => ["appointments", accountId, "upcoming"];
 export const appointmentCountsQueryKey = (accountId) => ["appointments", accountId, "counts"];
 export const historyQueryKey = (accountId, args) => ["appointments", accountId, "history", args];
+export const careJournalQueryKey = (accountId) => ["appointments", accountId, "care-journal"];
+export const todayAwaitingOutcomeQueryKey = (accountId, day) => ["appointments", accountId, "today-awaiting-outcome", day];
 export const rescheduleRequestQueryKey = (accountId) => ["reschedule-requests", accountId];
 export const sessionNotesQueryKey = (accountId) => ["session-notes", accountId];
 export const psychiatristsQueryKey = ["psychiatrists", "active"];
@@ -43,6 +45,16 @@ export async function fetchHistoryPage({ args, cursor, pageSize }) {
   if (error) throw error;
   const rows = data || [];
   return { rows, total: rows.length ? Number(rows[0].total_count) : 0 };
+}
+
+// The four most recent completed sessions plus the total number of completed sessions (patient home).
+export function fetchCareJournal() {
+  return fetchHistoryPage({ args: { searchText: "", fromDate: "", toDate: "", status: "completed" }, cursor: null, pageSize: 4 });
+}
+
+// Sessions from one Manila day that are still marked booked after they ended and need an outcome (psychiatrist home).
+export function fetchAwaitingOutcomeOn(day) {
+  return fetchHistoryPage({ args: { searchText: "", fromDate: day, toDate: day, status: "booked" }, cursor: null, pageSize: 50 });
 }
 
 export async function fetchAdminAppointments() {

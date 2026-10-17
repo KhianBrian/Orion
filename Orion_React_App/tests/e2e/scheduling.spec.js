@@ -311,6 +311,73 @@ test.describe("database-backed scheduling", () => {
     }
   });
 
+  test("a psychiatrist can page, filter and search a long appointment history", async ({ page }, testInfo) => {
+    test.setTimeout(120_000);
+    const users = syntheticUsers[testInfo.project.name];
+    const { data: authUsers, error: authError } = await service.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    if (authError) throw new Error(`load synthetic users: ${authError.message}`);
+    const idFor = (email) => authUsers.users.find((user) => user.email === email)?.id;
+    const patientProfile = await required(service.from("profiles").select("id, full_name").eq("id", idFor(users.patient.email)).single(), "load synthetic patient");
+    const psychiatrist = await required(service.from("psychiatrists").select("id").eq("profile_id", idFor(users.psychiatrist.email)).single(), "load synthetic psychiatrist");
+    // 27 past sessions, one per day starting about 14 months back so they never touch real demo data: enough for a second page.
+    const day = 86400000;
+    const base = new Date(Date.now() - 430 * day);
+    base.setUTCHours(2, 0, 1, 0);
+    const slotIds = [];
+    const appointmentIds = [];
+    try {
+      for (let index = 0; index < 27; index += 1) {
+        const start = new Date(base.getTime() + index * day);
+        const end = new Date(start.getTime() + 45 * 60 * 1000);
+        const slotId = crypto.randomUUID();
+        const appointmentId = crypto.randomUUID();
+        const cancelled = index % 3 === 0;
+        await required(service.from("availability_slots").insert({ id: slotId, psychiatrist_id: psychiatrist.id, starts_at: start.toISOString(), ends_at: end.toISOString(), status: "booked" }), "create history slot");
+        slotIds.push(slotId);
+        await required(service.from("appointments").insert({
+          id: appointmentId, patient_id: patientProfile.id, psychiatrist_id: psychiatrist.id, slot_id: slotId,
+          starts_at: start.toISOString(), ends_at: end.toISOString(), status: cancelled ? "cancelled" : "booked", idempotency_key: crypto.randomUUID(),
+          ...(cancelled ? { cancelled_at: new Date(start.getTime() - 3 * day).toISOString(), cancelled_by: "patient" } : {}),
+        }), "create history appointment");
+        appointmentIds.push(appointmentId);
+      }
+
+      await signIn(page, users.psychiatrist.email, users.psychiatrist.password);
+      await page.goto("/appointments");
+      await page.getByRole("tab", { name: /History/ }).click();
+      const panel = page.getByRole("tabpanel", { name: /History/ });
+      const rows = panel.locator("article");
+
+      // Paging: the first page holds 25 rows and "Show more" loads the rest.
+      await expect(rows).toHaveCount(25);
+      await panel.getByRole("button", { name: /^Show \d+ more$/ }).click();
+      await expect.poll(() => rows.count()).toBeGreaterThan(25);
+
+      // Status filter: only cancelled rows remain.
+      await panel.getByRole("button", { name: "Cancelled", exact: true }).click();
+      await expect(rows.first()).toBeVisible();
+      await expect(rows.filter({ hasNotText: "Cancelled" })).toHaveCount(0);
+      await panel.getByRole("button", { name: "All", exact: true }).click();
+
+      // Search: only the typed patient remains, and a nonsense name shows the empty state.
+      const search = panel.getByRole("searchbox", { name: /Search by patient/ });
+      await search.fill(patientProfile.full_name.toLowerCase());
+      await expect(rows.first()).toBeVisible();
+      await expect(rows.filter({ hasNotText: patientProfile.full_name })).toHaveCount(0);
+      await search.fill("zzzz no such patient");
+      await expect(panel.getByText("No appointments match these filters.")).toBeVisible();
+      await panel.getByRole("button", { name: "Clear filters" }).click();
+      // The pages already loaded for the unfiltered view are remembered, so the list returns at least a full page.
+      await expect.poll(() => rows.count()).toBeGreaterThanOrEqual(25);
+    } finally {
+      if (appointmentIds.length) {
+        await service.from("audit_events").delete().in("target_id", appointmentIds);
+        await service.from("appointments").delete().in("id", appointmentIds);
+      }
+      if (slotIds.length) await service.from("availability_slots").delete().in("id", slotIds);
+    }
+  });
+
   test("a cancellation inside 24 hours is denied in the dialog", async ({ page }, testInfo) => {
     test.setTimeout(60_000);
     const users = syntheticUsers[testInfo.project.name];
