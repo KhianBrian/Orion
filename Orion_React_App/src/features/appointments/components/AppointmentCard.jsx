@@ -1,6 +1,7 @@
 import { Button, ButtonLink } from "../../../components/ui/Button";
 import { isInMeetingWindow } from "../../../lib/appointmentTiming";
 import { AppointmentStatusBadge } from "./AppointmentStatusBadge";
+import "./outcome-actions.css";
 
 const manilaDateTime = new Intl.DateTimeFormat("en-PH", {
   dateStyle: "full",
@@ -23,8 +24,8 @@ export function AppointmentCard({ appointment, isPatient, isUpcoming, now, onCan
       {isPatient && isUpcoming && appointment.status === "booked" && <Button variant="secondary" onClick={() => onReschedule(appointment)}>Request reschedule</Button>}
       {!isPatient && isUpcoming && appointment.status === "booked" && <Button variant="danger" onClick={() => onClinicianCancel(appointment)}>Cancel appointment</Button>}
       {!isPatient && appointment.status === "booked" && new Date(now).getTime() >= new Date(appointment.starts_at).getTime() && <>
-        <Button variant="secondary" onClick={() => onOutcome(appointment, "completed")}>Mark completed</Button>
-        <Button variant="secondary" onClick={() => onOutcome(appointment, "no_show")}>Record no-show</Button>
+        <Button variant="secondary" className="outcome-action--complete" onClick={() => onOutcome(appointment, "completed")}>Mark completed</Button>
+        <Button variant="secondary" className="outcome-action--no-show" onClick={() => onOutcome(appointment, "no_show")}>Record no-show</Button>
       </>}
       {((!isPatient && (appointment.status === "booked" || appointment.status === "completed")) || (isPatient && noteAvailable)) && <Button variant="quiet" onClick={() => onNote(appointment)}>Session note</Button>}
       {appointment.rescheduled_from_id && <p className="appointment-card__linkage">This appointment replaces an earlier appointment.</p>}
