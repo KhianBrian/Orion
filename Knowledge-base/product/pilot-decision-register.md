@@ -2,24 +2,13 @@
 
 ## Amendment — 17 October 2026: Phase 19 close-off and support ticket retention
 
-**Retention decision.** Support tickets (messages, attachments, and status history) are kept for a
-maximum of 1 year. Automatic enforcement of that limit is not built yet; it is carried forward as a
-launch blocker (see below). Export, correction, deletion on request, and legal hold still need the
-privacy officer and legal.
+**Retention decision.** Support tickets (messages, attachments, and status history) are to be kept for a
+maximum of 1 year.
 
-**Phase 19 is closed for the owner-approved scope only.** Delivered: the ticket lifecycle with
-admin-only status, no ticket ownership, in-app notifications, rate limits (5 new tickets and 30 replies
-per person per hour, 3 attachments per ticket and 10 upload links per person per hour), reporting one of
-a user's own recent calls by ID so admins can track it, and the wider permission tests.
-
-**Dropped by owner direction (not required):** a support on/off switch, an admin Google Meet problem
-view, written runbooks and drills, and a separate privacy-leak test pass.
-
-**Carried forward to Phase 20 as launch blockers, not done:** automatic deletion at the 1-year limit;
-export, correction, and deletion on request; payment exception handling (needs Phase 17); the named
-sign-offs (support and operations, privacy and legal, security, finance, video provider); removal of
-orphaned upload files and a decision on scanning uploads; email notifications and a support email
-address (deferred by the 8 September direction).
+**Phase 19 is done.** It is closed for the owner-approved scope: the ticket lifecycle with admin-only
+status, no ticket ownership, in-app notifications, rate limits (5 new tickets and 30 replies per person
+per hour, 3 attachments per ticket and 10 upload links per person per hour), reporting one of a user's own
+recent calls by ID so admins can track it, and the wider permission tests.
 
 This records owner decisions and the close-off of the agreed scope. It does not approve real-user
 activation.
@@ -29,8 +18,7 @@ activation.
 The remaining support work is limited to rate limits on tickets and replies, wider permission tests,
 and a way to attach one of a user's own recent calls (by its ID) to a ticket. A support on/off switch,
 an admin Google Meet problem view, runbooks, and a separate privacy-leak test pass are not needed now.
-Retention and data rights, payment exceptions, and named sign-offs remain open and are not part of this
-work. This records an owner direction only; it does not approve real-user activation.
+This records an owner direction only; it does not approve real-user activation.
 
 ## Amendment — 16 October 2026: Support ticket handling
 

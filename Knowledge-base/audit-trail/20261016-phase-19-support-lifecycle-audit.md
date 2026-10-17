@@ -1,5 +1,8 @@
 # Phase 19 support ticket lifecycle audit (first slice)
 
+> Historical first-slice record. Phase 19 was closed on 17 October 2026; see
+> [20261017-phase-19-close-off-audit.md](20261017-phase-19-close-off-audit.md).
+
 **Date:** 16 October 2026
 **Scope:** Admin-only ticket status, append-only history, and in-app notifications. Tickets have no owner.
 **Branch:** `codex/phase-19-support-lifecycle` (not merged; no code committed at the time of writing)

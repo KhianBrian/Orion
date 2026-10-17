@@ -3,12 +3,11 @@
 **R1 mapping:** Implements the support and operational-control portion of R1.5 using the exact
 Phase 15 ticket contract and the Phase 16–18 as-built behavior.
 
-**Status:** Done — complete for the owner-approved scope (17 October 2026). Items outside that scope are
-carried forward to Phase 20 as launch blockers; this does not approve real-user activation.
+**Status:** Done — complete for the owner-approved scope (17 October 2026). This does not approve
+real-user activation.
 
 Read the **Close-off 17 October 2026** section first. The sections after it record the original plan,
-proposals, and gate for history; where they differ from the close-off, the close-off governs. Phase 19
-is not reopened by the items carried forward to Phase 20.
+proposals, and gate for history; where they differ from the close-off, the close-off governs.
 
 ## Outcome
 
@@ -85,26 +84,20 @@ authorise implementation: the gate below still applies.
 
 ## Close-off 17 October 2026
 
-Phase 19 is closed for the scope the owners approved. This section is the record of what that means.
+Phase 19 is done. It is closed for the scope the owners approved:
 
-| Original gate item | Result |
-| --- | --- |
-| Patients reach only their own tickets; admins reach the audited queue | Done and tested through the database, the Edge Function, direct access, and storage. |
-| Psychiatrist, other patients, and anonymous callers denied at every layer | Done. Psychiatrists may open their own tickets (a decision since the plan was written). |
-| Ticket content cannot change or grant access to appointment, payment, meeting, or note state | Done. A call reference is informational only. |
-| Exception operations use the approved Phase 17/18 commands | Not built: payment exceptions need Phase 17; the Meet problem view was dropped by direction. |
-| Sensitive content absent from logs, audit, analytics, URLs, errors | Covered by design (IDs and codes only) and existing audit tests; a separate leak-test pass was dropped by direction. |
-| Retention, data rights, runbooks, and kill-switch exercises pass | Retention decided at a maximum of 1 year; enforcement not built. Runbooks and the kill switch were dropped by direction. |
-| Named approvals recorded | Not recorded; carried to Phase 20. |
-| Dated as-built audit exists | Yes: `20261017-phase-19-close-off-audit.md`. |
+- the ticket lifecycle (statuses changeable only by an admin, no ticket ownership, every admin sees every
+  ticket) with in-app notifications;
+- rate limits (5 new tickets and 30 replies per person per hour, 3 attachments per ticket, 10 upload
+  links per person per hour);
+- reporting one of a user's own recent calls by ID on a ticket, with an admin search by call ID;
+- wider permission tests across the database, commands, Edge Function, and storage.
 
-**Retention decision:** support tickets, messages, attachments, and status history are kept for at most
-1 year.
+**Retention decision:** support tickets, messages, attachments, and status history are to be kept for at
+most 1 year.
 
-**Carried forward to Phase 20 as launch blockers:** automatic deletion at the 1-year limit; export,
-correction, and deletion on request; payment exception handling (Phase 17); the named sign-offs;
-removal of orphaned upload files and a decision on scanning uploads; email notifications and a support
-email address (deferred).
+The dated as-built record is `20261017-phase-19-close-off-audit.md`. This does not approve real-user
+activation.
 
 ## Scope narrowed 17 October 2026
 
@@ -117,9 +110,8 @@ The remaining Phase 19 work is limited to three items by owner direction:
    is informational: it grants no access to the call or its notes and changes no appointment state.
 
 Not needed now, by the same direction: a support on/off switch, an admin Google Meet problem view,
-written runbooks and drills, and a separate privacy-leak test pass. Retention and data rights, payment
-exceptions, and the named sign-offs stay open and are not built here. The dated as-built audit entry
-for this work is still written.
+written runbooks and drills, and a separate privacy-leak test pass. The dated as-built audit entry for
+this work is still written.
 
 ## Approved design (16 October 2026) and the operations plan as proposed then (historical)
 

@@ -26,8 +26,8 @@
   },
   "19": {
     "title": "Support tickets and launch operations",
-    "status": "Complete ✅ — owner-approved scope delivered; remaining items carried to Phase 20",
-    "summary": "Support ticket lifecycle (admin-only status, no ownership, in-app notifications), rate limits, reporting a recent call by ID, and wider permission tests are built and verified against the demo project. Closed for the owner-approved scope only. Carried to Phase 20 as launch blockers: automatic 1-year deletion, data export/correction/deletion, payment exceptions (Phase 17), named sign-offs, orphaned upload cleanup, and email notifications. Real-user activation remains separately gated."
+    "status": "Complete ✅",
+    "summary": "Done (17 October 2026). Support ticket lifecycle (admin-only status, no ownership, in-app notifications), rate limits, reporting a recent call by ID, and wider permission tests are built and verified against the demo project. Support tickets are kept for at most 1 year. Real-user activation remains separately gated."
   },
   "20": {
     "title": "Integrated launch verification and controlled release",

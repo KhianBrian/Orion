@@ -276,6 +276,35 @@ git ls-remote origin refs/heads/main
 The local `main` commit and remote `origin/main` commit must match. Never assume that code-push
 authorization also authorizes a remote database or function deployment.
 
+### How a migration or function reaches the demo project
+
+An agent cannot write to the Orion demo project on its own, so the user's own terminal does the
+secret-handling and the agent does the rest.
+
+- **Why:** the Supabase connection in the agent's session is read-only and points at a different
+  project; the Supabase connector in the Claude account sees only the company's projects, not Orion's;
+  and the saved command-line login has no database-write permission. Never point any of those at the
+  company projects to get around this.
+- **The routine:**
+  1. Confirm the target project (the demo project ref is in `supabase/.temp/project-ref`) and get the
+     user's go-ahead for the remote action.
+  2. The agent opens a tab in the user's Terminal panel with `run_in_terminal`, in the worktree folder
+     (request access to that folder first if it is outside the session).
+  3. The command asks for the secret with a hidden prompt, so the secret never appears in chat or in
+     the agent's output. For the database, it asks for the database password, then runs
+     `supabase db push --linked --yes`. For a function it then asks for a Supabase access token from the
+     account that owns the demo project, then runs
+     `supabase functions deploy <name> --use-api --project-ref <ref>`.
+  4. The user types the secret and presses Enter. The agent reads the tab with `read_terminal`, checks
+     the result, and carries on.
+  5. Migrations first, then functions, so a new function never runs against the old schema.
+- **Rules:** never ask for, paste, print, or store the password or token. Docker is not needed (the
+  `--use-api` flag bundles on Supabase's side); the "cannot connect to Docker" warning after a push is
+  harmless. The Terminal panel allows six agent-opened tabs, and the agent cannot close a tab the user
+  has typed in, so ask the user to close old ones.
+- **After applying:** run the database scripts and the Playwright suites listed in the audit entry for
+  the change, check that the tests left no data behind, and record exact results.
+
 ## 10. Cleanup
 
 After a successful push, remove temporary worktrees and fully merged local branches only after

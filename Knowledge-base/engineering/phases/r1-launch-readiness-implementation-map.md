@@ -110,7 +110,7 @@ function-only audited read/write/release controls, and patient/psychiatrist UI.
 | [Phase 17 — PayMaya payment-authorised booking](phase-17-paymaya-payment-authorised-booking.md) | R1.3 | One booking path creates a reserved `payment_pending` appointment and confirms it only through a verified provider event. | Waiting on PayMaya API; Provider integration material and payment, refund, chargeback, retention, and reconciliation policies remain open before implementation. |
 | [Phase 18 — Google Meet and session timing](phase-18-google-meet-and-session-timing.md) | R1.4 | Approved provider admission consumes `booked` and database-authoritative 15/45/15 boundaries. | Complete — implementation verified; activation separately gated; Google Meet implementation is complete and verified: per-psychiatrist Gmail OAuth, server-authoritative booked/relationship admission, the one-hour join window, meeting creation/reuse, kill switch, safe failure logging and UI, expired-window handling, host guidance, and authenticated desktop/mobile checks. Phase 17 owns payment-authorized booking; real-user activation remains a separate production Google, privacy, clinical, security, operations, and release decision. |
 | [Phase 18.5 — Direct WebRTC + TURN synthetic implementation](phase-18.5-direct-webrtc-turn-planning.md) | Synthetic video boundary | Direct WebRTC/TURN admission, dedicated signaling, short-lived relay credentials, kill switches, and two-party verification. | Shelved — not proceeding; Google Meet is the real-user provider; Owner direction (16 October 2026): Direct WebRTC + TURN will not be taken to launch. The synthetic code remains merged in main but stays disabled and unlinked from the UI, and no launch-readiness, showcase, or real-user work will follow. Google Meet (Phase 18) is the real-user provider path; its production activation remains separately gated. |
-| [Phase 19 — Support tickets and launch operations](phase-19-support-tickets-and-launch-operations.md) | R1.5 | Patient tickets, audited operations, approved exceptions, kill switches, retention processes, and runbooks. | Complete ✅ — owner-approved scope delivered; remaining items carried to Phase 20; Support ticket lifecycle (admin-only status, no ownership, in-app notifications), rate limits, reporting a recent call by ID, and wider permission tests are built and verified against the demo project. Closed for the owner-approved scope only. Carried to Phase 20 as launch blockers: automatic 1-year deletion, data export/correction/deletion, payment exceptions (Phase 17), named sign-offs, orphaned upload cleanup, and email notifications. Real-user activation remains separately gated. |
+| [Phase 19 — Support tickets and launch operations](phase-19-support-tickets-and-launch-operations.md) | R1.5 | Patient tickets, audited operations, approved exceptions, kill switches, retention processes, and runbooks. | Complete ✅; Done (17 October 2026). Support ticket lifecycle (admin-only status, no ownership, in-app notifications), rate limits, reporting a recent call by ID, and wider permission tests are built and verified against the demo project. Support tickets are kept for at most 1 year. Real-user activation remains separately gated. |
 | [Phase 20 — Integrated launch verification and controlled release](phase-20-integrated-launch-verification-and-controlled-release.md) | R1.5 | Integrated evidence, restore/rollback exercises, named approvals, and controlled release decision. | Planned — blocked on all prior gates; Depends on all prior phase audits, production-baseline controls, named approvals, and company-owner go/no-go. |
 
 The plans remain sequential because every phase consumes exact as-built facts from its predecessor.
@@ -425,10 +425,9 @@ plan. [Phase 20](phase-20-integrated-launch-verification-and-controlled-release.
 canonical integrated-acceptance and release-control plan. The combined material below is only their
 cross-phase summary.
 
-**Phase 19 status: complete for the owner-approved scope (17 October 2026).** The text below is the
-original cross-phase summary, kept for history; items it lists that were not built are recorded as
-carried forward to Phase 20 in the
-[Phase 19 close-off](phase-19-support-tickets-and-launch-operations.md#close-off-17-october-2026).
+**Phase 19 status: done (17 October 2026).** The text below is the original cross-phase summary, kept
+for history; the
+[Phase 19 close-off](phase-19-support-tickets-and-launch-operations.md#close-off-17-october-2026) governs.
 
 ### Outcome
 
@@ -532,7 +531,7 @@ The grouped sequence is intentionally incremental rather than one large R1 migra
    manual provider checks, and the as-built audit.
 8. **Phase 19 tickets (done).** Add approved ticket fields, audited patient/operator functions, UI, rate
    limits, and synthetic isolation/redaction tests.
-9. **Phase 19 operations (closed for the approved scope; remainder carried to Phase 20).** Add approved reconciliation, retention/data rights, runbooks, access
+9. **Phase 19 operations (done).** Add approved reconciliation, retention/data rights, runbooks, access
    review, restore inputs, kill-switch/incident exercises, and as-built audit.
 10. **Phase 20 acceptance and release control.** Run the full synthetic matrix and security/privacy/
     clinical/accessibility/performance/restore/rollback reviews, assemble evidence, obtain named

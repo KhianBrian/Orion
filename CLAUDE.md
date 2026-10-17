@@ -21,6 +21,14 @@ Read this file before planning, modifying, reviewing, testing, or releasing Orio
 - A stated intention is not permission to begin implementation. Obtain a fresh explicit go-ahead.
 - Do not begin Phase 16 or later implementation until the phase is planned and all required owner, clinical, privacy, legal, vendor, retention, and operational decisions are recorded.
 
+## Applying migrations and deploying Edge Functions
+
+Agents cannot write to the Orion demo project directly. Open a Terminal-panel tab in the user's shell and
+let the command ask the user for the database password or access token with a hidden prompt; never ask
+for or handle the secret yourself. Migrations go first, then functions. Full routine and the reasons:
+[`Knowledge-base/engineering/ai-delivery-workflow.md`](Knowledge-base/engineering/ai-delivery-workflow.md)
+§9. Remote actions need the user's explicit go-ahead for the named project.
+
 ## Phase-status synchronization
 
 `Knowledge-base/engineering/phase-status.json` is the canonical status registry for numbered

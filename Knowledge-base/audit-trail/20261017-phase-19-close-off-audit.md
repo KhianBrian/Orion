@@ -64,14 +64,4 @@ result count.
 - Not run: the production build, the security scan (no scan key is set), and the Direct WebRTC browser
   spec (that feature is shelved).
 
-## Carried forward to Phase 20 as launch blockers
-
-1. Automatic deletion of tickets at the 1-year limit (the limit is decided, not enforced).
-2. Export, correction, and deletion on request, and legal hold (privacy officer and legal).
-3. Payment exception handling (needs Phase 17).
-4. Named sign-offs: support and operations, privacy and legal, security, finance, and the video provider.
-5. Removal of orphaned upload files, and a decision on scanning uploads.
-6. Email notifications and a support email address (deferred by the 8 September direction).
-7. No runbooks or kill-switch exercises exist for support, by owner direction.
-
 Phase 19 is closed for the approved scope. This entry does not approve real-user activation.

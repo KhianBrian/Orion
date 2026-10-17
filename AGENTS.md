@@ -47,6 +47,14 @@ When a separate Git worktree needs JavaScript dependencies and a compatible cano
 directory already exists, use a symlink to that directory rather than installing a duplicate copy.
 Do not delete, overwrite, or modify the source dependency directory while doing so.
 
+## Applying migrations and deploying Edge Functions
+
+Agents cannot write to the Orion demo project directly. Open a Terminal-panel tab in the user's shell and
+let the command ask the user for the database password or access token with a hidden prompt; never ask
+for or handle the secret yourself. Migrations go first, then functions. Full routine and the reasons:
+[`Knowledge-base/engineering/ai-delivery-workflow.md`](Knowledge-base/engineering/ai-delivery-workflow.md)
+§9. Remote actions need the user's explicit go-ahead for the named project.
+
 ## Phase-status synchronization
 
 `Knowledge-base/engineering/phase-status.json` is the canonical status registry for numbered
