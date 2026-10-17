@@ -1,5 +1,37 @@
 # Pilot Decision Register
 
+## Amendment — 17 October 2026: Phase 19 close-off and support ticket retention
+
+**Retention decision.** Support tickets (messages, attachments, and status history) are kept for a
+maximum of 1 year. Automatic enforcement of that limit is not built yet; it is carried forward as a
+launch blocker (see below). Export, correction, deletion on request, and legal hold still need the
+privacy officer and legal.
+
+**Phase 19 is closed for the owner-approved scope only.** Delivered: the ticket lifecycle with
+admin-only status, no ticket ownership, in-app notifications, rate limits (5 new tickets and 30 replies
+per person per hour, 3 attachments per ticket and 10 upload links per person per hour), reporting one of
+a user's own recent calls by ID so admins can track it, and the wider permission tests.
+
+**Dropped by owner direction (not required):** a support on/off switch, an admin Google Meet problem
+view, written runbooks and drills, and a separate privacy-leak test pass.
+
+**Carried forward to Phase 20 as launch blockers, not done:** automatic deletion at the 1-year limit;
+export, correction, and deletion on request; payment exception handling (needs Phase 17); the named
+sign-offs (support and operations, privacy and legal, security, finance, video provider); removal of
+orphaned upload files and a decision on scanning uploads; email notifications and a support email
+address (deferred by the 8 September direction).
+
+This records owner decisions and the close-off of the agreed scope. It does not approve real-user
+activation.
+
+## Amendment — 17 October 2026: Phase 19 scope
+
+The remaining support work is limited to rate limits on tickets and replies, wider permission tests,
+and a way to attach one of a user's own recent calls (by its ID) to a ticket. A support on/off switch,
+an admin Google Meet problem view, runbooks, and a separate privacy-leak test pass are not needed now.
+Retention and data rights, payment exceptions, and named sign-offs remain open and are not part of this
+work. This records an owner direction only; it does not approve real-user activation.
+
 ## Amendment — 16 October 2026: Support ticket handling
 
 The company owners decided who handles support tickets, and that ticket status is controlled only
@@ -15,8 +47,8 @@ from the administrative side.
 | Ticket notifications | The ticket sender and the admin side are notified when a message is received. | In-app notifications only (navigation badge and per-ticket marker, counting tickets with an unread message), carrying no message content. Email and other channels stay deferred with the support email. | Confirmed 16 October 2026: in-app only; email stays deferred. |
 | Support role | No separate support role is created (consistent with the earlier decision that admin handles operational support). | Do not add a new role; keep least privilege inside `admin`. | None. |
 
-This amendment records an owner direction only. It does not unblock Phase 19 implementation, which
-still needs the decisions listed in the Phase 19 plan.
+This amendment records an owner direction only. Phase 19 has since been closed for the approved scope
+(see the 17 October 2026 close-off amendment above); it does not approve real-user activation.
 
 ## Amendment — 13 September 2026: MFA deferral
 

@@ -42,3 +42,19 @@ export function supportLifecycleErrorMessage(error) {
   if (code === "support_ticket_transition_not_allowed") return "That status change is not allowed from the current status.";
   return "The ticket could not be updated. Please try again.";
 }
+
+// Messages for the limits and the call picker. The code is the generic one the function returns.
+export function supportRequestErrorMessage(code, fallback) {
+  if (code === "support_rate_limited") return "You have sent a lot of support requests in the last hour. Please wait a little while, then try again.";
+  if (code === "invalid_related_call") return "That call could not be attached. Choose another call, or submit without one.";
+  return fallback;
+}
+
+// Admin search: matches the full call ID or its short ID, ignoring case and dashes.
+export function matchesCallSearch(ticket, query) {
+  const needle = String(query || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (!needle) return true;
+  const fullId = String(ticket.related_call_id || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const shortId = String(ticket.related_call_reference || "").toLowerCase();
+  return fullId.includes(needle) || shortId.includes(needle);
+}

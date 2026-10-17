@@ -163,4 +163,112 @@ test.describe("administrative support tickets", () => {
     await expect(page.locator(".support-admin__summary")).toContainText("In progress");
     await assertNoSeriousViolations(page);
   });
+  test("a patient reports a recent call on a ticket and an admin finds it by the call ID", async ({ page }, testInfo) => {
+    test.setTimeout(120_000);
+    const projectUsers = syntheticUsers[testInfo.project.name];
+    const psychiatristRow = await required(service.from("psychiatrists").select("id, display_name").eq("profile_id", psychiatristId).single(), "load the synthetic psychiatrist");
+    // The first weekday at least nine days out, so the booking never depends on a weekend schedule.
+    const dayFormat = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila" });
+    let manilaDay = dayFormat.format(new Date(Date.now() + 9 * 86400000));
+    for (let offset = 10; [0, 6].includes(new Date(`${manilaDay}T12:00:00+08:00`).getUTCDay()) && offset < 13; offset += 1) {
+      manilaDay = dayFormat.format(new Date(Date.now() + offset * 86400000));
+    }
+    const startsAt = new Date(`${manilaDay}T${testInfo.project.name === "chromium" ? "15:00:01" : "16:00:01"}+08:00`);
+    let slotId;
+    let appointmentId;
+    try {
+      const slot = await required(service.from("availability_slots").insert({
+        psychiatrist_id: psychiatristRow.id, starts_at: startsAt.toISOString(),
+        ends_at: new Date(startsAt.getTime() + 45 * 60000).toISOString(), status: "open",
+      }).select("id").single(), "create a slot for the reported call");
+      slotId = slot.id;
+      const booked = await required(service.rpc("book_appointment_for_patient", {
+        requested_slot_id: slotId, request_id: crypto.randomUUID(), actor_profile_id: patientId,
+      }), "book the call");
+      appointmentId = booked[0].appointment_id;
+      const callStart = new Date(Date.now() - 2 * 86400000);
+      await required(service.from("appointments").update({
+        starts_at: callStart.toISOString(), ends_at: new Date(callStart.getTime() + 45 * 60000).toISOString(),
+      }).eq("id", appointmentId), "move the call into the recent past");
+      const reference = appointmentId.replaceAll("-", "").slice(0, 8).toUpperCase();
+
+      await signIn(page, projectUsers.patient);
+      await page.goto("/support");
+      const picker = page.getByLabel("Is this about a recent call?");
+      await expect(picker.locator("option", { hasText: `ID ${reference}` })).toHaveCount(1);
+      await picker.selectOption({ value: appointmentId });
+      const reportText = `Synthetic call report ${crypto.randomUUID()}`;
+      await page.getByLabel("Tell us what happened").fill(reportText);
+      await page.getByRole("button", { name: "Submit ticket" }).click();
+      await expect(page.getByText("Your support ticket was submitted.")).toBeVisible();
+      const created = await required(service.from("support_tickets").select("id").eq("requester_id", patientId).eq("related_appointment_id", appointmentId).single(), "load the ticket that references the call");
+      ticketIds.push(created.id);
+      await page.locator(".support-ticket-row").filter({ hasText: `Call ID ${reference}` }).first().click();
+      await expect(page.getByTestId("related-call")).toContainText(`ID ${reference}`);
+      await assertNoSeriousViolations(page);
+
+      // The admin finds the ticket by the call ID and sees who was on the call.
+      await signIn(page, { email: "admin@demo.orion.invalid", password: process.env.DEMO_SHARED_PASSWORD || process.env.DEMO_ADMIN_PASSWORD });
+      await page.goto("/support");
+      await page.getByLabel("Search by call ID").fill(reference.toLowerCase());
+      const matches = page.locator(".support-ticket-row");
+      await expect(matches).toHaveCount(1);
+      await matches.first().click();
+      await expect(page.getByText(reportText)).toBeVisible();
+      await expect(page.getByTestId("related-call")).toContainText(`ID ${reference}`);
+      await expect(page.getByTestId("related-call")).toContainText(psychiatristRow.display_name);
+      await expect(page.getByTestId("related-call")).toContainText(appointmentId);
+      await page.getByLabel("Search by call ID").fill("ZZZZZZZZ");
+      await expect(page.getByText("No tickets match that call ID.")).toBeVisible();
+      await assertNoSeriousViolations(page);
+    } finally {
+      if (appointmentId) {
+        const referencing = await service.from("support_tickets").select("id").eq("related_appointment_id", appointmentId);
+        for (const row of referencing.data ?? []) if (!ticketIds.includes(row.id)) ticketIds.push(row.id);
+        await service.from("support_tickets").update({ related_appointment_id: null }).eq("related_appointment_id", appointmentId);
+        await service.from("audit_events").delete().eq("target_id", appointmentId);
+        await service.from("appointments").delete().eq("id", appointmentId);
+      }
+      if (slotId) await service.from("availability_slots").delete().eq("id", slotId);
+    }
+  });
+
+  test("a patient who sends too many tickets is asked to wait", async ({ page }, testInfo) => {
+    test.setTimeout(90_000);
+    // Earlier tests in this file already count toward the hourly limit, so seed only what is missing.
+    const hourAgo = new Date(Date.now() - 3600000).toISOString();
+    const existing = await required(service.from("support_tickets").select("id").eq("requester_id", patientId).gte("created_at", hourAgo), "count recent tickets");
+    for (let count = existing.length; count < 5; count += 1) {
+      const rows = await required(service.rpc("create_support_ticket", {
+        actor_profile_id: patientId, request_id: crypto.randomUUID(), ticket_category_code: "other", message_body: `Synthetic limit seed ${crypto.randomUUID()}`,
+      }), "seed a ticket toward the hourly limit");
+      ticketIds.push(rows[0].ticket_id);
+    }
+    await signIn(page, syntheticUsers[testInfo.project.name].patient);
+    await page.goto("/support");
+    await page.getByLabel("Tell us what happened").fill("Synthetic ticket over the hourly limit");
+    await page.getByRole("button", { name: "Submit ticket" }).click();
+    await expect(page.getByText("You have sent a lot of support requests in the last hour.")).toBeVisible();
+    const afterwards = await required(service.from("support_tickets").select("id").eq("requester_id", patientId).gte("created_at", hourAgo), "count tickets after the refused submission");
+    expect(afterwards.length).toBe(5);
+  });
+
+  test("a signed-out visitor is sent to sign in and a patient cannot open admin pages", async ({ page }, testInfo) => {
+    await page.goto("/support");
+    await expect(page).toHaveURL(/\/login/);
+    // After signing in, the app returns the visitor to the page they asked for.
+    const patient = syntheticUsers[testInfo.project.name].patient;
+    await page.getByLabel("Email address").fill(patient.email);
+    await page.getByRole("textbox", { name: "Password" }).fill(patient.password);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page).toHaveURL(/\/support$/);
+    for (const route of ["/admin-appointments", "/admin-schedules"]) {
+      await page.goto(route);
+      await expect(page.getByRole("heading", { name: "Access unavailable" })).toBeVisible();
+      await expect(page.getByText("This area is not available for your account.")).toBeVisible();
+    }
+    await page.goto("/support");
+    await expect(page.getByLabel("Search by call ID")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Update status" })).toHaveCount(0);
+  });
 });

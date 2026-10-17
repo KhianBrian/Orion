@@ -4,7 +4,9 @@ import test from "node:test";
 import {
   isSensitiveTopic,
   isTicketClosed,
+  matchesCallSearch,
   nextSupportStatuses,
+  supportRequestErrorMessage,
   supportLifecycleErrorMessage,
   supportStatusLabel,
   supportStatusOptionLabel,
@@ -72,4 +74,23 @@ test("the browser status list matches the database transition rules", () => {
   for (const [from, targets] of Object.entries(fromDatabase)) {
     assert.deepEqual(nextSupportStatuses(from), targets, `status list drifted for ${from}`);
   }
+});
+
+test("limit and call-picker errors map to plain messages, other errors keep the caller's fallback", () => {
+  assert.match(supportRequestErrorMessage("support_rate_limited", "x"), /wait a little/);
+  assert.match(supportRequestErrorMessage("invalid_related_call", "x"), /could not be attached/);
+  assert.equal(supportRequestErrorMessage("something_else", "fallback text"), "fallback text");
+  assert.equal(supportRequestErrorMessage(undefined, "fallback text"), "fallback text");
+});
+
+test("the admin call search matches the full ID or the short ID, ignoring case and dashes", () => {
+  const ticket = { related_call_id: "1a2b3c4d-5e6f-4a1b-8c2d-9e0f1a2b3c4d", related_call_reference: "1A2B3C4D" };
+  assert.equal(matchesCallSearch(ticket, ""), true);
+  assert.equal(matchesCallSearch(ticket, "  "), true);
+  assert.equal(matchesCallSearch(ticket, "1a2b3c4d"), true);
+  assert.equal(matchesCallSearch(ticket, "1A2B-3C4D"), true);
+  assert.equal(matchesCallSearch(ticket, "5e6f4a1b"), true);
+  assert.equal(matchesCallSearch(ticket, "ffff"), false);
+  assert.equal(matchesCallSearch({}, "1a2b"), false);
+  assert.equal(matchesCallSearch({}, ""), true);
 });

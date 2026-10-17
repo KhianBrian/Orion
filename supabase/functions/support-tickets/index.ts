@@ -30,10 +30,13 @@ const statusReasonCodes = ["abuse", "duplicate", "requester_confirmed", "other"]
 // Lifecycle commands return generic, content-free error codes.
 function lifecycleError(error: { message?: string } | null) {
   const message = error?.message ?? "";
+  if (message.includes("support_rate_limited")) return response({ error: "support_rate_limited" }, 429);
+  if (message.includes("support_ticket_invalid_related_call")) return response({ error: "invalid_related_call" }, 400);
   if (message.includes("support_ticket_closed")) return response({ error: "support_ticket_closed" }, 409);
   if (message.includes("support_ticket_transition_not_allowed")) return response({ error: "support_ticket_transition_not_allowed" }, 409);
   if (message.includes("support_ticket_invalid_request")) return response({ error: "invalid_request" }, 400);
-  return response({ error: "support_ticket_not_permitted" }, 403);
+  if (message.includes("not_permitted")) return response({ error: "support_ticket_not_permitted" }, 403);
+  return response({ error: "support_failed" }, 500);
 }
 
 Deno.serve(async (request) => {
@@ -49,8 +52,13 @@ Deno.serve(async (request) => {
 
   if (payload.action === "create") {
     const allowedCategories = ["technical_issue", "account_access", "booking_scheduling", "payment_billing", "clinician_or_user_concern", "privacy_or_data", "other"];
-    if (!(["patient", "psychiatrist"] as string[]).includes(role ?? "") || typeof payload.categoryCode !== "string" || !allowedCategories.includes(payload.categoryCode) || typeof payload.body !== "string" || typeof payload.idempotencyKey !== "string"
+    if (!(["patient", "psychiatrist"] as string[]).includes(role ?? "")) return response({ error: "support_ticket_not_permitted" }, 403);
+    if (typeof payload.categoryCode !== "string" || !allowedCategories.includes(payload.categoryCode) || typeof payload.body !== "string" || typeof payload.idempotencyKey !== "string"
       || !uuidPattern.test(payload.idempotencyKey) || payload.body.trim().length === 0 || payload.body.length > 2000) {
+      return response({ error: "invalid_request" }, 400);
+    }
+    if (payload.relatedCallId !== undefined && payload.relatedCallId !== null
+      && (typeof payload.relatedCallId !== "string" || !uuidPattern.test(payload.relatedCallId))) {
       return response({ error: "invalid_request" }, 400);
     }
     const { data, error } = await client.rpc("create_support_ticket", {
@@ -58,19 +66,17 @@ Deno.serve(async (request) => {
       request_id: payload.idempotencyKey,
       ticket_category_code: payload.categoryCode,
       message_body: payload.body,
+      related_call_id: payload.relatedCallId ?? null,
     });
-    if (!error) return response({ ticket: data?.[0] ?? null }, 201);
+    if (error) return lifecycleError(error);
+    return response({ ticket: data?.[0] ?? null }, 201);
+  }
 
-    // Keep the deployed app usable while an older database schema is being
-    // upgraded. The topic is retained in the initial message and the
-    // idempotency key prevents duplicate tickets during the transition.
-    const legacy = await client.rpc("create_support_ticket", {
-      actor_profile_id: actorId,
-      request_id: payload.idempotencyKey,
-      message_body: "Topic: " + payload.categoryCode + "\n\n" + payload.body,
-    });
-    if (legacy.error) return response({ error: "support_ticket_not_permitted" }, 403);
-    return response({ ticket: legacy.data?.[0] ?? null }, 201);
+  if (payload.action === "recent-calls") {
+    if (!(["patient", "psychiatrist"] as string[]).includes(role ?? "")) return response({ error: "support_ticket_not_permitted" }, 403);
+    const { data, error } = await client.rpc("get_my_recent_calls", { actor_profile_id: actorId });
+    if (error) return response({ error: "support_ticket_not_permitted" }, 403);
+    return response({ calls: data ?? [] });
   }
 
   if (payload.action === "list") {
@@ -126,7 +132,8 @@ Deno.serve(async (request) => {
       return response({ error: "invalid_request" }, 400);
     }
     try {
-      await signedAttachments(client, payload.ticketId, actorId);
+      const reserved = await client.rpc("reserve_support_upload", { target_ticket_id: payload.ticketId, actor_profile_id: actorId });
+      if (reserved.error) return lifecycleError(reserved.error);
       const safeName = payload.fileName.trim().replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 120);
       const path = payload.ticketId + "/" + crypto.randomUUID() + "-" + safeName;
       const { data, error } = await client.storage.from("support-attachments").createSignedUploadUrl(path);
@@ -155,7 +162,7 @@ Deno.serve(async (request) => {
       target_mime_type: payload.mimeType,
       target_size_bytes: payload.sizeBytes,
     });
-    if (error) return response({ error: "support_attachment_not_permitted" }, 403);
+    if (error) return lifecycleError(error);
     return response({ attachment: data?.[0] ?? null }, 201);
   }
 

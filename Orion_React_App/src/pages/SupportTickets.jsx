@@ -3,8 +3,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "../components/ui/Button";
 import { StatusMessage } from "../components/ui/StatusMessage";
 import { useAuth } from "../features/auth/authContext";
-import { createSupportTicket, fetchSupportTicket, fetchSupportTickets, sendSupportTicketMessage, setSupportTicketStatus, supportNotificationsQueryKey, supportTicketQueryKey, supportTicketsQueryKey } from "../features/support/queries";
-import { isSensitiveTopic, isTicketClosed, nextSupportStatuses, SUPPORT_STATUS_REASONS, supportLifecycleErrorMessage, supportStatusLabel, supportStatusOptionLabel } from "../features/support/status";
+import { createSupportTicket, fetchRecentCalls, fetchSupportTicket, fetchSupportTickets, sendSupportTicketMessage, setSupportTicketStatus, supportNotificationsQueryKey, supportRecentCallsQueryKey, supportTicketQueryKey, supportTicketsQueryKey } from "../features/support/queries";
+import { isSensitiveTopic, isTicketClosed, matchesCallSearch, nextSupportStatuses, SUPPORT_STATUS_REASONS, supportLifecycleErrorMessage, supportRequestErrorMessage, supportStatusLabel, supportStatusOptionLabel } from "../features/support/status";
 import "./SupportTickets.css";
 
 const manilaDateTime = new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" });
@@ -26,14 +26,15 @@ const legacyTopic = (body) => {
   return match ? { label: topicLabel(match[1]), body: body.slice(match[0].length) } : { label: null, body };
 };
 
-function TicketList({ tickets, selectedId, onSelect, isAdmin }) {
-  if (!tickets.length) return <p className="support-empty">No support tickets yet.</p>;
+function TicketList({ tickets, selectedId, onSelect, isAdmin, filtered }) {
+  if (!tickets.length) return <p className="support-empty">{filtered ? "No tickets match that call ID." : "No support tickets yet."}</p>;
   return <ul className="support-list">{tickets.map((ticket) => {
     const requesterName = ticket.requester_display_name || ticket.patient_display_name;
     return <li key={ticket.ticket_id}>
       <button className="support-ticket-row" type="button" aria-pressed={ticket.ticket_id === selectedId} onClick={() => onSelect(ticket.ticket_id)}>
         <span className="support-ticket-row__top"><strong>{topicLabel(ticket.category_code)}<span className="support-ticket-row__status">{supportStatusLabel(ticket.status_code)}</span></strong>{ticket.has_unread_reply && <span className="support-ticket-row__unread">New reply</span>}</span>
         <span className="support-ticket-row__date">Submitted {manilaDateTime.format(new Date(ticket.created_at))}</span>
+        {ticket.related_call_reference && <span className="support-ticket-row__date">Call ID {ticket.related_call_reference}</span>}
         {isAdmin && requesterName && <span className="support-ticket-row__date">Requester: {requesterName} · {ticket.requester_role_code}</span>}
         {isAdmin && (ticket.reply_after_resolution || isSensitiveTopic(ticket.category_code)) && <span className="support-ticket-row__flags">{ticket.reply_after_resolution && <span className="support-ticket-row__flag">Requester replied after resolution</span>}{isSensitiveTopic(ticket.category_code) && <span className="support-ticket-row__flag support-ticket-row__flag--care">Sensitive topic</span>}</span>}
       </button>
@@ -98,12 +99,17 @@ export default function SupportTickets() {
   const client = useQueryClient();
   const [body, setBody] = useState("");
   const [categoryCode, setCategoryCode] = useState("technical_issue");
+  const [relatedCallId, setRelatedCallId] = useState("");
+  const [callSearch, setCallSearch] = useState("");
   const [files, setFiles] = useState([]);
   const [replyBody, setReplyBody] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [message, setMessage] = useState(null);
   const isAdmin = profile.role === "admin";
   const isRequester = profile.role === "patient" || profile.role === "psychiatrist";
+  const callsQuery = useQuery({ queryKey: supportRecentCallsQueryKey(profile.id), queryFn: fetchRecentCalls, enabled: isRequester });
+  const offeredCalls = callsQuery.data || [];
+  const chosenCallId = offeredCalls.some((call) => call.call_id === relatedCallId) ? relatedCallId : "";
   const listQuery = useQuery({ queryKey: supportTicketsQueryKey(profile.id), queryFn: fetchSupportTickets, refetchInterval: 30000 });
   const detailQuery = useQuery({ queryKey: supportTicketQueryKey(profile.id, selectedId), queryFn: fetchSupportTicket, enabled: Boolean(selectedId) });
   const selectedTicket = (listQuery.data?.tickets || []).find((ticket) => ticket.ticket_id === selectedId);
@@ -121,20 +127,20 @@ export default function SupportTickets() {
 
   const create = useMutation({
     mutationFn: createSupportTicket,
-    onSuccess: async (result) => { setBody(""); setFiles([]); setCategoryCode("technical_issue"); setSelectedId(result?.ticket?.ticket_id || null); setMessage({ tone: "success", text: "Your support ticket was submitted." }); await client.invalidateQueries({ queryKey: supportTicketsQueryKey(profile.id) }); },
-    onError: () => setMessage({ tone: "error", text: "Your support ticket could not be submitted. Please try again." }),
+    onSuccess: async (result) => { setBody(""); setFiles([]); setCategoryCode("technical_issue"); setRelatedCallId(""); setSelectedId(result?.ticket?.ticket_id || null); setMessage(result?.attachmentFailed ? { tone: "info", text: result.attachmentErrorCode === "support_rate_limited" ? "Your ticket was submitted, but its attachments were not uploaded because you have reached the hourly upload limit." : "Your ticket was submitted, but its attachments could not be uploaded. You can reply to the ticket to share more details." } : { tone: "success", text: "Your support ticket was submitted." }); await client.invalidateQueries({ queryKey: supportTicketsQueryKey(profile.id) }); },
+    onError: (error) => setMessage({ tone: "error", text: supportRequestErrorMessage(error?.code, "Your support ticket could not be submitted. Please try again.") }),
   });
   const reply = useMutation({
     mutationFn: sendSupportTicketMessage,
     onSuccess: async () => { setReplyBody(""); setMessage({ tone: "success", text: "Your reply was sent." }); await Promise.all([client.invalidateQueries({ queryKey: supportTicketsQueryKey(profile.id) }), client.invalidateQueries({ queryKey: supportTicketQueryKey(profile.id, selectedId) })]); },
-    onError: (error) => setMessage({ tone: "error", text: error?.code === "support_ticket_closed" ? "This ticket is closed, so replies are no longer accepted." : "Your reply could not be sent. Please try again." }),
+    onError: (error) => setMessage({ tone: "error", text: error?.code === "support_ticket_closed" ? "This ticket is closed, so replies are no longer accepted." : supportRequestErrorMessage(error?.code, "Your reply could not be sent. Please try again.") }),
   });
   const lifecycle = useMutation({
     mutationFn: (input) => setSupportTicketStatus({ ...input, ticketId: selectedId }),
     onSuccess: async () => { setMessage({ tone: "success", text: "The ticket was updated." }); await refreshSupport(); },
     onError: async (error) => { setMessage({ tone: "error", text: supportLifecycleErrorMessage({ code: error?.code }) }); await refreshSupport(); },
   });
-  const submit = (event) => { event.preventDefault(); setMessage(null); create.mutate({ categoryCode, body, files }); };
+  const submit = (event) => { event.preventDefault(); setMessage(null); create.mutate({ categoryCode, body, files, relatedCallId: chosenCallId }); };
   const selectFiles = (event) => {
     const nextFiles = Array.from(event.target.files || []);
     if (nextFiles.length > 3 || nextFiles.some((file) => !attachmentTypes.includes(file.type) || file.size > maxAttachmentBytes)) {
@@ -151,10 +157,11 @@ export default function SupportTickets() {
     {message && <StatusMessage tone={message.tone}>{message.text}</StatusMessage>}
     {listQuery.error && <StatusMessage tone="error">Support tickets could not be loaded. <Button variant="quiet" onClick={() => listQuery.refetch()}>Try again</Button></StatusMessage>}
     <div className={"support-page__layout" + (selectedId ? " support-page__layout--selected" : "")}>
-      {isRequester && <section className="support-card support-card--new" aria-labelledby="new-support-ticket-title"><h2 id="new-support-ticket-title">{profile.role === "psychiatrist" ? "Report an issue" : "Contact support"}</h2><p className="support-intro">Choose the closest topic so the right Orion team can triage your request.</p><p className="support-warning"><strong>Use Orion support for:</strong> app issues, account access, bookings, billing, privacy, or concerns about an interaction on the platform. Do not share emergency details, diagnoses, treatment details, session notes, passwords, or card numbers. If there is immediate danger, contact local emergency services.</p><form className="support-form" onSubmit={submit}><label htmlFor="supportTopic">What do you need help with?</label><select id="supportTopic" value={categoryCode} onChange={(event) => setCategoryCode(event.target.value)}>{supportTopics.map((topic) => <option key={topic.value} value={topic.value}>{topic.label}</option>)}</select><p className="support-topic-hint">{supportTopics.find((topic) => topic.value === categoryCode)?.hint}</p><label htmlFor="supportMessage">Tell us what happened</label><textarea id="supportMessage" value={body} onChange={(event) => setBody(event.target.value)} maxLength="2000" required placeholder="Include the non-sensitive details support needs to help…" /><p className="support-form__meta">{body.length}/2000 characters</p><label className="support-file-label" htmlFor="supportFiles">Attach screenshots or receipts <span>(optional)</span></label><input id="supportFiles" type="file" accept={attachmentTypes.join(",")} multiple onChange={selectFiles} /><p className="support-topic-hint">Up to 3 files, 10 MB each. PNG, JPEG, PDF, or text only.</p>{files.length > 0 && <ul className="support-selected-files">{files.map((file) => <li key={file.name + file.lastModified}>{file.name} <span>{formatBytes(file.size)}</span></li>)}</ul>}<Button type="submit" busy={create.isPending} disabled={!body.trim()}>{create.isPending ? "Submitting…" : "Submit ticket"}</Button></form></section>}
-      <section className="support-card" aria-labelledby="support-ticket-list-title"><h2 id="support-ticket-list-title">{isAdmin ? "Open requests" : "Your tickets"}</h2>{listQuery.isPending ? <StatusMessage>Loading support tickets…</StatusMessage> : <TicketList tickets={listQuery.data?.tickets || []} selectedId={selectedId} onSelect={setSelectedId} isAdmin={isAdmin} />}</section>
+      {isRequester && <section className="support-card support-card--new" aria-labelledby="new-support-ticket-title"><h2 id="new-support-ticket-title">{profile.role === "psychiatrist" ? "Report an issue" : "Contact support"}</h2><p className="support-intro">Choose the closest topic so the right Orion team can triage your request.</p><p className="support-warning"><strong>Use Orion support for:</strong> app issues, account access, bookings, billing, privacy, or concerns about an interaction on the platform. Do not share emergency details, diagnoses, treatment details, session notes, passwords, or card numbers. If there is immediate danger, contact local emergency services.</p><form className="support-form" onSubmit={submit}><label htmlFor="supportTopic">What do you need help with?</label><select id="supportTopic" value={categoryCode} onChange={(event) => setCategoryCode(event.target.value)}>{supportTopics.map((topic) => <option key={topic.value} value={topic.value}>{topic.label}</option>)}</select><p className="support-topic-hint">{supportTopics.find((topic) => topic.value === categoryCode)?.hint}</p><label htmlFor="supportCall">Is this about a recent call? <span>(optional)</span></label><select id="supportCall" value={chosenCallId} onChange={(event) => setRelatedCallId(event.target.value)}><option value="">Not about a specific call</option>{offeredCalls.map((call) => <option key={call.call_id} value={call.call_id}>{manilaDateTime.format(new Date(call.call_starts_at))} · with {call.counterpart_display_name || "the other participant"} · ID {call.call_reference}</option>)}</select>{callsQuery.isError && <p className="support-topic-hint" role="alert">Your recent calls could not be loaded. You can still submit without choosing one.</p>}<p className="support-topic-hint">Choosing a call adds its ID to your ticket so support can find it quickly. Calls from the last 14 days are listed.</p><label htmlFor="supportMessage">Tell us what happened</label><textarea id="supportMessage" value={body} onChange={(event) => setBody(event.target.value)} maxLength="2000" required placeholder="Include the non-sensitive details support needs to help…" /><p className="support-form__meta">{body.length}/2000 characters</p><label className="support-file-label" htmlFor="supportFiles">Attach screenshots or receipts <span>(optional)</span></label><input id="supportFiles" type="file" accept={attachmentTypes.join(",")} multiple onChange={selectFiles} /><p className="support-topic-hint">Up to 3 files, 10 MB each. PNG, JPEG, PDF, or text only.</p>{files.length > 0 && <ul className="support-selected-files">{files.map((file) => <li key={file.name + file.lastModified}>{file.name} <span>{formatBytes(file.size)}</span></li>)}</ul>}<Button type="submit" busy={create.isPending} disabled={!body.trim()}>{create.isPending ? "Submitting…" : "Submit ticket"}</Button></form></section>}
+      <section className="support-card" aria-labelledby="support-ticket-list-title"><h2 id="support-ticket-list-title">{isAdmin ? "Open requests" : "Your tickets"}</h2>{isAdmin && <div className="support-search"><label htmlFor="supportCallSearch">Search by call ID</label><input id="supportCallSearch" type="search" value={callSearch} onChange={(event) => setCallSearch(event.target.value)} placeholder="For example 1A2B3C4D" autoComplete="off" /></div>}{listQuery.isPending ? <StatusMessage>Loading support tickets…</StatusMessage> : <TicketList tickets={(listQuery.data?.tickets || []).filter((ticket) => !isAdmin || matchesCallSearch(ticket, callSearch))} selectedId={selectedId} onSelect={setSelectedId} isAdmin={isAdmin} filtered={isAdmin && Boolean(callSearch.trim())} />}</section>
       {selectedId && <section className="support-card support-thread" aria-labelledby="support-thread-title"><h2 id="support-thread-title">Ticket details</h2>
         {selectedTicket && !isAdmin && <p className="support-thread__status">Status: <strong>{supportStatusLabel(selectedTicket.status_code)}</strong></p>}
+        {selectedTicket?.related_call_reference && <p className="support-thread__call" data-testid="related-call">{isAdmin ? "Related call" : "Your call"}: {manilaDateTime.format(new Date(selectedTicket.related_call_starts_at))}{isAdmin && selectedTicket.related_call_psychiatrist_name ? " · " + selectedTicket.related_call_psychiatrist_name + " with " + selectedTicket.related_call_patient_name + " · " + String(selectedTicket.related_call_status).replaceAll("_", " ") : ""} · <strong>ID {selectedTicket.related_call_reference}</strong>{isAdmin && selectedTicket.related_call_id ? <span className="support-thread__call-full"> (full ID {selectedTicket.related_call_id})</span> : null}</p>}
         {isAdmin && selectedTicket && <AdminTicketControls key={selectedTicket.ticket_id} ticket={selectedTicket} busy={lifecycle.isPending} onChangeStatus={(input) => { setMessage(null); return lifecycle.mutateAsync(input).catch(() => undefined); }} />}
         <Thread messages={detailQuery.data?.messages} attachments={detailQuery.data?.attachments} pending={detailQuery.isPending} error={detailQuery.error} viewerRole={profile.role} />
         {detailQuery.isSuccess && selectedTicket && isTicketClosed(selectedTicket.status_code) && <StatusMessage tone="info">{isAdmin ? "This ticket is closed. Reopen it to reply." : "This ticket is closed. Open a new ticket if you need more help."}</StatusMessage>}

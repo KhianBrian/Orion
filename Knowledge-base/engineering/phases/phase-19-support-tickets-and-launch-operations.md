@@ -3,10 +3,12 @@
 **R1 mapping:** Implements the support and operational-control portion of R1.5 using the exact
 Phase 15 ticket contract and the Phase 16–18 as-built behavior.
 
-**Status:** Blocked — Phase 15–18 as-built evidence plus support hours, escalation, retention,
-privacy, and exception-handling decisions are required before implementation. Ticket ownership
-(none), admin-only status control, admin visibility, and attachments were decided on 16 October 2026
-(see below).
+**Status:** Done — complete for the owner-approved scope (17 October 2026). Items outside that scope are
+carried forward to Phase 20 as launch blockers; this does not approve real-user activation.
+
+Read the **Close-off 17 October 2026** section first. The sections after it record the original plan,
+proposals, and gate for history; where they differ from the close-off, the close-off governs. Phase 19
+is not reopened by the items carried forward to Phase 20.
 
 ## Outcome
 
@@ -81,7 +83,45 @@ These decisions are recorded in the
 [pilot decision register](../../product/pilot-decision-register.md). They do not by themselves
 authorise implementation: the gate below still applies.
 
-## Approved design (16 October 2026) and proposed operations plan
+## Close-off 17 October 2026
+
+Phase 19 is closed for the scope the owners approved. This section is the record of what that means.
+
+| Original gate item | Result |
+| --- | --- |
+| Patients reach only their own tickets; admins reach the audited queue | Done and tested through the database, the Edge Function, direct access, and storage. |
+| Psychiatrist, other patients, and anonymous callers denied at every layer | Done. Psychiatrists may open their own tickets (a decision since the plan was written). |
+| Ticket content cannot change or grant access to appointment, payment, meeting, or note state | Done. A call reference is informational only. |
+| Exception operations use the approved Phase 17/18 commands | Not built: payment exceptions need Phase 17; the Meet problem view was dropped by direction. |
+| Sensitive content absent from logs, audit, analytics, URLs, errors | Covered by design (IDs and codes only) and existing audit tests; a separate leak-test pass was dropped by direction. |
+| Retention, data rights, runbooks, and kill-switch exercises pass | Retention decided at a maximum of 1 year; enforcement not built. Runbooks and the kill switch were dropped by direction. |
+| Named approvals recorded | Not recorded; carried to Phase 20. |
+| Dated as-built audit exists | Yes: `20261017-phase-19-close-off-audit.md`. |
+
+**Retention decision:** support tickets, messages, attachments, and status history are kept for at most
+1 year.
+
+**Carried forward to Phase 20 as launch blockers:** automatic deletion at the 1-year limit; export,
+correction, and deletion on request; payment exception handling (Phase 17); the named sign-offs;
+removal of orphaned upload files and a decision on scanning uploads; email notifications and a support
+email address (deferred).
+
+## Scope narrowed 17 October 2026
+
+The remaining Phase 19 work is limited to three items by owner direction:
+
+1. **Rate limits** on new tickets and replies, so one person cannot flood the queue.
+2. **Wider permission tests** across every layer (database, commands, Edge Function, routes, storage).
+3. **Report a recent call on a ticket.** A patient or psychiatrist can pick one of their own recent calls
+   when they open a ticket, so the ticket carries that call's ID and admins can track it. The reference
+   is informational: it grants no access to the call or its notes and changes no appointment state.
+
+Not needed now, by the same direction: a support on/off switch, an admin Google Meet problem view,
+written runbooks and drills, and a separate privacy-leak test pass. Retention and data rights, payment
+exceptions, and the named sign-offs stay open and are not built here. The dated as-built audit entry
+for this work is still written.
+
+## Approved design (16 October 2026) and the operations plan as proposed then (historical)
 
 ### Status lifecycle (approved; replaces the single `submitted` status)
 
@@ -148,7 +188,7 @@ authorise implementation: the gate below still applies.
 | Workspace/video operations | Outage and admission-incident owner, provider escalation, evidence, recovery, and communication. |
 | DPO/legal/security | Ticket and operational evidence readers, lawful basis, notices, retention/disposal, exports/rights, legal holds, log redaction, rate limits, incident handling, and admin boundary. |
 
-## Provisional Tier 2 implementation plan
+## Original provisional implementation plan (historical; superseded by the close-off above)
 
 ### P19-0 — Re-ground all consumed contracts
 
@@ -246,7 +286,7 @@ authorise implementation: the gate below still applies.
 - Operations runbooks, privacy/data dictionary, RBAC/audit, Supabase, status, and dated Phase 19
   as-built documents.
 
-## Gate
+## Original gate (historical; see the close-off above for the result)
 
 Phase 19 completes only when:
 
@@ -269,7 +309,7 @@ Phase 20 consumes the exact ticket roles/lifecycle, exception-operation commands
 kill switches, observability signals, retention controls, and unresolved launch blockers from the
 Phase 19 as-built audit.
 
-## Inputs not yet available
+## Inputs that were not available when this plan was written (historical)
 
 - Phase 15–18 dated as-built evidence.
 - Owner approval of the proposed status lifecycle and stop authority. (Support hours and escalation

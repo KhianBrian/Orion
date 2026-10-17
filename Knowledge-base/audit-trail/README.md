@@ -27,6 +27,7 @@ This folder contains dated records of completed audits and implementation passes
 | [2026-09-20 patient workspace and support reconciliation](2026-09-20-patient-support-reconciliation-audit.md) | Patient workspace/session-note presentation, topic-driven support intake, private support attachments, linked migration reconciliation, and verification limits. |
 | [2026-10-16 Phase 19 support lifecycle (first slice)](20261016-phase-19-support-lifecycle-audit.md) | Admin-only ticket statuses, take/release/reassign, append-only history, in-app notifications, review findings, and exact test evidence. |
 | [2026-10-17 Booking conflict message](20261017-booking-conflict-message-audit.md) | Simultaneous same-slot and overlapping-slot booking behaviour, the overlap error mapping fix, and race test evidence. |
+| [2026-10-17 Phase 19 close-off](20261017-phase-19-close-off-audit.md) | Rate limits, reporting a recent call by ID, wider permission tests, review findings, exact test evidence, and the items carried forward to Phase 20. |
 
 Read an audit when you need to understand why an existing UI or file looks the way it does, what was already verified, or which limitations remain open. When an audit conflicts with current product scope or architecture, the current parent document wins.
 
