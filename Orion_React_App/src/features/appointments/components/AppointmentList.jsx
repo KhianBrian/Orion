@@ -6,13 +6,12 @@ function isUpcoming(appointment, now) {
   return appointment.status === "booked" && new Date(appointment.ends_at).getTime() >= new Date(now).getTime();
 }
 
-export function AppointmentList({ appointments, isPatient, now, onCancel, onReschedule, onClinicianCancel, onOutcome, onNote, noteIds = new Set() }) {
+export function AppointmentList({ appointments, counts, profileId, isPatient, now, onCancel, onReschedule, onClinicianCancel, onOutcome, onNote, noteIds = new Set() }) {
   const [activeTab, setActiveTab] = useState("upcoming");
   const upcoming = appointments.filter((appointment) => isUpcoming(appointment, now));
-  const history = appointments.filter((appointment) => !isUpcoming(appointment, now));
   const tabs = [
     { id: "upcoming", label: "Upcoming", count: upcoming.length },
-    { id: "history", label: "History", count: history.length },
+    { id: "history", label: "History", count: counts.history },
   ];
 
   return <section aria-label="Appointments" className="appointment-list">
@@ -24,7 +23,7 @@ export function AppointmentList({ appointments, isPatient, now, onCancel, onResc
     <section role="tabpanel" id={`${activeTab}-appointments-panel`} aria-labelledby={`${activeTab}-appointments-tab`} aria-label={activeTab === "upcoming" ? "Upcoming appointments" : "Appointment history"}>
       <h2>{activeTab === "upcoming" ? "Upcoming appointments" : "Appointment history"}</h2>
       {activeTab === "upcoming" && (upcoming.length ? <div className="appointment-list__grid">{upcoming.map((appointment) => <AppointmentCard key={appointment.id} appointment={appointment} isPatient={isPatient} isUpcoming now={now} onCancel={onCancel} onReschedule={onReschedule} onClinicianCancel={onClinicianCancel} onOutcome={onOutcome} onNote={onNote} noteAvailable={noteIds.has(appointment.id)} />)}</div> : <p className="appointment-list__empty">No upcoming appointments.</p>)}
-      {activeTab === "history" && <Suspense fallback={<p className="appointment-list__empty">Loading history…</p>}><AppointmentHistory appointments={history} isPatient={isPatient} now={now} noteIds={noteIds} onOutcome={onOutcome} onNote={onNote} /></Suspense>}
+      {activeTab === "history" && <Suspense fallback={<p className="appointment-list__empty">Loading history…</p>}><AppointmentHistory profileId={profileId} overallCount={counts.history} isPatient={isPatient} now={now} noteIds={noteIds} onOutcome={onOutcome} onNote={onNote} /></Suspense>}
     </section>
   </section>;
 }

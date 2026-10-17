@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { Button } from "../../../components/ui/Button";
-import { emptyFilters, filterHistory, groupByMonth, hasActiveFilters, PAGE_SIZE, rangePresets } from "../historyFilters";
+import { emptyFilters, groupByMonth, hasActiveFilters, historyQueryArgs, PAGE_SIZE, rangePresets } from "../historyFilters";
+import { fetchHistoryPage, historyQueryKey } from "../queries";
 import { AppointmentStatusBadge } from "./AppointmentStatusBadge";
 import "./AppointmentHistory.css";
 import "./outcome-actions.css";
@@ -15,17 +17,35 @@ const statusOptions = [
   { id: "booked", label: "Awaiting outcome" },
 ];
 
-export function AppointmentHistory({ appointments, isPatient, now, noteIds, onOutcome, onNote }) {
+export function AppointmentHistory({ profileId, overallCount, isPatient, now, noteIds, onOutcome, onNote }) {
   // Filters live only in component state: search text can contain a patient name, so it never goes into the URL or storage.
   const [filters, setFilters] = useState(emptyFilters);
-  const [visible, setVisible] = useState(PAGE_SIZE);
-  const update = (patch) => { setFilters((current) => ({ ...current, ...patch })); setVisible(PAGE_SIZE); };
-  const results = useMemo(() => filterHistory(appointments, filters), [appointments, filters]);
-  const shown = results.slice(0, visible);
-  const groups = groupByMonth(shown);
+  const [searchTerm, setSearchTerm] = useState("");
+  const update = (patch) => setFilters((current) => ({ ...current, ...patch }));
+  // Wait for a pause in typing before asking the database, so each keystroke is not a query.
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSearchTerm(filters.search), 300);
+    return () => window.clearTimeout(timer);
+  }, [filters.search]);
+  const args = historyQueryArgs({ ...filters, search: searchTerm });
+  const query = useInfiniteQuery({
+    queryKey: historyQueryKey(profileId, args),
+    queryFn: ({ pageParam }) => fetchHistoryPage({ args, cursor: pageParam, pageSize: PAGE_SIZE }),
+    initialPageParam: null,
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.reduce((count, page) => count + page.rows.length, 0);
+      const lastRow = lastPage.rows[lastPage.rows.length - 1];
+      return lastRow && loaded < allPages[0].total ? { startsAt: lastRow.starts_at, id: lastRow.id } : undefined;
+    },
+    placeholderData: keepPreviousData,
+  });
+  const rows = query.data ? query.data.pages.flatMap((page) => page.rows) : [];
+  const total = query.data?.pages[0]?.total ?? 0;
+  const groups = groupByMonth(rows);
   const personLabel = isPatient ? "psychiatrist" : "patient";
+  const remaining = Math.max(total - rows.length, 0);
 
-  return <div className="history">
+  return <div className="history" aria-busy={query.isFetching && !query.isFetchingNextPage}>
     <div className="history-filters" role="search" aria-label="Filter appointment history">
       <label className="history-filters__search"><span className="history-filters__label">Search by {personLabel}</span>
         <input type="search" autoComplete="off" placeholder={`Search ${personLabel} name`} value={filters.search} onChange={(event) => update({ search: event.target.value })} />
@@ -39,8 +59,9 @@ export function AppointmentHistory({ appointments, isPatient, now, noteIds, onOu
       </>}
       <div className="history-filters__chips" role="group" aria-label="Status">{statusOptions.map((option) => <button type="button" key={option.id} className={`history-chip${filters.status === option.id ? " history-chip--active" : ""}`} aria-pressed={filters.status === option.id} onClick={() => update({ status: option.id })}>{option.label}</button>)}</div>
     </div>
-    <p className="history-summary" role="status">{results.length === appointments.length ? `${results.length} appointments` : `${results.length} of ${appointments.length} appointments`}{hasActiveFilters(filters) && <> · <button type="button" className="history-summary__clear" onClick={() => update(emptyFilters())}>Clear filters</button></>}</p>
-    {results.length === 0 && <p className="appointment-list__empty">{appointments.length ? "No appointments match these filters." : "No appointment history yet."}</p>}
+    <p className="history-summary" role="status">{query.isPending ? "Loading history…" : total === overallCount || !hasActiveFilters(filters) ? `${total} appointments` : `${total} of ${overallCount} appointments`}{hasActiveFilters(filters) && <> · <button type="button" className="history-summary__clear" onClick={() => { setSearchTerm(""); update(emptyFilters()); }}>Clear filters</button></>}</p>
+    {query.error && <p className="appointment-list__empty">History could not be loaded. <button type="button" className="history-summary__clear" onClick={() => query.refetch()}>Try again</button></p>}
+    {!query.isPending && !query.error && rows.length === 0 && <p className="appointment-list__empty">{hasActiveFilters(filters) ? "No appointments match these filters." : "No appointment history yet."}</p>}
     {groups.map((group) => <section key={group.key} className="history-group" aria-label={group.label}>
       <h3 className="history-group__title">{group.label}</h3>
       <div className="history-rows">{group.items.map((appointment) => {
@@ -59,6 +80,6 @@ export function AppointmentHistory({ appointments, isPatient, now, noteIds, onOu
         </article>;
       })}</div>
     </section>)}
-    {results.length > shown.length && <div className="history-more"><Button variant="secondary" onClick={() => setVisible((count) => count + PAGE_SIZE)}>Show {Math.min(PAGE_SIZE, results.length - shown.length)} more</Button></div>}
+    {query.hasNextPage && <div className="history-more"><Button variant="secondary" busy={query.isFetchingNextPage} onClick={() => query.fetchNextPage()}>Show {Math.min(PAGE_SIZE, remaining)} more</Button></div>}
   </div>;
 }

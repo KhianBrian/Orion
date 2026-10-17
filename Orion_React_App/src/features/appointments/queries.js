@@ -1,6 +1,9 @@
 import { supabase } from "../../lib/supabase";
 
 export const appointmentQueryKey = (accountId) => ["appointments", accountId];
+export const upcomingAppointmentsQueryKey = (accountId) => ["appointments", accountId, "upcoming"];
+export const appointmentCountsQueryKey = (accountId) => ["appointments", accountId, "counts"];
+export const historyQueryKey = (accountId, args) => ["appointments", accountId, "history", args];
 export const rescheduleRequestQueryKey = (accountId) => ["reschedule-requests", accountId];
 export const sessionNotesQueryKey = (accountId) => ["session-notes", accountId];
 export const psychiatristsQueryKey = ["psychiatrists", "active"];
@@ -11,6 +14,35 @@ export async function fetchAppointments() {
 
   if (error) throw error;
   return data || [];
+}
+
+export async function fetchUpcomingAppointments() {
+  const { data, error } = await supabase.rpc("get_my_upcoming_appointments");
+  if (error) throw error;
+  return data || [];
+}
+
+export async function fetchAppointmentCounts() {
+  const { data, error } = await supabase.rpc("get_my_appointment_counts");
+  if (error) throw error;
+  const row = data?.[0];
+  return { upcoming: Number(row?.upcoming_count || 0), history: Number(row?.history_count || 0) };
+}
+
+// One page of history, newest first. `cursor` is the last row already shown ({ startsAt, id }) or null for the first page.
+export async function fetchHistoryPage({ args, cursor, pageSize }) {
+  const { data, error } = await supabase.rpc("get_my_appointment_history_page", {
+    search_text: args.searchText || null,
+    from_date: args.fromDate || null,
+    to_date: args.toDate || null,
+    status_filter: args.status || null,
+    cursor_starts_at: cursor?.startsAt ?? null,
+    cursor_id: cursor?.id ?? null,
+    page_size: pageSize,
+  });
+  if (error) throw error;
+  const rows = data || [];
+  return { rows, total: rows.length ? Number(rows[0].total_count) : 0 };
 }
 
 export async function fetchAdminAppointments() {

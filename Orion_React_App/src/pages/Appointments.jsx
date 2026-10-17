@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Button, ButtonLink } from "../components/ui/Button";
@@ -7,7 +7,7 @@ import { useAuth } from "../features/auth/authContext";
 import { AppointmentList } from "../features/appointments/components/AppointmentList";
 import { CancellationDialog } from "../features/appointments/components/CancellationDialog";
 import { appointmentErrorCode, cancelAppointment, cancelPsychiatristAppointment, recordOutcome } from "../features/appointments/mutations";
-import { appointmentQueryKey, fetchAppointments, fetchSessionNoteIndex, sessionNotesQueryKey } from "../features/appointments/queries";
+import { appointmentCountsQueryKey, appointmentQueryKey, fetchAppointmentCounts, fetchSessionNoteIndex, fetchUpcomingAppointments, sessionNotesQueryKey, upcomingAppointmentsQueryKey } from "../features/appointments/queries";
 import { useMeetingWindowClock } from "../lib/useMeetingWindowClock";
 import { OutcomeDialog } from "../features/appointments/components/OutcomeDialog";
 import { RescheduleRequests } from "../features/appointments/components/RescheduleRequests";
@@ -27,9 +27,10 @@ export default function Appointments() {
   const [cancellationExplanation, setCancellationExplanation] = useState("");
   const client = useQueryClient();
   const { data: appointments = [], error, isPending, refetch } = useQuery({
-    queryKey: appointmentQueryKey(profile.id),
-    queryFn: fetchAppointments,
+    queryKey: upcomingAppointmentsQueryKey(profile.id),
+    queryFn: fetchUpcomingAppointments,
   });
+  const counts = useQuery({ queryKey: appointmentCountsQueryKey(profile.id), queryFn: fetchAppointmentCounts });
   const cancellation = useMutation({ mutationFn: cancelAppointment });
   const clinicianCancellation = useMutation({ mutationFn: cancelPsychiatristAppointment });
   const outcome = useMutation({ mutationFn: recordOutcome });
@@ -37,6 +38,13 @@ export default function Appointments() {
   const navigate = useNavigate();
   const now = useMeetingWindowClock(appointments);
   const isPatient = profile.role === "patient";
+
+  // When an upcoming appointment ends, refresh so it moves into history.
+  useEffect(() => {
+    if (appointments.some((appointment) => new Date(appointment.ends_at).getTime() < now.getTime())) {
+      client.invalidateQueries({ queryKey: appointmentQueryKey(profile.id) });
+    }
+  }, [now, appointments, client, profile.id]);
 
   const closeCancellation = () => {
     setSelectedAppointment(null);
@@ -97,9 +105,9 @@ export default function Appointments() {
     {!isPatient && <RescheduleRequests profile={profile} />}
     {isPending && <StatusMessage>Loading appointments…</StatusMessage>}
     {error && <StatusMessage tone="error">Appointments could not be loaded. <Button variant="quiet" onClick={() => refetch()}>Try again</Button></StatusMessage>}
-    {!isPending && !error && !appointments.length && <StatusMessage>No appointments are scheduled.</StatusMessage>}
+    {!isPending && !error && counts.data && !counts.data.upcoming && !counts.data.history && <StatusMessage>No appointments are scheduled.</StatusMessage>}
     {message && <StatusMessage tone={message.kind === "success" ? "success" : "error"}>{message.text}</StatusMessage>}
-    {!isPending && !error && appointments.length > 0 && <AppointmentList appointments={appointments} isPatient={isPatient} now={now} noteIds={noteIds} onCancel={selectAppointmentForCancellation} onReschedule={(appointment) => navigate(`/patient-appointment?reschedule=${appointment.id}`)} onClinicianCancel={selectAppointmentForCancellation} onOutcome={(appointment, status) => setSelectedOutcome({ appointment, status })} onNote={setSelectedNote} />}
+    {!isPending && !error && counts.data && (counts.data.upcoming > 0 || counts.data.history > 0) && <AppointmentList appointments={appointments} counts={counts.data} profileId={profile.id} isPatient={isPatient} now={now} noteIds={noteIds} onCancel={selectAppointmentForCancellation} onReschedule={(appointment) => navigate(`/patient-appointment?reschedule=${appointment.id}`)} onClinicianCancel={selectAppointmentForCancellation} onOutcome={(appointment, status) => setSelectedOutcome({ appointment, status })} onNote={setSelectedNote} />}
     <CancellationDialog appointment={selectedAppointment} busy={cancellation.isPending || clinicianCancellation.isPending} error={cancellationError} denied={cancellationDenied} onClose={closeCancellation} onConfirm={confirmCancellation} requiresReason={!isPatient} reasonCode={cancellationReasonCode} explanation={cancellationExplanation} onReasonCodeChange={setCancellationReasonCode} onExplanationChange={setCancellationExplanation} />
     <OutcomeDialog appointment={selectedOutcome?.appointment} status={selectedOutcome?.status} busy={outcome.isPending} error={Boolean(outcome.error)} onClose={() => setSelectedOutcome(null)} onConfirm={confirmOutcome} />
     <SessionNoteDialog appointment={selectedNote} note={(notes.data || []).find((item) => item.appointment_id === selectedNote?.id)} isPatient={isPatient} accountId={profile.id} onClose={() => setSelectedNote(null)} />

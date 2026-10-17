@@ -1,4 +1,4 @@
-// Pure helpers for the appointment history view. All dates are compared as Asia/Manila calendar days.
+// Pure helpers for the appointment history view; the database does the actual filtering. All dates are compared as Asia/Manila calendar days.
 const manilaDay = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila", year: "numeric", month: "2-digit", day: "2-digit" });
 const manilaMonthLabel = new Intl.DateTimeFormat("en-PH", { timeZone: "Asia/Manila", month: "long", year: "numeric" });
 
@@ -34,22 +34,18 @@ export function resolveRange(filters, now = new Date()) {
   return { from: "", to: "" };
 }
 
-export function filterHistory(appointments, filters, now = new Date()) {
-  const term = filters.search.trim().toLowerCase();
+// Arguments for get_my_appointment_history_page. Dates are Asia/Manila calendar days, inclusive.
+export function historyQueryArgs(filters, now = new Date()) {
   const { from, to } = resolveRange(filters, now);
-  return appointments
-    .filter((appointment) => {
-      if (filters.status !== "all" && appointment.status !== filters.status) return false;
-      if (term && !(appointment.counterpart_display_name || "").toLowerCase().includes(term)) return false;
-      const key = manilaDateKey(appointment.starts_at);
-      if (from && key < from) return false;
-      if (to && key > to) return false;
-      return true;
-    })
-    .sort((a, b) => new Date(b.starts_at) - new Date(a.starts_at) || (a.id < b.id ? 1 : -1));
+  return {
+    searchText: filters.search.trim(),
+    fromDate: from,
+    toDate: to,
+    status: filters.status === "all" ? "" : filters.status,
+  };
 }
 
-// Groups an already newest-first list into month sections, keeping order.
+// Groups a newest-first list into month sections, keeping order.
 export function groupByMonth(appointments) {
   const groups = [];
   for (const appointment of appointments) {
