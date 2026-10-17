@@ -27,6 +27,7 @@
     "test:db:phase14": "node scripts/test-phase14-db.mjs",
     "test:db:phase15": "node scripts/test-phase15-db.mjs",
     "test:db:phase19": "node scripts/test-phase19-db.mjs",
+    "test:db:appointment-history": "node scripts/test-appointment-history-db.mjs",
     "test:db:support-hardening": "node scripts/test-support-hardening-db.mjs",
     "test:support:permissions": "node scripts/test-support-permissions.mjs",
     "test:auth:no-email": "node --env-file=.env scripts/test-phase3-auth-no-email.mjs",
