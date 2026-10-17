@@ -1,7 +1,7 @@
 .home-page { background: #fff; color: #071674; min-height: 100%; overflow: hidden; }
 .home-intro { margin: 0 auto; max-width: 60rem; padding: clamp(3.5rem, 8vw, 6rem) 1.5rem clamp(2.5rem, 6vw, 4rem); text-align: center; }
 .home-kicker { color: #071674; font-size: .78rem; font-weight: 800; letter-spacing: .18em; margin: 0 0 .8rem; text-transform: uppercase; }
-.home-intro h1 { color: #081a91; font-family: var(--font-secondary); font-size: clamp(2.4rem, 6vw, 4.6rem); font-weight: 800; letter-spacing: -.045em; line-height: 1.05; margin: 0; }
+.home-intro h1 { color: #081a91; font-family: var(--font-secondary); font-size: clamp(2.4rem, 6vw, 4.6rem); font-weight: 600; letter-spacing: -.012em; line-height: 1.05; margin: 0; }
 .home-intro__subline { color: #151515; font-size: clamp(1rem, 2vw, 1.25rem); font-style: italic; margin: 1.2rem auto 0; max-width: 44rem; }
 .home-offerings { display: grid; gap: clamp(1.4rem, 3vw, 2.5rem); margin: 0 auto; max-width: 75rem; padding: 0 1.25rem 1rem; }
 .home-offering { align-items: center; border-radius: 2.6rem; display: grid; gap: clamp(2rem, 5vw, 5rem); grid-template-columns: minmax(0, 1fr) minmax(12rem, 25rem); min-height: 23rem; overflow: hidden; padding: clamp(2rem, 5vw, 4.4rem); position: relative; }
@@ -11,7 +11,7 @@
 .home-offering--training { background: linear-gradient(118deg, #cbd9fa 0%, #3941ef 100%); }
 .home-offering__copy { position: relative; z-index: 1; }
 .home-offering__index { color: #071674; font-size: .76rem; font-weight: 800; letter-spacing: .14em; margin: 0 0 1.25rem; text-transform: uppercase; }
-.home-offering h2 { color: #071674; font-family: var(--font-secondary); font-size: clamp(2rem, 4vw, 3.3rem); font-weight: 800; letter-spacing: -.035em; line-height: 1.05; margin: 0; max-width: 34rem; }
+.home-offering h2 { color: #071674; font-family: var(--font-secondary); font-size: clamp(2rem, 4vw, 3.3rem); font-weight: 600; letter-spacing: -.012em; line-height: 1.05; margin: 0; max-width: 34rem; }
 .home-offering__description { color: #fff; font-size: clamp(1.35rem, 2.8vw, 2rem); font-style: italic; font-weight: 800; line-height: 1.15; margin: 1.4rem 0 .75rem; }
 .home-offering__quote { color: #071674; font-size: 1rem; font-style: italic; line-height: 1.45; margin: 0; max-width: 33rem; }
 .home-offering__link, .home-callout__link { background: #071674; border-radius: .3rem; color: #fff; display: inline-flex; font-size: .95rem; font-weight: 800; gap: .2rem; margin-top: 1.5rem; padding: .75rem 1.35rem; text-decoration: none; transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast); }

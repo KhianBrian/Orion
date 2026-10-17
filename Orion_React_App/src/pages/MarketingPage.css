@@ -6,14 +6,14 @@
 .counseling-page { background: linear-gradient(115deg, #f5d9fa 0%, #e6a5c9 100%); color: #071674; min-height: 100%; overflow: hidden; padding-bottom: 4rem; }
 .counseling-intro { margin: 0 auto; max-width: 62rem; padding: clamp(4.5rem, 10vw, 7.5rem) 1.5rem clamp(3.5rem, 8vw, 6rem); text-align: center; }
 .counseling-kicker, .counseling-panel__eyebrow { color: #7d2e77; font-size: .78rem; font-weight: 800; letter-spacing: .16em; margin: 0 0 .8rem; text-transform: uppercase; }
-.counseling-intro h1 { color: #081a91; font-family: var(--font-secondary); font-size: clamp(2.7rem, 7vw, 5.4rem); font-weight: 800; letter-spacing: -.055em; line-height: 1; margin: 0; }
+.counseling-intro h1 { color: #081a91; font-family: var(--font-secondary); font-size: clamp(2.7rem, 7vw, 5.4rem); font-weight: 600; letter-spacing: -.012em; line-height: 1; margin: 0; }
 .counseling-intro__tagline { color: #111; font-size: clamp(1.2rem, 2.5vw, 1.8rem); font-weight: 800; font-style: italic; margin: 1.5rem 0 .35rem; }
 .counseling-intro__subline { color: #111; font-size: 1rem; font-style: italic; margin: 0; }
 .counseling-panel, .counseling-benefits { margin: 0 auto; max-width: 75rem; }
 .counseling-panel { align-items: center; display: grid; gap: clamp(2rem, 6vw, 5.5rem); margin-bottom: 2rem; padding: clamp(2rem, 5vw, 4.5rem); }
 .counseling-panel--listen { background: linear-gradient(125deg, #f1c7f0, #e9a1c7); border-radius: 2.8rem 2.8rem 2.8rem 0; grid-template-columns: minmax(0, 1.2fr) minmax(14rem, .8fr); }
 .counseling-panel--approach { background: rgb(249 198 225 / .68); border-radius: 2.8rem 0 2.8rem 2.8rem; grid-template-columns: minmax(14rem, .75fr) minmax(0, 1.25fr); }
-.counseling-panel h2, .counseling-benefits h2 { color: #071674; font-family: var(--font-secondary); font-size: clamp(2rem, 4vw, 3.3rem); letter-spacing: -.04em; line-height: 1.05; margin: 0 0 1.25rem; }
+.counseling-panel h2, .counseling-benefits h2 { color: #071674; font-family: var(--font-secondary); font-size: clamp(2rem, 4vw, 3.3rem); letter-spacing: -.012em; line-height: 1.05; margin: 0 0 1.25rem; }
 .counseling-panel p:not(.counseling-panel__eyebrow) { color: #131313; font-size: clamp(1rem, 1.7vw, 1.2rem); line-height: 1.65; margin: 0 0 1rem; }
 .counseling-panel img { border-radius: 2rem; display: block; max-height: 20rem; object-fit: cover; width: 100%; }
 .counseling-benefits { padding: 3rem clamp(1.5rem, 5vw, 4rem) 1rem; }
