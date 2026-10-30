@@ -29,7 +29,7 @@ This folder contains dated records of completed audits and implementation passes
 | [2026-10-17 Booking conflict message](20261017-booking-conflict-message-audit.md) | Simultaneous same-slot and overlapping-slot booking behaviour, the overlap error mapping fix, and race test evidence. |
 | [2026-10-17 Phase 19 close-off](20261017-phase-19-close-off-audit.md) | Rate limits, reporting a recent call by ID, wider permission tests, review findings, and exact test evidence. |
 | [2026-10-18 Appointment history paging](20261018-appointment-history-paging-audit.md) | Database-side filtering and paging of appointment history, the compact history view, home dashboards on the new queries, and exact test evidence. |
-| [2026-10-31 Phase 17 Maya sandbox spike](20261031-phase-17-maya-sandbox-spike-audit.md) | Observed Maya Checkout sandbox behaviour (create, pay, retrieve endpoints, key rules), mapping to existing payment tables, and untested items. |
+| [2026-10-31 Phase 17 Maya sandbox spike](20261031-phase-17-maya-sandbox-spike-audit.md) | Observed Maya Checkout sandbox behaviour: create, pay, fail, cancel, void, duplicate references, retrieve endpoints, key rules, and untested items (expiry, webhooks, wallets). |
 
 Read an audit when you need to understand why an existing UI or file looks the way it does, what was already verified, or which limitations remain open. When an audit conflicts with current product scope or architecture, the current parent document wins.
 
