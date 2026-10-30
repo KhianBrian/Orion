@@ -79,7 +79,8 @@ must compute the price server-side, send an `https` redirect, and never trust cl
 | Declined card (3-D Secure page, failed) | `COMPLETED` | `PAYMENT_FAILED` | false | **a UUID, not null** |
 | Cancelled with Back to Merchant | `COMPLETED` | `PAYMENT_CANCELLED` | false | null |
 | Voided after payment | `COMPLETED` | `VOIDED` | false | unchanged |
-| Tab closed without paying | `CREATED` | `PENDING_TOKEN` | false | null |
+| Tab closed without paying, checked before expiry | `CREATED` | `PENDING_TOKEN` | false | null |
+| Any unpaid checkout, checked after its hour passed | `EXPIRED` | `PAYMENT_EXPIRED` | false | null |
 
 Consequences that matter for Orion:
 
@@ -100,6 +101,22 @@ Consequences that matter for Orion:
 7. **Reported by the tester, not proven by the API.** Landing on the `/cancel` redirect for a
    scenario Maya still shows as pending (`closed-tab`) means a redirect is not evidence of state.
    Only the explicit Back to Merchant scenario was recorded as cancelled.
+
+### Expiry
+
+- **Observed.** Every unpaid checkout (never opened, tab closed, abandoned before the card form, and
+  the unpaid duplicate-reference twin) changed to `status: EXPIRED`, `paymentStatus: PAYMENT_EXPIRED`
+  about 14 seconds after its `expiredAt` time (`updatedAt` 17:47:15 against `expiredAt` 17:47:01 UTC).
+  Paid, failed, cancelled, and authentication-failed checkouts were left unchanged.
+- **Observed.** Before `expiredAt` those same checkouts still read `PENDING_TOKEN`, so a pending status
+  is not final until the hour has passed.
+- *Inferred:* the change is a periodic sweep, not an instant event, so a short delay after `expiredAt`
+  is normal. Orion should still run its own timer and reconcile, rather than rely on the sweep alone.
+
+### Registered webhooks
+
+- **Observed.** A read-only `GET /payments/v1/webhooks` on the shared sandbox merchant returned an
+  empty object, so nothing is registered there. Nothing was created or changed.
 
 ### Card and 3-D Secure behaviour
 
@@ -131,9 +148,6 @@ Consequences that matter for Orion:
 
 ## Not tested or not available
 
-- **Expiry.** Maya documents one hour (`expiredAt` is exactly one hour after creation).
-  The abandoned checkouts were still pending at 17:26 UTC, before their 17:47 UTC expiry, so
-  **whether and how the status changes after expiry is untested.** Re-run `report` after that time.
 - **Maya wallet and QR payments.** The sandbox merchant's hosted page offered cards only; no wallet
   option was shown, and the checkout record listed only Mastercard, Visa, and JCB. Whether wallets
   need a different merchant, enablement, or a phone is unknown.
@@ -154,7 +168,9 @@ These are inputs for planning, not decisions.
 2. Never infer "paid" from checkout `status`, `receiptNumber`, or a browser redirect.
 3. A reconciliation job can use the reference lookup, filtered by checkout ID, to recover missed
    webhooks and to settle attempts that stay pending.
-4. Orion must own its `payment_pending` expiry rather than rely on Maya to flip the status.
+4. Maya flips an abandoned checkout to `PAYMENT_EXPIRED` shortly after its hour, but Orion should
+   still own its `payment_pending` expiry and reconcile, because the change is a delayed sweep and a
+   missed webhook must not hold a slot. The Orion expiry value is an owner decision.
 5. Validate amount and currency server-side, always send `https` redirects, and use one unique
    reference per attempt.
 6. Plan for a void path (cancel before cut-off) and a separate refund path after it.
@@ -166,7 +182,6 @@ These are inputs for planning, not decisions.
 3. Do webhooks carry a unique event ID, or must idempotency use payment ID plus status?
 4. What is the refund cut-off time, and the exact refund endpoint, window, and fees?
 5. Why does the sandbox merchant hide wallet payment, and how is wallet testing enabled?
-6. What status does an abandoned checkout take after its hour has passed?
 
 ## Data handling
 

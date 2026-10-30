@@ -8,6 +8,7 @@
 //   node maya-sandbox-spike.mjs create <label>   one more labelled checkout (retries)
 //   node maya-sandbox-spike.mjs adopt <label> <checkoutId> <requestReferenceNumber>
 //   node maya-sandbox-spike.mjs money <label>    refund then void probes on a paid checkout
+//   node maya-sandbox-spike.mjs refund <label> [amount]   refund after the cut-off (partial if amount given)
 //   node maya-sandbox-spike.mjs webhooks         read-only list of registered webhooks
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { randomUUID } from "node:crypto";
@@ -186,9 +187,19 @@ if (mode === "validate") {
   show("void again (double void)", await call("POST", `/payments/v1/payments/${id}/voids`, sk, { reason: "spike" }));
   show("after", await call("GET", `/payments/v1/payments/${id}`, sk));
   show("checkout after", await call("GET", `/checkout/v1/checkouts/${id}`, sk));
+} else if (mode === "refund") {
+  // refund <label> [amount]  — omit amount for a full refund. Only works after Maya's cut-off.
+  const run = loadState().runs[process.argv[3]];
+  if (!run) { console.error("unknown label"); process.exit(1); }
+  const sk = need("MAYA_SECRET_KEY");
+  const amount = process.argv[4] ? Number(process.argv[4]) : 100;
+  show("before", await call("GET", `/payments/v1/payments/${run.checkoutId}`, sk));
+  show(`refund ${amount}`, await call("POST", `/payments/v1/payments/${run.checkoutId}/refunds`, sk, { totalAmount: { amount, currency: "PHP" }, reason: "spike" }));
+  show("after", await call("GET", `/payments/v1/payments/${run.checkoutId}`, sk));
+  show("checkout after", await call("GET", `/checkout/v1/checkouts/${run.checkoutId}`, sk));
 } else if (mode === "webhooks") {
   show("webhooks (read-only)", await call("GET", "/payments/v1/webhooks", need("MAYA_SECRET_KEY")));
 } else {
-  console.error("Usage: validate | prepare | report | adopt | money | webhooks");
+  console.error("Usage: validate | prepare | create | report | adopt | money | refund | webhooks");
   process.exit(1);
 }
