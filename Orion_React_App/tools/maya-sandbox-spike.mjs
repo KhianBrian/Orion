@@ -10,6 +10,8 @@
 //   node maya-sandbox-spike.mjs money <label>    refund then void probes on a paid checkout
 //   node maya-sandbox-spike.mjs refund <label> [amount]   refund after the cut-off (partial if amount given)
 //   node maya-sandbox-spike.mjs webhooks         read-only list of registered webhooks
+//   node maya-sandbox-spike.mjs wallet-create <label>   Pay with Maya wallet payment (use the Pay with Maya keys, not Checkout keys)
+//   node maya-sandbox-spike.mjs wallet-report <labelOrId>   status (public key) and full record (secret key) of a wallet payment
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
@@ -201,7 +203,37 @@ if (mode === "validate") {
   show("checkout after", await call("GET", `/checkout/v1/checkouts/${run.checkoutId}`, sk));
 } else if (mode === "webhooks") {
   show("webhooks (read-only)", await call("GET", "/payments/v1/webhooks", need("MAYA_SECRET_KEY")));
+} else if (mode === "wallet-create") {
+  // Pay with Maya is a separate product from Checkout: its own endpoint, and keys that Checkout rejects (K007).
+  const label = process.argv[3];
+  if (!label) { console.error("usage: wallet-create <label>"); process.exit(1); }
+  const state = loadState();
+  const body = {
+    totalAmount: { value: 100, currency: "PHP" },
+    requestReferenceNumber: randomUUID(),
+    redirectUrl: {
+      success: "https://example.com/success",
+      failure: "https://example.com/failure",
+      cancel: "https://example.com/cancel",
+    },
+  };
+  const r = await call("POST", "/payby/v2/paymaya/payments", need("MAYA_PUBLIC_KEY"), body);
+  if (r.status !== 200) { console.log(`${label}: wallet create failed ${r.status}`, r.body); }
+  else {
+    state.runs[label] = { rrn: body.requestReferenceNumber, checkoutId: r.body.paymentId, url: r.body.redirectUrl, note: "wallet" };
+    saveState(state);
+    console.log(`\n[${label}] open this link and pay with a sandbox Maya wallet\n  ${r.body.redirectUrl}`);
+  }
+} else if (mode === "wallet-report") {
+  const run = findRun(process.argv[3]);
+  if (!run) { console.error("unknown label"); process.exit(1); }
+  show("status (public key)", await call("GET", `/payments/v1/payments/${run.checkoutId}/status`, need("MAYA_PUBLIC_KEY")));
+  show("payment (secret key)", await call("GET", `/payments/v1/payments/${run.checkoutId}`, need("MAYA_SECRET_KEY")));
+  if (run.rrn) {
+    const rr = await call("GET", `/payments/v1/payment-rrns/${run.rrn}`, need("MAYA_SECRET_KEY"));
+    console.log("\nby rrn ->", rr.status, Array.isArray(rr.body) ? `${rr.body.length} record(s): ${rr.body.map((x) => `${x.id.slice(0, 8)}=${x.status}`).join(", ")}` : JSON.stringify(summarise(rr.body)));
+  }
 } else {
-  console.error("Usage: validate | prepare | create | report | adopt | money | refund | webhooks");
+  console.error("Usage: validate | prepare | create | report | adopt | money | refund | webhooks | wallet-create | wallet-report");
   process.exit(1);
 }
