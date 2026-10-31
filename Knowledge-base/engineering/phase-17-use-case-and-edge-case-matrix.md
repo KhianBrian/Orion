@@ -106,7 +106,9 @@ only we use and a public HTTPS address. This is the next planned work after this
 | F3 | Money arithmetic | Convert Maya decimal strings with exact arithmetic, never floats (invariant) | Amounts arrive as decimals, strings accepted (observed) | Unit test |
 | F4 | Audit trail | Every state change leaves an audit event (invariant) | Not a Maya concern | Database test |
 | F5 | Patient privacy | No clinical detail sent to Maya (invariant) | Items and buyer fields are free text | Edge Function test on the payload |
-| F6 | Two Maya products | Record a payment method/product on each attempt so lookup, cancel and status mapping call the right Maya endpoints; card and wallet adapters sit behind one booking flow (invariant for any wallet support; whether to offer wallets is policy) | Checkout: `POST /checkout/v1/checkouts` (observed). Pay with Maya: `POST /payby/v2/paymaya/payments`, status `GET /payments/v1/payments/{id}/status` (public) or `/payments/v1/payments/{id}` (secret), cancel `POST /payments/v1/payments/{id}/cancel` before authorisation (reported). Pay with Maya keys return `401` `K007` on the Checkout create endpoint, so the products need separate key sets (observed). Wallet webhook signing coverage unknown | Unit test per adapter; sandbox wallet test pending |
+| F6 | Two Maya products | Record a payment method/product on each attempt so lookup, cancel and status mapping call the right Maya endpoints; card and wallet adapters sit behind one booking flow (invariant for any wallet support; whether to offer wallets is policy) | Checkout: `POST /checkout/v1/checkouts` (observed). Pay with Maya: `POST /payby/v2/paymaya/payments`, status `GET /payments/v1/payments/{id}/status` (public) or `/payments/v1/payments/{id}` (secret), cancel `POST /payments/v1/payments/{id}/cancel` before authorisation (reported). Pay with Maya keys return `401` `K007` on the Checkout create endpoint, so the products need separate key sets (observed). **Wallet test, observed 31 October:** the documented create request shape worked with the public key (`200`, `paymentId`, hosted `redirectUrl`); status, full record and reference lookup all returned `PENDING_TOKEN`; the wallet record has the same shape as the card record, so one status mapper can serve both. A successful wallet payment, wallet cancel, void, refund, expiry and webhook signing coverage are untested | Unit test per adapter; sandbox successful wallet payment once an account is available |
+| F7 | Wallet insufficient balance | Stay `payment_pending` and rely on Orion's own expiry; never wait for a failure event (invariant); expiry length and patient messaging are policy | Observed: insufficient balance showed a modal with Go back, no redirect to the failure URL, and the payment stayed `PENDING_TOKEN` with `isPaid` false through status, record and reference lookup. Whether Maya ever sends `PAYMENT_FAILED` for it, and its webhook behaviour, are unknown | Race test with Orion's expiry; sandbox retest on an account of our own |
+| F8 | Shared sandbox wallet accounts | Do not depend on Maya's public sandbox wallet accounts for automated tests (invariant) | Observed: the shared success account was locked after too many invalid log-ins; cause unproven (our attempts or other testers) | Obtain our own sandbox wallet accounts (open question for Maya) |
 
 ## G. Operations
 
@@ -141,7 +143,10 @@ merchant's sandbox first, never production.
 - **Wallet payments.** The first sandbox merchant offered cards only. **Corrected:** Maya documents
   that wallets and QR Ph on Maya Checkout are enabled by Maya on request (relationship manager or
   business.support@maya.ph), so that merchant simply lacked it (reported). Pay with Maya (wallet
-  link) is a separate product with its own keys; a sandbox wallet test is pending (see row F6).
+  link) is a separate product with its own keys. A sandbox test on 31 October created a wallet payment
+  and observed an insufficient-balance attempt (rows F6 and F7). A **successful** wallet payment,
+  wallet cancel, void and refund, and wallet webhooks are still untested because the shared success
+  account was locked; Orion needs its own sandbox wallet accounts.
 - **Refunds.** **Updated:** full, partial and over-refund were exercised on 1 November (see rows E2
   and E3). Still to test: a second partial refund, refund fees, and card credit timing.
 

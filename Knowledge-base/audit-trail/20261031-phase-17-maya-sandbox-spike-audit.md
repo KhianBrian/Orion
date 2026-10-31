@@ -239,6 +239,41 @@ results.
 - **Not yet tested.** A second partial refund (60 PHP remains refundable on the Visa payment), refund
   fees, and how long the money takes to reach a card. One paid checkout is untouched.
 
+### Pay with Maya wallet (observed 31 October 2026, about 17:11–17:26 UTC)
+
+Run by the parallel testing session on the Pay with Maya sandbox merchant ("Sandbox
+Non-payment facilitator merchant", shown on the page as "Test Merchant Non PF"), using Maya's
+published sandbox wallet accounts. The wallet payment was created on 31 October at 17:11 UTC.
+
+- **Observed.** `POST /payby/v2/paymaya/payments` with the **public** key, `totalAmount`
+  `{value: 100, currency: "PHP"}`, https `redirectUrl{success,failure,cancel}` and a UUID
+  `requestReferenceNumber`, returned `200` with `paymentId` and a hosted-page `redirectUrl` on
+  `payments-web-sandbox.paymaya.com/paymaya/payment?id=<paymentId>`. A numeric `value` was accepted.
+  The documented request shape is confirmed. The earlier `K007` was Checkout refusing these keys.
+- **Observed.** The hosted page offers "Express Checkout" (Maya login with mobile number and
+  password, then a choice of wallet or credit) and a QR Ph code. The "Pay using" screen lists My
+  Wallet with its balance and Maya Easy Credit (greyed out for the test account).
+- **Observed.** The zero-balance sandbox account logged in, showed My Wallet PHP 0.59 (Maya's docs
+  say it always has 0) with an "Insufficient balance" line, and Continue opened a "You're a little
+  short" modal with a Go back button. There was **no redirect** to our failure URL.
+- **Observed.** Afterwards the status read `PENDING_TOKEN` through all three routes: the public-key
+  `GET /payments/v1/payments/{id}/status` (`200`, `{id, status}`), the secret-key
+  `GET /payments/v1/payments/{id}` (`isPaid` false, `canVoid` false, `canRefund` false, `updatedAt`
+  17:25:45 UTC against created 17:11:00), and `GET /payments/v1/payment-rrns/{rrn}` (a one-record
+  array). **An insufficient-balance attempt does not become a failed payment**: it stays pending and
+  the patient can choose another method or leave. *Inferred:* Orion must own its pending expiry and
+  must not wait for a failure event. Webhook behaviour for this case is untested.
+- **Observed.** The wallet payment record has the same shape as the card record (`id`, `status`,
+  `isPaid`, amount, currency, `canVoid`, `canRefund`, timestamps, reference number), so one status
+  mapper can serve both products. Wallet statuses beyond `PENDING_TOKEN` are unobserved.
+- **Observed.** The shared success account was locked by Maya ("too many invalid log in attempts")
+  before any successful login. The cause is **unproven**: it may be our own wrong password attempts
+  (the one-time code was probably typed as the password) or other testers, since these accounts are
+  public and shared. Password reset was deliberately not used because it would change a shared
+  account.
+- **Not tested as a result.** A successful wallet payment, wallet cancel, void and refund, wallet
+  expiry, and wallet webhook payloads and signatures.
+
 ### Data to store
 
 - **Observed.** Responses contain a payment token, masked card number, expiry, buyer-name
@@ -255,7 +290,9 @@ results.
   option was shown, and the checkout record listed only Mastercard, Visa, and JCB. **Corrected 1
   November 2026:** Maya documents that wallets and QR Ph on Maya Checkout are enabled by Maya on
   request, so this merchant most likely lacked the enablement (**reported**, see Corrections, item
-  5). Pay with Maya (wallet link) is a separate product and key set; a wallet test is pending.
+  5). Pay with Maya (wallet link) is a separate product and key set. It was tested on 31 October
+  as far as an insufficient-balance attempt (see "Pay with Maya wallet"); a successful wallet
+  payment was not reached.
 - **Webhooks.** Sandbox cannot reach localhost and the shared merchant is not safe to register
   webhooks on, so delivery, payload shape, event identifiers, and retries remain **reported** only.
   A merchant of our own with a public HTTPS test endpoint is required.
@@ -299,6 +336,15 @@ Status after the 1 November 2026 corrections:
    the sandbox. Still open: **fees** (policy and Maya) and real card credit timing.
 5. ~~Why does the sandbox merchant hide wallet payment?~~ **Answered (reported):** wallets and QR Ph
    are enabled by Maya on request. Still open: how to request it for our own merchant.
+
+New open questions from the wallet test (added 1 November 2026):
+
+6. Can we get our own sandbox wallet accounts, and is Business Manager's sandbox the way? The shared
+   success account was locked.
+7. Do webhooks and signatures cover Pay with Maya payments?
+8. What is the wallet payment's expiry?
+9. How do wallet cancel and refund behave (before and after authorisation)?
+10. Does an insufficient-balance attempt ever produce `PAYMENT_FAILED`, or does it only expire?
 
 ## Data handling
 
