@@ -26,6 +26,8 @@ const need = (name) => {
 };
 const loadState = () => (existsSync(STATE) ? JSON.parse(readFileSync(STATE, "utf8")) : { runs: {} });
 const saveState = (s) => writeFileSync(STATE, JSON.stringify(s, null, 2));
+// A label, or a raw checkout id (the state file lives in a temp folder the OS may clear).
+const findRun = (arg) => loadState().runs[arg] ?? (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(arg ?? "") ? { checkoutId: arg.toLowerCase() } : undefined);
 
 async function call(method, path, key, body, raw) {
   const headers = { "Content-Type": "application/json" };
@@ -177,7 +179,7 @@ if (mode === "validate") {
   saveState(state);
   console.log(`adopted ${label}`);
 } else if (mode === "money") {
-  const run = loadState().runs[process.argv[3]];
+  const run = findRun(process.argv[3]);
   if (!run) { console.error("unknown label"); process.exit(1); }
   const sk = need("MAYA_SECRET_KEY");
   const id = run.checkoutId;
@@ -189,7 +191,7 @@ if (mode === "validate") {
   show("checkout after", await call("GET", `/checkout/v1/checkouts/${id}`, sk));
 } else if (mode === "refund") {
   // refund <label> [amount]  — omit amount for a full refund. Only works after Maya's cut-off.
-  const run = loadState().runs[process.argv[3]];
+  const run = findRun(process.argv[3]);
   if (!run) { console.error("unknown label"); process.exit(1); }
   const sk = need("MAYA_SECRET_KEY");
   const amount = process.argv[4] ? Number(process.argv[4]) : 100;

@@ -133,8 +133,11 @@ Consequences that matter for Orion:
   refund before cut-off time". `canRefund` was false.
 - **Observed.** A void on a paid card payment succeeds (`200`) and the payment then reads `VOIDED`,
   `isPaid: false`. A second void is rejected: `400`, `PY0045`, so repeated voids are safe.
+- **Observed.** About 20 hours after payment, both a full refund (100 PHP) and a partial refund
+  (40 PHP) were still rejected with `PY0072`, and `canRefund` stayed false. The real cut-off is
+  therefore longer than 20 hours, or the sandbox does not simulate it.
 - *Inferred:* before the cut-off a cancellation is a void, and after it a refund. The cut-off time
-  and refund path are not yet exercised and need Maya confirmation.
+  and a successful refund remain unexercised and need Maya confirmation.
 
 ### Data to store
 
@@ -154,7 +157,8 @@ Consequences that matter for Orion:
 - **Webhooks.** Sandbox cannot reach localhost and the shared merchant is not safe to register
   webhooks on, so delivery, payload shape, event identifiers, and retries remain **reported** only.
   A merchant of our own with a public HTTPS test endpoint is required.
-- **Refund after the cut-off,** partial refunds, and capture.
+- **A successful refund.** Not reached; see the void and refund section. Over-refund and repeated
+  partial refunds are untested for the same reason. Capture was not tested.
 - **Webhook authenticity.** Maya documents no payload signature. Source IP allow-listing is
   documented but may not be readable inside a Supabase Edge Function.
 
@@ -180,7 +184,8 @@ These are inputs for planning, not decisions.
 1. Is a webhook signature or shared secret available?
 2. Which production host is correct for Create Checkout: `pg.maya.ph` or `pg.paymaya.com`?
 3. Do webhooks carry a unique event ID, or must idempotency use payment ID plus status?
-4. What is the refund cut-off time, and the exact refund endpoint, window, and fees?
+4. What is the refund cut-off time (still blocked after 20 hours in the sandbox), and the exact
+   refund window and fees?
 5. Why does the sandbox merchant hide wallet payment, and how is wallet testing enabled?
 
 ## Data handling
