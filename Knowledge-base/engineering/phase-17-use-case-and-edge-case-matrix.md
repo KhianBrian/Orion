@@ -21,6 +21,15 @@ a server-verified payment may move an appointment to `booked`. Where it says *po
 behaviour is a commercial, clinical or operations decision that is still open, and the row only
 records that a decision is needed.
 
+## Corrections (1 November 2026)
+
+Maya's own documentation, read after the spike, showed that rows C1, C2, C3, E2, E3 and G4 and
+two "not yet covered" bullets were wrong or incomplete. Rows below are amended in place and marked
+**Corrected**; the reasons and source URLs are in the
+[audit entry's Corrections section](../audit-trail/20261031-phase-17-maya-sandbox-spike-audit.md#corrections-1-november-2026).
+All corrected Maya claims are **reported** (documentation, not exercised). Engineering
+recommendations here are for owners to confirm, not decisions.
+
 ## A. Creating a payment attempt
 
 | # | Scenario | Orion must | Maya evidence | Test |
@@ -51,14 +60,14 @@ records that a decision is needed.
 
 | # | Scenario | Orion must | Maya evidence | Test |
 | --- | --- | --- | --- | --- |
-| C1 | Forged webhook | Treat as a trigger only; re-fetch and verify (invariant) | No documented signature (reported) | Forged-event test |
-| C2 | Same event delivered twice | Process once (invariant) | Retries at 0, 5, 15 and 45 minutes (reported); event ID unknown | Database test on the unique event key |
-| C3 | Events arrive out of order | End in the right state regardless of order (invariant) | Unknown | Unit test with shuffled events |
+| C1 | Forged webhook | Treat as a trigger only; re-fetch and verify, and also verify the signature and timestamp where Maya provides them (invariant) | **Corrected:** RSA-SHA256 signature in `X-Maya-Webhook-Signature` (`v1` value plus nonce), `X-Maya-Webhook-Timestamp` to validate (suggested 5-minute tolerance), Maya public keys per environment (reported); whether it covers Pay with Maya wallet webhooks is unknown | Forged-event test; signature test once a merchant of our own exists |
+| C2 | Same event delivered twice | Process once (invariant) | **Corrected:** no unique event ID documented; Maya says to be idempotent on payment `id` plus `status`, and to expect duplicate delivery. Four attempts at 0, 5, 15 and 45 minutes (reported) | Database test on a unique key of payment `id` plus `status` |
+| C3 | Events arrive out of order | End in the right state regardless of order (invariant) | **Corrected:** Maya documents no ordering guarantee (reported) | Unit test with shuffled events |
 | C4 | Webhook arrives before the patient returns | Same result as the return path (invariant) | Unknown | End-to-end test |
 | C5 | Webhook never arrives | Reconciliation settles it within the policy window (invariant); the window is policy | Unknown | Reconciliation test |
 | C6 | Handler is slow | Return 200 within five seconds and defer heavy work (invariant) | Five-second limit (reported) | Edge Function timing test |
-| C7 | Source IP filtering | Decide whether it is usable inside an Edge Function | IPs documented (reported); readability unknown | Spike on the deployed function |
-| C8 | Which events to subscribe to | Success, failed, expired, cancelled and authorised, per the Maya docs | Reported only | Sandbox run with our own merchant |
+| C7 | Source IP filtering | Decide whether it is usable inside an Edge Function | IPs documented (reported): sandbox 13.229.160.234 and 3.1.199.75, production 18.138.50.235 and 3.1.207.200; readability unknown | Spike on the deployed function |
+| C8 | Which events to subscribe to | Success, failed, expired, cancelled and authorised, per the Maya docs | `PAYMENT_SUCCESS`, `PAYMENT_FAILED`, `PAYMENT_EXPIRED`, `PAYMENT_CANCELLED`, `AUTHORIZED` (reported only) | Sandbox run with our own merchant |
 
 **Status of section C.** Webhook delivery has not been tested. It needs a sandbox merchant that
 only we use and a public HTTPS address. This is the next planned work after this document merges.
@@ -77,24 +86,29 @@ only we use and a public HTTPS address. This is the next planned work after this
 
 | # | Scenario | Orion must | Maya evidence | Test |
 | --- | --- | --- | --- | --- |
-| E1 | Cancel before Maya's cut-off | Void the payment and record it (invariant); fee treatment is policy | Void works and a second void is rejected safely (observed) | Sandbox re-run; Edge Function test |
-| E2 | Cancel after cut-off | Refund through a separate path (invariant); eligibility is policy | Refund rejected with `PY0072` after 20 hours (observed); cut-off unknown | Needs Maya's answer |
-| E3 | Partial refund and over-refund | Never refund more than was paid (invariant) | Partial refund attempted but not accepted (observed) | Unit test; sandbox once reachable |
+| E1 | Cancel before Maya's cut-off | Void the payment and record it (invariant); fee treatment is policy | Void works and a second void is rejected safely (observed); void window is the same Philippine day until 11:59 pm GMT+8 for one-time charges (reported) | Sandbox re-run; Edge Function test |
+| E2 | Cancel after cut-off | Refund through a separate path (invariant); eligibility is policy | Refund rejected with `PY0072` ~20 hours after payment (observed). **Corrected:** that was still the same Philippine day (paid just after midnight GMT+8); refunds open at 12:00 am GMT+8 the next day and last 180 days, manual via Maya after-sales up to one year (reported). **Retest observed:** full and partial refunds were accepted after 12:00 am GMT+8 the next day, confirming the explanation; a void then returns `PY0045` and `canVoid` is false | Edge Function test; sandbox fee and card-credit-timing check |
+| E3 | Partial refund and over-refund | Never refund more than was paid, using the stored paid amount and `refundedAmount`, not Maya's flags (invariant) | **Observed:** partial refund (40 of 100 PHP) returns a separate refund object and the payment reads `REFUNDED` with `isPaid` still true, so `REFUNDED` does not mean fully refunded; read `refundedAmount`. Over-refund is rejected with `PY0048`. `canRefund` stayed true after a full refund, so it does not show that an amount remains. Second partial refund untested | Unit test on `refundedAmount` mapping; sandbox second partial refund |
+| E9 | Void-or-refund selection | One server-side cancel action. Engineering recommendation, for owners to confirm: if the payment is still inside the same Philippine calendar day (with a safety margin before 11:59 pm GMT+8) void it, otherwise refund (full or partial per policy); if a void is rejected as past cut-off, fall back to a refund. Orion's own 24-hour patient-cancellation rule is a separate clock from Maya's void/refund clock and must not be used to choose between them. Refund eligibility and amount are policy | Void until midnight GMT+8, refund from the next day (reported); void, refund and `PY0072`/`PY0045` seen (observed; the retest confirmed void closes and refund opens at the Philippine day boundary) | Unit test on the selector around 11:59 pm GMT+8 and midnight; sandbox retest |
+| E10 | Refund timing shown to patients | Patient-facing text states the expected refund timing by method (invariant once policy allows a refund); wording is policy | Maya wallet instant; credit card 7–14 working days; debit card 30–45 days; GCash, Maya Credit and QR PH need a manual request (reported) | Copy review against policy |
 | E4 | Appointment cancelled while the patient is paying | Cancel the attempt and void any late payment (invariant) | Unknown | Race test |
 | E5 | Psychiatrist cancels a paid appointment | A refund or void follows (invariant); the rule is policy | Unknown | Policy first |
 | E6 | Reschedule of a paid appointment | Keep one payment tied to the linked appointments (invariant); treatment is policy | Unknown | Policy first |
-| E7 | Void or refund call fails | Retry safely and keep an audit trail (invariant) | `PY0045` and `PY0072` seen (observed) | Edge Function test |
+| E7 | Void or refund call fails | Retry safely and keep an audit trail (invariant) | `PY0045`, `PY0072` and `PY0048` seen (observed). Refunds have no webhook in Maya's status table (reported), so record the refund from the API response and reconcile by lookup | Edge Function test; reconciliation test |
 | E8 | Chargeback | Record and surface it (invariant); handling is policy | Unknown | Policy first |
 
 ## F. States and data
 
 | # | Scenario | Orion must | Maya evidence | Test |
 | --- | --- | --- | --- | --- |
-| F1 | Map every Maya state | Cover pending, success, failed, auth-failed, cancelled, voided and expired (invariant) | All seen (observed); `voided` is missing from `payment_attempt_status` | Migration and unit test |
+| F1 | Map every Maya state | Cover pending, success, failed, auth-failed, cancelled, voided, expired and refunded, with the refunded amount stored separately so partial refunds are not read as full (invariant) | All seen (observed, `REFUNDED` in the retest); `voided` and any refund state are missing from `payment_attempt_status` | Migration and unit test |
 | F2 | Store only what is needed | Keep provider reference, status, amount, currency, receipt and timestamps; never card data, tokens or raw payloads (invariant) | Responses contain tokens and masked card data (observed) | Log and schema review |
 | F3 | Money arithmetic | Convert Maya decimal strings with exact arithmetic, never floats (invariant) | Amounts arrive as decimals, strings accepted (observed) | Unit test |
 | F4 | Audit trail | Every state change leaves an audit event (invariant) | Not a Maya concern | Database test |
 | F5 | Patient privacy | No clinical detail sent to Maya (invariant) | Items and buyer fields are free text | Edge Function test on the payload |
+| F6 | Two Maya products | Record a payment method/product on each attempt so lookup, cancel and status mapping call the right Maya endpoints; card and wallet adapters sit behind one booking flow (invariant for any wallet support; whether to offer wallets is policy) | Checkout: `POST /checkout/v1/checkouts` (observed). Pay with Maya: `POST /payby/v2/paymaya/payments`, status `GET /payments/v1/payments/{id}/status` (public) or `/payments/v1/payments/{id}` (secret), cancel `POST /payments/v1/payments/{id}/cancel` before authorisation (reported). Pay with Maya keys return `401` `K007` on the Checkout create endpoint, so the products need separate key sets (observed). **Wallet test, observed 31 October:** the documented create request shape worked with the public key (`200`, `paymentId`, hosted `redirectUrl`); status, full record and reference lookup all returned `PENDING_TOKEN`; the wallet record has the same shape as the card record, so one status mapper can serve both. A successful wallet payment, wallet cancel, void, refund, expiry and webhook signing coverage are untested | Unit test per adapter; sandbox successful wallet payment once an account is available |
+| F7 | Wallet insufficient balance | Stay `payment_pending` and rely on Orion's own expiry; never wait for a failure event (invariant); expiry length and patient messaging are policy | Observed: insufficient balance showed a modal with Go back, no redirect to the failure URL, and the payment stayed `PENDING_TOKEN` with `isPaid` false through status, record and reference lookup. Whether Maya ever sends `PAYMENT_FAILED` for it, and its webhook behaviour, are unknown | Race test with Orion's expiry; sandbox retest on an account of our own |
+| F8 | Shared sandbox wallet accounts | Do not depend on Maya's public sandbox wallet accounts for automated tests (invariant) | Observed: the shared success account was locked after too many invalid log-ins; cause unproven (our attempts or other testers) | Obtain our own sandbox wallet accounts (open question for Maya) |
 
 ## G. Operations
 
@@ -103,7 +117,7 @@ only we use and a public HTTPS address. This is the next planned work after this
 | G1 | Maya outage | Fail safe and keep the slot unbooked (invariant); patient messaging is policy | Unknown | Stubbed-failure test |
 | G2 | Reconciliation job | Settle stuck attempts by reference lookup filtered by checkout ID (invariant); cadence is policy | Lookup works (observed) | Reconciliation test |
 | G3 | Key rotation and leakage | Secret key lives only in server secrets (invariant) | Public key cannot read, secret key cannot create (observed) | Secret-scan check |
-| G4 | Sandbox versus production | Same code path, different host and keys (invariant); production host unresolved | `pg.maya.ph` versus `pg.paymaya.com` (reported, unresolved) | Config test |
+| G4 | Sandbox versus production | Same code path, different host and keys (invariant); production host now documented | **Corrected:** `https://pg.maya.ph` is the current production API host and `https://pg.paymaya.com` is the old one; hosted pages moved to `payments.maya.ph` (reported). The Create Single Payment reference still lists the old host | Config test |
 | G5 | Receipts to patients | Policy | Unknown | Policy first |
 
 ## Re-run when the real Maya access arrives
@@ -116,7 +130,8 @@ merchant's sandbox first, never production.
 2. Re-check each **observed** claim in this matrix. A difference is a finding to record, not a
    surprise to absorb in code.
 3. Test wallet payments (see the not-yet-covered work below).
-4. Test void and refund again, and capture Maya's actual cut-off.
+4. Test void and refund again, including a refund on a later Philippine day than the payment, and
+   check the documented midnight GMT+8 cut-off.
 5. Register webhooks on a merchant only we use and run section C.
 6. Answer every open question for Maya recorded in the audit entry.
 
@@ -125,10 +140,15 @@ merchant's sandbox first, never production.
 - **Webhook delivery.** Needs a Maya sandbox merchant that only we use and a public HTTPS address.
   It waits on the answer about Maya Business Manager access. No remote deploy or webhook
   registration happens without an explicit go-ahead for the named project.
-- **Wallet payments.** The first sandbox merchant offered cards only. Next step is trying the other
-  sandbox merchants from Maya's key table to see whether a wallet option appears, then testing the
-  two sandbox wallet accounts.
-- **A successful refund.** Waits on Maya confirming the cut-off.
+- **Wallet payments.** The first sandbox merchant offered cards only. **Corrected:** Maya documents
+  that wallets and QR Ph on Maya Checkout are enabled by Maya on request (relationship manager or
+  business.support@maya.ph), so that merchant simply lacked it (reported). Pay with Maya (wallet
+  link) is a separate product with its own keys. A sandbox test on 31 October created a wallet payment
+  and observed an insufficient-balance attempt (rows F6 and F7). A **successful** wallet payment,
+  wallet cancel, void and refund, and wallet webhooks are still untested because the shared success
+  account was locked; Orion needs its own sandbox wallet accounts.
+- **Refunds.** **Updated:** full, partial and over-refund were exercised on 1 November (see rows E2
+  and E3). Still to test: a second partial refund, refund fees, and card credit timing.
 
 ## Owner decisions still blocking (not for engineering to decide)
 
