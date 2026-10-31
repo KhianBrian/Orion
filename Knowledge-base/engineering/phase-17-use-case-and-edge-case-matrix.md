@@ -87,21 +87,21 @@ only we use and a public HTTPS address. This is the next planned work after this
 | # | Scenario | Orion must | Maya evidence | Test |
 | --- | --- | --- | --- | --- |
 | E1 | Cancel before Maya's cut-off | Void the payment and record it (invariant); fee treatment is policy | Void works and a second void is rejected safely (observed); void window is the same Philippine day until 11:59 pm GMT+8 for one-time charges (reported) | Sandbox re-run; Edge Function test |
-| E2 | Cancel after cut-off | Refund through a separate path (invariant); eligibility is policy | Refund rejected with `PY0072` ~20 hours after payment (observed). **Corrected:** that was still the same Philippine day (paid just after midnight GMT+8); refunds open at 12:00 am GMT+8 the next day and last 180 days, manual via Maya after-sales up to one year (reported) | Sandbox retest on a later Philippine day |
-| E3 | Partial refund and over-refund | Never refund more than was paid (invariant) | Partial refund rejected with `PY0072` for the same-day reason (observed). Partial refunds are allowed up to the original amount (reported) | Unit test; sandbox retest on a later Philippine day |
-| E9 | Void-or-refund selection | One server-side cancel action. Engineering recommendation, for owners to confirm: if the payment is still inside the same Philippine calendar day (with a safety margin before 11:59 pm GMT+8) void it, otherwise refund (full or partial per policy); if a void is rejected as past cut-off, fall back to a refund. Orion's own 24-hour patient-cancellation rule is a separate clock from Maya's void/refund clock and must not be used to choose between them. Refund eligibility and amount are policy | Void until midnight GMT+8, refund from the next day (reported); void and `PY0072` seen (observed) | Unit test on the selector around 11:59 pm GMT+8 and midnight; sandbox retest |
+| E2 | Cancel after cut-off | Refund through a separate path (invariant); eligibility is policy | Refund rejected with `PY0072` ~20 hours after payment (observed). **Corrected:** that was still the same Philippine day (paid just after midnight GMT+8); refunds open at 12:00 am GMT+8 the next day and last 180 days, manual via Maya after-sales up to one year (reported). **Retest observed:** full and partial refunds were accepted after 12:00 am GMT+8 the next day, confirming the explanation; a void then returns `PY0045` and `canVoid` is false | Edge Function test; sandbox fee and card-credit-timing check |
+| E3 | Partial refund and over-refund | Never refund more than was paid, using the stored paid amount and `refundedAmount`, not Maya's flags (invariant) | **Observed:** partial refund (40 of 100 PHP) returns a separate refund object and the payment reads `REFUNDED` with `isPaid` still true, so `REFUNDED` does not mean fully refunded; read `refundedAmount`. Over-refund is rejected with `PY0048`. `canRefund` stayed true after a full refund, so it does not show that an amount remains. Second partial refund untested | Unit test on `refundedAmount` mapping; sandbox second partial refund |
+| E9 | Void-or-refund selection | One server-side cancel action. Engineering recommendation, for owners to confirm: if the payment is still inside the same Philippine calendar day (with a safety margin before 11:59 pm GMT+8) void it, otherwise refund (full or partial per policy); if a void is rejected as past cut-off, fall back to a refund. Orion's own 24-hour patient-cancellation rule is a separate clock from Maya's void/refund clock and must not be used to choose between them. Refund eligibility and amount are policy | Void until midnight GMT+8, refund from the next day (reported); void, refund and `PY0072`/`PY0045` seen (observed; the retest confirmed void closes and refund opens at the Philippine day boundary) | Unit test on the selector around 11:59 pm GMT+8 and midnight; sandbox retest |
 | E10 | Refund timing shown to patients | Patient-facing text states the expected refund timing by method (invariant once policy allows a refund); wording is policy | Maya wallet instant; credit card 7–14 working days; debit card 30–45 days; GCash, Maya Credit and QR PH need a manual request (reported) | Copy review against policy |
 | E4 | Appointment cancelled while the patient is paying | Cancel the attempt and void any late payment (invariant) | Unknown | Race test |
 | E5 | Psychiatrist cancels a paid appointment | A refund or void follows (invariant); the rule is policy | Unknown | Policy first |
 | E6 | Reschedule of a paid appointment | Keep one payment tied to the linked appointments (invariant); treatment is policy | Unknown | Policy first |
-| E7 | Void or refund call fails | Retry safely and keep an audit trail (invariant) | `PY0045` and `PY0072` seen (observed) | Edge Function test |
+| E7 | Void or refund call fails | Retry safely and keep an audit trail (invariant) | `PY0045`, `PY0072` and `PY0048` seen (observed). Refunds have no webhook in Maya's status table (reported), so record the refund from the API response and reconcile by lookup | Edge Function test; reconciliation test |
 | E8 | Chargeback | Record and surface it (invariant); handling is policy | Unknown | Policy first |
 
 ## F. States and data
 
 | # | Scenario | Orion must | Maya evidence | Test |
 | --- | --- | --- | --- | --- |
-| F1 | Map every Maya state | Cover pending, success, failed, auth-failed, cancelled, voided and expired (invariant) | All seen (observed); `voided` is missing from `payment_attempt_status` | Migration and unit test |
+| F1 | Map every Maya state | Cover pending, success, failed, auth-failed, cancelled, voided, expired and refunded, with the refunded amount stored separately so partial refunds are not read as full (invariant) | All seen (observed, `REFUNDED` in the retest); `voided` and any refund state are missing from `payment_attempt_status` | Migration and unit test |
 | F2 | Store only what is needed | Keep provider reference, status, amount, currency, receipt and timestamps; never card data, tokens or raw payloads (invariant) | Responses contain tokens and masked card data (observed) | Log and schema review |
 | F3 | Money arithmetic | Convert Maya decimal strings with exact arithmetic, never floats (invariant) | Amounts arrive as decimals, strings accepted (observed) | Unit test |
 | F4 | Audit trail | Every state change leaves an audit event (invariant) | Not a Maya concern | Database test |
@@ -142,9 +142,8 @@ merchant's sandbox first, never production.
   that wallets and QR Ph on Maya Checkout are enabled by Maya on request (relationship manager or
   business.support@maya.ph), so that merchant simply lacked it (reported). Pay with Maya (wallet
   link) is a separate product with its own keys; a sandbox wallet test is pending (see row F6).
-- **A successful refund.** **Corrected:** no longer waits on Maya confirming the cut-off, which is
-  documented as midnight Philippine time. It needs a retest on a later Philippine day than the
-  payment.
+- **Refunds.** **Updated:** full, partial and over-refund were exercised on 1 November (see rows E2
+  and E3). Still to test: a second partial refund, refund fees, and card credit timing.
 
 ## Owner decisions still blocking (not for engineering to decide)
 

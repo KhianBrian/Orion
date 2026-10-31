@@ -34,8 +34,8 @@ anything marked **policy** is an owner decision.
      same Philippine day, so `PY0072` is the documented behaviour, not a longer cut-off and not a
      sandbox gap. The "Asia/Manila evening" description of the test date in the header is also
      wrong: it was just after midnight on 31 October, Philippine time.
-   - **Unknown.** A successful refund has still not been exercised; a retest on a later Philippine
-     day is pending.
+   - **Observed (retest, see "Refund retest" under Void and refund).** Refunds were accepted after
+     12:00 am GMT+8 on 1 November, confirming this explanation.
 2. **Webhook signing (corrects "Webhook authenticity" and open question 1).**
    [Webhook security](https://developers.maya.ph/reference/webhook-security) documents:
    - **Reported.** RSA-SHA256 signatures in the `X-Maya-Webhook-Signature` header (a `v1` value
@@ -209,6 +209,36 @@ Consequences that matter for Orion:
   and a successful refund remain unexercised and need Maya confirmation.~~ **Corrected:** the cut-off
   is documented as midnight Philippine time (**reported**); a successful refund remains unexercised.
 
+### Refund retest (observed 31 October 2026, about 16:57 UTC = 00:57 GMT+8 on 1 November)
+
+Run shortly after the refund window opened, on the card sandbox merchant (Sandbox Party 2), against
+two of the three earlier paid test checkouts (paid 30 October about 16:47 UTC = 00:47 GMT+8 on 31
+October). The refund calls were made by the parallel testing session; this entry records its
+results.
+
+- **Observed.** A full refund (100 PHP) on a Mastercard payment was accepted. The refund response
+  itself was not captured; the later lookup shows `paymentStatus` `REFUNDED`, `refundedAmount` 100,
+  `updatedAt` 16:57:09.685Z.
+- **Observed.** A partial refund (40 PHP) on a Visa payment, `POST /payments/v1/payments/{id}/refunds`,
+  returned `200` with a separate refund object (its own ID, status `SUCCESS`, amount 40, PHP). The
+  payment record then read `REFUNDED` with `isPaid` still true, and the checkout record read `status`
+  `COMPLETED`, `paymentStatus` `REFUNDED`, `refundedAmount` 40. **`REFUNDED` therefore does not mean
+  fully refunded; Orion must read `refundedAmount`** and compare it with the amount paid.
+- **Observed.** `canRefund` stayed true even on the fully refunded payment, so it is not a reliable
+  "refundable amount remains" flag. `canVoid` was false on both (the Philippine day had passed) and a
+  void returned `400` `PY0045` "Payment is not available for void", as did a second void.
+- **Observed.** Over-refund is rejected: a further full-amount refund on each already-refunded payment
+  returned `400` `PY0048` "Requested refund amount is greater than the original amount" (on the
+  40 PHP-refunded payment it would have exceeded the original in total). Nothing extra was refunded.
+- **Observed.** The same kinds of refund were rejected with `PY0072` about 20 hours after payment
+  (still the same Philippine day) and succeeded after 12:00 am GMT+8 on 1 November. This confirms the
+  cut-off explanation in the Corrections section.
+- **Reported, not exercised.** Maya's webhook status table lists no event for `REFUNDED`
+  (**inferred** consequence: Orion must record a refund from the API response and reconcile by
+  lookup, not wait for a webhook).
+- **Not yet tested.** A second partial refund (60 PHP remains refundable on the Visa payment), refund
+  fees, and how long the money takes to reach a card. One paid checkout is untouched.
+
 ### Data to store
 
 - **Observed.** Responses contain a payment token, masked card number, expiry, buyer-name
@@ -229,8 +259,9 @@ Consequences that matter for Orion:
 - **Webhooks.** Sandbox cannot reach localhost and the shared merchant is not safe to register
   webhooks on, so delivery, payload shape, event identifiers, and retries remain **reported** only.
   A merchant of our own with a public HTTPS test endpoint is required.
-- **A successful refund.** Not reached; see the void and refund section. Over-refund and repeated
-  partial refunds are untested for the same reason. Capture was not tested.
+- **A successful refund.** ~~Not reached.~~ **Updated 1 November 2026:** full and partial refunds
+  and over-refund rejection were exercised in the retest (see "Refund retest"). Still untested:
+  a second partial refund, refund fees, card credit timing, and capture.
 - **Webhook authenticity.** ~~Maya documents no payload signature.~~ **Corrected 1 November 2026:**
   Maya documents RSA-SHA256 signatures and a timestamp header (**reported**, see Corrections, item
   2); verification is untested, and coverage of Pay with Maya wallet webhooks is unknown. Source IP
@@ -264,8 +295,8 @@ Status after the 1 November 2026 corrections:
 3. ~~Do webhooks carry a unique event ID?~~ **Answered (reported):** none documented; use payment
    `id` plus `status`.
 4. ~~What is the refund cut-off time?~~ **Answered (reported):** void until 11:59 pm GMT+8 the same
-   day, refund from 12:00 am GMT+8 the next day for 180 days. Still open: **fees** (policy and
-   Maya), and an observed successful refund.
+   day, refund from 12:00 am GMT+8 the next day for 180 days. Refunds then **observed** to work in
+   the sandbox. Still open: **fees** (policy and Maya) and real card credit timing.
 5. ~~Why does the sandbox merchant hide wallet payment?~~ **Answered (reported):** wallets and QR Ph
    are enabled by Maya on request. Still open: how to request it for our own merchant.
 
