@@ -11,6 +11,73 @@ Non-production. No Orion application code, database, or Edge Function was change
 **Status:** Evidence only. Phase 17 stays *Waiting on PayMaya API* until owner, merchant, and
 policy decisions are recorded. Nothing here approves implementation.
 
+## Corrections (1 November 2026)
+
+Reading Maya's own documentation after the spike showed that five statements in this entry were
+wrong or incomplete. The original wording below is kept and marked, not silently rewritten. Every
+item here is **reported** (Maya documentation read on 1 November 2026, not exercised in the sandbox)
+unless it says **observed** or **inferred**. Engineering recommendations are for owners to confirm;
+anything marked **policy** is an owner decision.
+
+1. **Refund cut-off (corrects "Void and refund" and open question 4).**
+   [Managing voids and refunds in Maya Checkout](https://developers.maya.ph/reference/managing-voids-and-refunds-in-maya-checkout)
+   and [Voids and refunds](https://developers.maya.ph/reference/voids-and-refunds) say:
+   - **Reported.** A void is possible on the same day until midnight Philippine time (11:59 pm
+     GMT+8 for one-time charges).
+   - **Reported.** Refunds open at 12:00 am GMT+8 on the day after the transaction and last 180
+     days (a manual request through Maya after-sales extends this to one year). Partial refunds
+     are allowed up to the original amount.
+   - **Reported.** Refund credit timing by method: Maya wallet instant; credit card 7–14 working
+     days; debit card 30–45 days; GCash, Maya Credit and QR PH need a manual request.
+   - **Inferred.** The test payments were made 16:15–17:26 UTC on 30 October, which is 12:15 am to
+     1:26 am GMT+8 on 31 October. The refunds tried about 20 hours later were therefore still the
+     same Philippine day, so `PY0072` is the documented behaviour, not a longer cut-off and not a
+     sandbox gap. The "Asia/Manila evening" description of the test date in the header is also
+     wrong: it was just after midnight on 31 October, Philippine time.
+   - **Unknown.** A successful refund has still not been exercised; a retest on a later Philippine
+     day is pending.
+2. **Webhook signing (corrects "Webhook authenticity" and open question 1).**
+   [Webhook security](https://developers.maya.ph/reference/webhook-security) documents:
+   - **Reported.** RSA-SHA256 signatures in the `X-Maya-Webhook-Signature` header (a `v1` value
+     plus a nonce).
+   - **Reported.** An `X-Maya-Webhook-Timestamp` header to validate, with a suggested five-minute
+     tolerance.
+   - **Reported.** Maya public keys per environment for verification.
+   - **Reported.** Source IPs: sandbox 13.229.160.234 and 3.1.199.75; production 18.138.50.235 and
+     3.1.207.200.
+   - **Unknown.** The documentation does not say whether this covers Pay with Maya wallet webhooks.
+     Signature verification has not been exercised; the original "documents no payload signature"
+     statement was wrong.
+3. **Webhook event ID (corrects open question 3).**
+   - **Reported.** No unique event ID is documented. Maya says to make handlers idempotent on the
+     payment `id` plus `status`
+     ([Webhook security](https://developers.maya.ph/reference/webhook-security)).
+   - **Reported.** Expect duplicate delivery and no ordering guarantee. Events listed are
+     `PAYMENT_SUCCESS`, `PAYMENT_FAILED`, `PAYMENT_EXPIRED`, `PAYMENT_CANCELLED` and `AUTHORIZED`,
+     with four delivery attempts at 0, 5, 15 and 45 minutes
+     ([Receive real-time payment information using webhooks](https://developers.maya.ph/reference/receive-real-time-payment-information-using-webhooks)).
+4. **Production host (corrects open question 2 and the note in "Create and retrieve").**
+   [New production URL and migration guide for online payments](https://developers.maya.ph/changelog/new-production-url-and-migration-guide-for-online-payments)
+   - **Reported.** `https://pg.maya.ph` is the current production API host and
+     `https://pg.paymaya.com` is the old one; hosted pages moved to `payments.maya.ph`.
+   - **Reported.** The Create Single Payment reference still lists the old host, so the reference
+     pages are not a reliable source for the host.
+5. **Wallets (corrects the "Not tested" wallet bullet and open question 5).**
+   - **Reported.** [Maya Checkout](https://developers.maya.ph/docs/maya-checkout) says wallets and
+     QR Ph on Maya Checkout are enabled by Maya on request (through the relationship manager or
+     business.support@maya.ph). **Inferred:** the first sandbox merchant simply lacked the
+     enablement, so "cards only" was a merchant configuration, not a mystery.
+   - **Reported.** Pay with Maya (wallet link) is a different product: `POST /payby/v2/paymaya/payments`
+     with the public key; body `totalAmount{value,currency}`, `redirectUrl{success,failure,cancel}`,
+     `requestReferenceNumber` (1–36 characters), optional `userId` and `metadata`, and an optional
+     `X-Idempotency-Key` header; response `paymentId` and `redirectUrl`. Status is read with
+     `GET /payments/v1/payments/{id}/status` (public key) or `/payments/v1/payments/{id}` (secret
+     key); a payment is cancelled before authorisation with `POST /payments/v1/payments/{id}/cancel`
+     ([Create single payment](https://developers.maya.ph/reference/createv2singlepayment),
+     [One-time wallet payments](https://developers.maya.ph/docs/one-time-wallet-payments)).
+   - **Observed.** The Pay with Maya sandbox keys return `401` `K007` "Invalid key scope" on the
+     Checkout create endpoint, so the two products need separate key sets.
+
 ## Purpose
 
 Learn the real behaviour of the Maya Checkout API, including the failure paths, so the Phase 17
@@ -36,7 +103,7 @@ Labels: **observed** = seen in this spike; **reported** = Maya documentation, no
 
 - **Observed.** `POST /checkout/v1/checkouts` with the public key returns `{ checkoutId, redirectUrl }`.
   The hosted page host was `payments-web-sandbox.maya.ph`; Maya's Create Checkout page documents a
-  `paymaya.com` host. Always redirect to the returned `redirectUrl`; never construct it.
+  `paymaya.com` host (the old host; see Corrections, item 4). Always redirect to the returned `redirectUrl`; never construct it.
 - **Observed.** Retrieval needs the **secret** key. The public key is rejected (`401`, `K004`), and
   the secret key is likewise rejected on create. The secret key must live only in server-side secrets.
 - **Observed.** Three working reads: `GET /checkout/v1/checkouts/{id}`, `GET /payments/v1/payments/{id}`,
@@ -134,10 +201,13 @@ Consequences that matter for Orion:
 - **Observed.** A void on a paid card payment succeeds (`200`) and the payment then reads `VOIDED`,
   `isPaid: false`. A second void is rejected: `400`, `PY0045`, so repeated voids are safe.
 - **Observed.** About 20 hours after payment, both a full refund (100 PHP) and a partial refund
-  (40 PHP) were still rejected with `PY0072`, and `canRefund` stayed false. The real cut-off is
-  therefore longer than 20 hours, or the sandbox does not simulate it.
-- *Inferred:* before the cut-off a cancellation is a void, and after it a refund. The cut-off time
-  and a successful refund remain unexercised and need Maya confirmation.
+  (40 PHP) were still rejected with `PY0072`, and `canRefund` stayed false. ~~The real cut-off is
+  therefore longer than 20 hours, or the sandbox does not simulate it.~~ **Corrected 1 November
+  2026:** the payments were made just after midnight GMT+8, so ~20 hours later was still the same
+  Philippine day; refunds open the next Philippine day (see Corrections, item 1).
+- *Inferred:* before the cut-off a cancellation is a void, and after it a refund. ~~The cut-off time
+  and a successful refund remain unexercised and need Maya confirmation.~~ **Corrected:** the cut-off
+  is documented as midnight Philippine time (**reported**); a successful refund remains unexercised.
 
 ### Data to store
 
@@ -152,15 +222,19 @@ Consequences that matter for Orion:
 ## Not tested or not available
 
 - **Maya wallet and QR payments.** The sandbox merchant's hosted page offered cards only; no wallet
-  option was shown, and the checkout record listed only Mastercard, Visa, and JCB. Whether wallets
-  need a different merchant, enablement, or a phone is unknown.
+  option was shown, and the checkout record listed only Mastercard, Visa, and JCB. **Corrected 1
+  November 2026:** Maya documents that wallets and QR Ph on Maya Checkout are enabled by Maya on
+  request, so this merchant most likely lacked the enablement (**reported**, see Corrections, item
+  5). Pay with Maya (wallet link) is a separate product and key set; a wallet test is pending.
 - **Webhooks.** Sandbox cannot reach localhost and the shared merchant is not safe to register
   webhooks on, so delivery, payload shape, event identifiers, and retries remain **reported** only.
   A merchant of our own with a public HTTPS test endpoint is required.
 - **A successful refund.** Not reached; see the void and refund section. Over-refund and repeated
   partial refunds are untested for the same reason. Capture was not tested.
-- **Webhook authenticity.** Maya documents no payload signature. Source IP allow-listing is
-  documented but may not be readable inside a Supabase Edge Function.
+- **Webhook authenticity.** ~~Maya documents no payload signature.~~ **Corrected 1 November 2026:**
+  Maya documents RSA-SHA256 signatures and a timestamp header (**reported**, see Corrections, item
+  2); verification is untested, and coverage of Pay with Maya wallet webhooks is unknown. Source IP
+  allow-listing is documented but may not be readable inside a Supabase Edge Function.
 
 ## Design consequences for the Phase 17 plan
 
@@ -181,12 +255,19 @@ These are inputs for planning, not decisions.
 
 ## Open questions for Maya
 
-1. Is a webhook signature or shared secret available?
-2. Which production host is correct for Create Checkout: `pg.maya.ph` or `pg.paymaya.com`?
-3. Do webhooks carry a unique event ID, or must idempotency use payment ID plus status?
-4. What is the refund cut-off time (still blocked after 20 hours in the sandbox), and the exact
-   refund window and fees?
-5. Why does the sandbox merchant hide wallet payment, and how is wallet testing enabled?
+Status after the 1 November 2026 corrections:
+
+1. ~~Is a webhook signature or shared secret available?~~ **Answered (reported):** RSA-SHA256
+   signature and timestamp headers. Still open: whether it covers Pay with Maya wallet webhooks.
+2. ~~Which production host is correct for Create Checkout?~~ **Answered (reported):**
+   `https://pg.maya.ph`; `pg.paymaya.com` is the old host.
+3. ~~Do webhooks carry a unique event ID?~~ **Answered (reported):** none documented; use payment
+   `id` plus `status`.
+4. ~~What is the refund cut-off time?~~ **Answered (reported):** void until 11:59 pm GMT+8 the same
+   day, refund from 12:00 am GMT+8 the next day for 180 days. Still open: **fees** (policy and
+   Maya), and an observed successful refund.
+5. ~~Why does the sandbox merchant hide wallet payment?~~ **Answered (reported):** wallets and QR Ph
+   are enabled by Maya on request. Still open: how to request it for our own merchant.
 
 ## Data handling
 
