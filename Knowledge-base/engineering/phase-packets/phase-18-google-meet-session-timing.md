@@ -2,16 +2,17 @@
 
 **Packet purpose:** As-built record and handoff for the completed Phase 18 Google Meet
 implementation.
-**Last updated:** 2026-09-20
+**Last updated:** 2026-11-01
 **Status:** Complete — implementation verified; activation separately gated.
-**Next action:** Treat the Google Meet implementation as the Phase 18 baseline. Future work belongs
-to Phase 19/20 operations and release gates, or to a new Phase 18 change decision.
+**Next action:** Use the Layer 1 control-plane evidence as input to a bounded two-to-five-call
+browser/media smoke test; real-user activation remains separately gated.
 
 ## Authority map
 
 - **Phase plan:** [Google Meet and session timing](../phases/phase-18-google-meet-and-session-timing.md)
 - **As-built audit:** [Phase 18 Google Meet audit](../../audit-trail/2026-09-20-phase-18-google-meet-test-path-audit.md)
 - **Historical feasibility:** [Free-Gmail Google Meet POC](../../audit-trail/2026-09-16-phase-18-google-meet-free-gmail-poc.md)
+- **Shared-account Layer 1 audit:** [Burst and staggered capacity evidence](../../audit-trail/20261101-phase-18-google-meet-layer1-shared-account-audit.md)
 - **Provider decision:** [Video provider decision record](../../architecture/video-provider-decision-record.md)
 - **Canonical status:** [`phase-status.json`](../phase-status.json)
 
@@ -25,6 +26,9 @@ to Phase 19/20 operations and release gates, or to a new Phase 18 change decisio
 - **Provider:** Google Meet is the Phase 18 provider. JaaS and Jitsi are not active runtime paths.
 - **Test data:** The manual call used test accounts and synthetic booking data. No real clinical
   data was used.
+- **Layer 1 evidence:** One shared test authorization created 20 spaced synthetic appointment
+  spaces successfully; a 20-request burst created 10 and failed 10 at the apparent per-user
+  provider write boundary.
 - **Scope:** Phase 18 implementation is complete. Real-user activation remains separately gated by
   production provider, privacy, clinical, security, operations, and integrated-release controls.
 
@@ -82,6 +86,8 @@ to Phase 19/20 operations and release gates, or to a new Phase 18 change decisio
 - `npm run build` — passed; initial JavaScript remained within the 180 kB gzip budget.
 - `git diff --check` — passed.
 - The deployed production bundle contains the expired-window state and psychiatrist sign-in guide.
+- The [Layer 1 shared-account audit](../../audit-trail/20261101-phase-18-google-meet-layer1-shared-account-audit.md)
+  records 20/20 spaced control-plane passes and the 10/20 concurrent burst boundary.
 
 ## Explicit boundaries
 
@@ -91,9 +97,14 @@ operations ownership, and Phase 20 integrated release approval remain outside th
 implementation. Payment-authorized booking is owned by Phase 17 and is not a Phase 18 blocker or
 deliverable.
 
+The Layer 1 result does not establish simultaneous browser/media capacity or change the separate
+real-user activation gate.
+
 ## Handoff
 
 Phase 19 may consume the documented provider failure, access-denial, expiry, and kill-switch states.
-Phase 20 may consume the implementation and test evidence for integrated release verification.
+Phase 20 may consume the implementation and Layer 1 control-plane evidence for integrated release
+verification. The next recommended evidence step is a bounded two-to-five-call browser/media smoke
+test.
 Changes to this contract require a new decision, implementation evidence, and synchronized phase
 status documentation.
